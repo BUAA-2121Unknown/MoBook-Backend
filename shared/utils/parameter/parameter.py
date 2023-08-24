@@ -15,7 +15,7 @@ from shared.utils.json.serializer import deserialize
 from shared.utils.parameter.exceptions import ParameterException
 
 
-def _parse_post_param(request: WSGIRequest) -> dict:
+def _parse_post_param(request: WSGIRequest, raise_exception=False) -> dict:
     content_type: str = str(request.headers.get("Content-Type"))
     if content_type == "application/json":
         try:
@@ -26,14 +26,16 @@ def _parse_post_param(request: WSGIRequest) -> dict:
         return request.POST.dict()
     elif content_type.startswith("multipart/form-data"):
         return request.POST.dict()
-    raise ParameterException("Unexpected POST content type: " + content_type)
+    if raise_exception:
+        raise ParameterException("Unexpected POST content type: " + content_type)
+    return {}
 
 
-def _parse_get_param(request: WSGIRequest) -> dict:
+def _parse_get_param(request: WSGIRequest, raise_exception=False) -> dict:
     return request.GET.dict()
 
 
-def parse_param(request: WSGIRequest) -> dict:
+def parse_param(request: WSGIRequest, raise_exception=False) -> dict:
     """
     This will not handle multipart/form-data request!
     :return: all parameters in dictionary
@@ -42,4 +44,6 @@ def parse_param(request: WSGIRequest) -> dict:
         return _parse_post_param(request)
     elif request.method == "GET":
         return _parse_get_param(request)
-    raise ParameterException("Unsupported request method")
+    if raise_exception:
+        raise ParameterException("Unsupported request method")
+    return {}

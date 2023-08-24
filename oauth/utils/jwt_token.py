@@ -6,30 +6,32 @@
 #
 import base64
 import secrets
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-import jwt
-from rest_framework_jwt.serializers import jwt_payload_handler
+from django.utils import timezone
 
-from MoBook import settings
-from auth.models import RefreshToken
+from oauth.models import RefreshToken
+from shared.utils.jwt_token.code_generator import generate_code
+from shared.utils.jwt_token.jwt_token import generate_token
 
 
-def generate_jwt_token(info):
+def generate_jwt_token(data):
     try:
-        payload = jwt_payload_handler(info)
-        token = jwt.encode(payload, settings.SECRET_KEY)
+        return generate_token(data)
     except Exception as e:
+        print(e)
         raise e
 
 
 # refresh token will expire after 14 days
 def generate_refresh_token(uid):
-    random_bytes = secrets.token_bytes(32)
-    token = base64.decodebytes(random_bytes)
-    created = datetime.now()
-    expires = created + timedelta(days=14)
-    refresh_token = RefreshToken.create(uid, token, created, expires)
-    refresh_token.save()
-
-    return refresh_token
+    try:
+        token = generate_code(32)
+        created = timezone.now()
+        expires = created + timedelta(days=14)
+        refresh_token = RefreshToken.create(uid, token, created, expires)
+        refresh_token.save()
+        return refresh_token
+    except Exception as e:
+        print(e)
+        raise e
