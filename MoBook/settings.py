@@ -9,9 +9,9 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import datetime
 import os
 from pathlib import Path
-
 import yaml
 
 ROOT_URL = 'http://127.0.0.1:8000'
@@ -79,7 +79,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "Demo.wsgi.application"
+# WSGI_APPLICATION = "MoBook.wsgi.application"
 
 ################################################################################
 # Database
@@ -129,8 +129,8 @@ STATICFILES_DIRS = [
     "static"
 ]
 
-# MEDIA_URL = "/media/"
-# MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 ################################################################################
 # Default primary key field type
@@ -169,7 +169,24 @@ CORS_ALLOW_HEADERS = (
 )
 
 ################################################################################
-# CORS configurations
-#
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    ),
+}
+
+# JWT token will expire after 3000 seconds = 50 min
+# For debug, you can set it to 14 days = 1,209,600 seconds
+JWT_AUTH = {
+    'JWT_VERIFY': True,
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=1209600),
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+}
+
+################################################################################
+
 # with open("config.yaml", "r") as f:
 #     CONFIG = yaml.safe_load(f)
