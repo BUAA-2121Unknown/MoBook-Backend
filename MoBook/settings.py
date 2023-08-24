@@ -171,5 +171,5 @@ CORS_ALLOW_HEADERS = (
 ################################################################################
 # CORS configurations
 #
-with open("config.yaml", "r") as f:
-    CONFIG = yaml.safe_load(f)
+# with open("config.yaml", "r") as f:
+#     CONFIG = yaml.safe_load(f)
