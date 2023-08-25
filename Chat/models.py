@@ -4,6 +4,10 @@ from django.db import models
 class Chat(models.Model):
     org_id = models.IntegerField()
 
+    @classmethod
+    def create(cls, org_id):
+        return cls(org_id=org_id)
+
     class Meta:
         managed = True
         db_table = 'Chat'

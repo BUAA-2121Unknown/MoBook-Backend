@@ -18,6 +18,10 @@ class UserChatJump(models.Model):
     message_id = models.IntegerField()
     valid = models.IntegerField()
 
+    @classmethod
+    def create(cls, user_id, chat_id, message_id, valid):
+        return cls(user_id=user_id, chat_id=chat_id, message_id=message_id, valid=valid)
+
     class Meta:
         managed = True
         db_table = 'UserChatJump'
