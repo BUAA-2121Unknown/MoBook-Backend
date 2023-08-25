@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import datetime
 import os
 from pathlib import Path
+
 import yaml
 
 ROOT_URL = 'http://127.0.0.1:8000'
@@ -48,7 +49,8 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles"
+    "django.contrib.staticfiles",
+    "oauth.apps.OauthConfig",
 ]
 
 MIDDLEWARE = [
@@ -117,8 +119,11 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Shanghai"
 
 USE_I18N = True
+USE_L10N = True
 
-USE_TZ = True
+# USE_TZ = True
+
+os.environ["TZ"] = TIME_ZONE
 
 ################################################################################
 # Static & Media files (CSS, JavaScript, Images)
