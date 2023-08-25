@@ -23,3 +23,13 @@ def validate_password(password: str) -> bool:
     if re.match('^[a-zA-Z0-9_]{6,16}$', password):
         return True
     return False
+
+
+VALID_IMAGE_FILE_EXT = ['.jpg', '.jpeg', '.png']
+
+
+def validate_image_name(filename: str) -> bool:
+    for ext in VALID_IMAGE_FILE_EXT:
+        if filename.endswith(ext):
+            return True
+    return False

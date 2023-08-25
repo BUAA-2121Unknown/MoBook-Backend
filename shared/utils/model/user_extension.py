@@ -24,7 +24,10 @@ def _get_user_from_jwt(request: WSGIRequest):
     except TokenException as e:
         raise e
 
-    return first_or_default(User, id=data)
+    user: User = first_or_default(User, id=data)
+    if not user.activated:
+        return None
+    return user
 
 
 def get_user_from_request(request: WSGIRequest, raise_exception=False):

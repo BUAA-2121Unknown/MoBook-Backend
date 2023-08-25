@@ -6,7 +6,7 @@ class User(models.Model):
     password = models.CharField(max_length=63)
     name = models.CharField(max_length=63, default=None, null=True)
     email = models.CharField(max_length=63)
-    avatar_url = models.CharField(max_length=127, default=None, null=True)
+    avatar = models.CharField(max_length=63, default=None, null=True)
     activated = models.BooleanField(default=False)
 
     @classmethod

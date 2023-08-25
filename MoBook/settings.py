@@ -52,8 +52,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "channels",
     "oauth.apps.OauthConfig",
-    "channels"
     "user.apps.UserConfig",
 ]
 
@@ -166,11 +166,11 @@ CORS_ALLOWED_ORIGINS = SECRETS['CORS_ALLOWED_ORIGINS']
 ################################################################################
 
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-    ),
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+#     ),
+# }
 
 # JWT token will expire after 3000 seconds = 50 min
 # For debug, you can set it to 14 days = 1,209,600 seconds
