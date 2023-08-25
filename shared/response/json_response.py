@@ -14,12 +14,12 @@ from shared.utils.json.serializer import serialize
 class BaseResponse(HttpResponse):
     def __init__(self, dto, status=HTTPStatus.OK):
         super().__init__(
-            serialize(dto),
-            status=status,
-            content_type="application/json",
-            charset="utf-8",
+                serialize(dto),
+                status=status,
+                content_type="application/json",
+                charset="utf-8",
         )
-        
+
 
 class OkResponse(BaseResponse):
     def __init__(self, dto):
@@ -34,6 +34,11 @@ class BadRequestResponse(BaseResponse):
 class UnauthorizedResponse(BaseResponse):
     def __init__(self, dto):
         super().__init__(dto, HTTPStatus.UNAUTHORIZED)
+
+
+class ForbiddenResponse(BaseResponse):
+    def __init__(self, dto):
+        super().__init__(dto, HTTPStatus.FORBIDDEN)
 
 
 class InternalServerErrorResponse(BaseResponse):

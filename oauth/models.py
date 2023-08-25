@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.db import models
 from django.utils import timezone
 
@@ -25,3 +23,19 @@ class RefreshToken(models.Model):
 
     class Meta:
         verbose_name = "refresh_token"
+
+
+class EmailRecord(models.Model):
+    email = models.EmailField()
+    code = models.CharField(max_length=31)
+    expire = models.DateTimeField()
+    usage = models.CharField(max_length=31)
+    valid = models.BooleanField(default=True)
+
+    @classmethod
+    def create(cls, _email, _code, _expire, _usage):
+        return cls(email=_email, code=_code, expire=_expire, usage=_usage)
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = "email_record"

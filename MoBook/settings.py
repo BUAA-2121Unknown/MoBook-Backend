@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "oauth.apps.OauthConfig",
+    "user.apps.UserConfig",
 ]
 
 MIDDLEWARE = [
@@ -191,7 +192,37 @@ JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
 }
 
-################################################################################
+###############################################################################
 
-# with open("config.yaml", "r") as f:
-#     CONFIG = yaml.safe_load(f)
+with open("config.yaml", "r") as f:
+    CONFIG = yaml.safe_load(f)
+
+
+################################################################################
+# Email configuration
+#
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_CONFIG = SECRETS['email']
+EMAIL_HOST = EMAIL_CONFIG['EMAIL_HOST']
+EMAIL_PORT = EMAIL_CONFIG['EMAIL_PORT']
+EMAIL_HOST_USER = EMAIL_CONFIG['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = EMAIL_CONFIG['EMAIL_HOST_PASSWORD']
+EMAIL_USE_TLS = EMAIL_CONFIG['EMAIL_USE_TLS']
+EMAIL_FROM = EMAIL_CONFIG['EMAIL_FROM']
+
+# EMAIL_CONFIG = SECRETS['mailtrap']
+# EMAIL_HOST = EMAIL_CONFIG['EMAIL_HOST']
+# EMAIL_HOST_USER = EMAIL_CONFIG['EMAIL_HOST_USER']
+# EMAIL_HOST_PASSWORD = EMAIL_CONFIG['EMAIL_HOST_PASSWORD']
+# EMAIL_PORT = EMAIL_CONFIG['EMAIL_PORT']
+
+################################################################################
+# Celery settings
+#
+
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_TIMEZONE = 'Asia/Shanghai'
+CELERY_ENABLE_UTC = False
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

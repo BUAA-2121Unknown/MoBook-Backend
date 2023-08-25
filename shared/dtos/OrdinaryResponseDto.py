@@ -17,18 +17,23 @@ class OkDto(BaseResponseDto):
 
 
 class ErrorDto(BaseResponseDto):
-    def __int__(self, msg="Not available", **kwargs):
-        super().__init__(-1, msg, **kwargs)
+    def __init__(self, code=-1, msg="Not available", **kwargs):
+        super().__init__(code, msg, **kwargs)
 
 
 class BadRequestDto(BaseResponseDto):
-    def __int__(self, msg="Bad request", **kwargs):
+    def __init__(self, msg="Bad request", **kwargs):
         super().__init__(400, msg, **kwargs)
 
 
 class UnauthorizedDto(BaseResponseDto):
-    def __int__(self, msg="Unauthorized", **kwargs):
+    def __init__(self, msg="Unauthorized", **kwargs):
         super().__init__(401, msg, **kwargs)
+
+
+class ForbiddenDto(BaseResponseDto):
+    def __init__(self, msg="Forbidden", **kwargs):
+        super().__init__(403, msg, **kwargs)
 
 
 class InternalServerErrorDto(BaseResponseDto):

@@ -4,12 +4,19 @@ from django.db import models
 class User(models.Model):
     username = models.CharField(max_length=63)
     password = models.CharField(max_length=63)
-    name = models.CharField(max_length=63)
+    name = models.CharField(max_length=63, default=None, null=True)
     email = models.CharField(max_length=63)
+    avatar_url = models.CharField(max_length=127, default=None, null=True)
+    activated = models.BooleanField(default=False)
+
+    @classmethod
+    def create(cls, username, password, email):
+        return cls(username=username, password=password, email=email)
 
     class Meta:
         managed = True
         db_table = 'User'
+        verbose_name = 'user'
 
 
 class UserChatJump(models.Model):

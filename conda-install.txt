@@ -1,0 +1,7 @@
+#!/bin/bash
+
+install django==3.2.5
+install mysqlclient
+install djangorestframework-jwt
+install djangorestframework
+install redis
