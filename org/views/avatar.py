@@ -8,6 +8,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
+from org.dtos.error_dtos import NoSuchOrgDto
 from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, OkDto, InternalServerErrorDto, BadRequestDto, NotFoundDto
 from shared.response.json_response import UnauthorizedResponse, OkResponse, InternalServerErrorResponse, \
     BadRequestResponse, NotFoundResponse
@@ -33,10 +34,10 @@ def upload_org_avatar(request):
     oid = parse_value(params.get('id'), int)
     org, uop = get_org_with_user(oid, user)
     if org is None:
-        return NotFoundResponse(NotFoundDto("No such organization"))
+        return NotFoundResponse(NoSuchOrgDto())
     uop: UserOrganizationProfile
-    if uop.auth not in [UserAuth.CREATOR, UserAuth.ADMIN]:
-        return UnauthorizedResponse(UnauthorizedDto())
+    if uop.auth not in UserAuth.authorized():
+        return UnauthorizedResponse(UnauthorizedDto("Contact admin"))
 
     file = request.FILES.get('file')
     if file is None:

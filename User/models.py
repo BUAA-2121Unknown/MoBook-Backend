@@ -1,5 +1,7 @@
 from django.db import models
 
+from org.models import Organization
+
 
 class User(models.Model):
     username = models.CharField(max_length=63)
@@ -52,6 +54,10 @@ class UserAuth:
     ADMIN = 1
     NORMAL = 2
 
+    @classmethod
+    def authorized(cls):
+        return [UserAuth.CREATOR, UserAuth.ADMIN]
+
 
 class UserOrganizationProfile(models.Model):
     # 0 creator, 1 admin, 2 normal
@@ -59,6 +65,12 @@ class UserOrganizationProfile(models.Model):
     user_id = models.IntegerField(primary_key=True)
     org_id = models.IntegerField()
     nickname = models.CharField(max_length=63)
+
+    @classmethod
+    def create(cls, auth, user: User, org: Organization, nickname=None):
+        if nickname is None:
+            nickname = user.username
+        return cls(auth, user_id=user.id, org_id=org.id, nickname=nickname)
 
     class Meta:
         managed = True

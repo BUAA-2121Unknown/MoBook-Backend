@@ -18,6 +18,7 @@ def validate_name(name: str) -> bool:
         return True
     return False
 
+
 def validate_email(email: str) -> bool:
     if re.match('^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$', email):
         return True
@@ -38,3 +39,11 @@ def validate_image_name(filename: str) -> bool:
         if filename.endswith(ext):
             return True
     return False
+
+
+def validate_org_name(name: str) -> bool:
+    return True
+
+
+def validate_org_descr(descr: str) -> bool:
+    return True
