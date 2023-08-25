@@ -5,6 +5,7 @@ class Organization(models.Model):
     chat_id = models.IntegerField()
     description = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=63)
+    avatar = models.CharField(max_length=63)
 
     @classmethod
     def create(cls, chat_id, description, name):
@@ -13,5 +14,3 @@ class Organization(models.Model):
     class Meta:
         managed = True
         db_table = 'Organization'
-
-

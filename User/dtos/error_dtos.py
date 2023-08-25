@@ -4,7 +4,7 @@
 # @Author  : Tony Skywalker
 # @File    : error_dtos.py
 #
-from shared.dtos.OrdinaryResponseDto import ErrorDto
+from shared.dtos.OrdinaryResponseDto import ErrorDto, NotFoundDto
 
 
 class UserAlreadyRegisteredDto(ErrorDto):
@@ -17,6 +17,6 @@ class UsernameOccupiedDto(ErrorDto):
         super().__init__(100022, "Username occupied")
 
 
-class UserNotExistsDto(ErrorDto):
+class NoSuchUserDto(NotFoundDto):
     def __init__(self):
-        super().__init__(100023, "User not exists")
+        super().__init__("No such user")

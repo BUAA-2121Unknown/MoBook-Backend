@@ -47,8 +47,15 @@ class UserChatRelation(models.Model):
         unique_together = (('user_id', 'chat_id'),)
 
 
+class UserAuth:
+    CREATOR = 0
+    ADMIN = 1
+    NORMAL = 2
+
+
 class UserOrganizationProfile(models.Model):
-    auth = models.IntegerField(blank=True, null=True)
+    # 0 creator, 1 admin, 2 normal
+    auth = models.IntegerField()
     user_id = models.IntegerField(primary_key=True)
     org_id = models.IntegerField()
     nickname = models.CharField(max_length=63)

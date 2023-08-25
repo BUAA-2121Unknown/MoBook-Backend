@@ -17,6 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from org.views.avatar import upload_org_avatar
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('avatar/upload', upload_org_avatar),
+    
 ]

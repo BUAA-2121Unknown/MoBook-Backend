@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "channels",
     "oauth.apps.OauthConfig",
     "user.apps.UserConfig",
+    "org.apps.OrgConfig"
 ]
 
 MIDDLEWARE = [
