@@ -7,7 +7,6 @@ from rest_framework.decorators import api_view
 
 from oauth.dtos.get_token_dto import GetTokenSuccessDto, GetTokenDto
 from oauth.models import RefreshToken
-from oauth.utils.jwt_token import generate_jwt_token, generate_refresh_token
 from shared.dtos.OrdinaryResponseDto import BadRequestDto, UnauthorizedDto, InternalServerErrorDto, OkDto
 from shared.response.json_response import BadRequestResponse, UnauthorizedResponse, InternalServerErrorResponse, \
     OkResponse
@@ -15,6 +14,8 @@ from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.parameter.parameter import parse_param
+from shared.utils.token.jwt_token import generate_jwt_token
+from shared.utils.token.refresh_token import generate_refresh_token
 
 
 def _verify_user(uid, password):
@@ -33,8 +34,9 @@ def get_jwt_token(request):
         return UnauthorizedResponse(UnauthorizedDto("Username or password error"))
 
     try:
-        token = generate_jwt_token({'username': dto.id})
+        token = generate_jwt_token(dto.id)
         refresh_token = generate_refresh_token(dto.id)
+        refresh_token.save()
     except Exception as e:
         return InternalServerErrorResponse(InternalServerErrorDto("Failed to generate JWT token", data=e))
 
@@ -68,6 +70,7 @@ def refresh_jwt_token(request):
     try:
         token = generate_jwt_token(uid)
         new_refresh_token = generate_refresh_token(uid)
+        new_refresh_token.save()
     except Exception as e:
         return InternalServerErrorResponse(InternalServerErrorDto("Failed to refresh token", data=e))
 
