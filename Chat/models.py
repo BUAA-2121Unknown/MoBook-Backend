@@ -3,6 +3,8 @@ from django.db import models
 
 class Chat(models.Model):
     org_id = models.IntegerField()
+    chat_name = models.CharField(max_length=63)
+    type = models.IntegerField()
 
     @classmethod
     def create(cls, org_id):

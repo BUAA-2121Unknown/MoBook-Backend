@@ -9,6 +9,13 @@
           </mappings>
         </serverdata>
       </paths>
+      <paths name="ubuntu@82.156.25.78:22 password (1)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/ubuntu/MoBook-backend" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
     </serverData>
   </component>
 </project>

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "oauth.apps.OauthConfig",
+    "channels"
 ]
 
 MIDDLEWARE = [
@@ -82,6 +83,15 @@ TEMPLATES = [
 ]
 
 # WSGI_APPLICATION = "MoBook.wsgi.application"
+ASGI_APPLICATION = 'MoBook.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 ################################################################################
 # Database
@@ -195,3 +205,6 @@ JWT_AUTH = {
 
 # with open("config.yaml", "r") as f:
 #     CONFIG = yaml.safe_load(f)
+
+################################################################################
+
