@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "use 'celery info' to show info message"
+
+if [ "$1" == "beat" ]; then
+  if [ "$2" == "info" ]; then
+    python -m celery -A MoBook beat -l info
+  else
+    python -m celery -A MoBook beat
+  fi
+elif [ "$1" == "info" ]; then
+  python -m celery -A MoBook worker -l info
+else
+  python -m celery -A MoBook worker
+fi

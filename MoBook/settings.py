@@ -50,8 +50,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
+    "rest_framework",
     "oauth.apps.OauthConfig",
     "channels"
+    "user.apps.UserConfig",
 ]
 
 MIDDLEWARE = [
@@ -62,6 +65,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "MoBook.urls"
@@ -131,7 +135,7 @@ TIME_ZONE = "Asia/Shanghai"
 USE_I18N = True
 USE_L10N = True
 
-# USE_TZ = True
+USE_TZ = True
 
 os.environ["TZ"] = TIME_ZONE
 
@@ -156,32 +160,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ################################################################################
 # CORS configurations
 #
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOWED_ORIGINS = SECRETS["CORS_ALLOWED_ORIGINS"]
-CORS_ALLOW_METHODS = (
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-    'VIEW',
-)
-CORS_ALLOW_HEADERS = (
-    'XMLHttpRequest',
-    'X_FILENAME',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
-    'Pragma',
-)
+CORS_ALLOWED_ORIGINS = SECRETS['CORS_ALLOWED_ORIGINS']
 
 ################################################################################
 
@@ -201,10 +181,38 @@ JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
 }
 
+###############################################################################
+
+
+with open("config.yaml", "r") as f:
+    CONFIG = yaml.safe_load(f)
+
+
 ################################################################################
+# Email configuration
+#
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-# with open("config.yaml", "r") as f:
-#     CONFIG = yaml.safe_load(f)
+EMAIL_CONFIG = SECRETS['email']
+EMAIL_HOST = EMAIL_CONFIG['EMAIL_HOST']
+EMAIL_PORT = EMAIL_CONFIG['EMAIL_PORT']
+EMAIL_HOST_USER = EMAIL_CONFIG['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = EMAIL_CONFIG['EMAIL_HOST_PASSWORD']
+EMAIL_USE_TLS = EMAIL_CONFIG['EMAIL_USE_TLS']
+EMAIL_FROM = EMAIL_CONFIG['EMAIL_FROM']
+
+# EMAIL_CONFIG = SECRETS['mailtrap']
+# EMAIL_HOST = EMAIL_CONFIG['EMAIL_HOST']
+# EMAIL_HOST_USER = EMAIL_CONFIG['EMAIL_HOST_USER']
+# EMAIL_HOST_PASSWORD = EMAIL_CONFIG['EMAIL_HOST_PASSWORD']
+# EMAIL_PORT = EMAIL_CONFIG['EMAIL_PORT']
 
 ################################################################################
+# Celery settings
+#
 
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_TIMEZONE = 'Asia/Shanghai'
+CELERY_ENABLE_UTC = False
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
