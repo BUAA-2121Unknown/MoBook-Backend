@@ -63,7 +63,9 @@ def register(request):
         return OkResponse(ErrorDto(100004, "User already registered"))
 
     password = generate_password(dto.password)
-    User.create(dto.username, password, dto.email).save()
+    # User.create(dto.username, password, dto.email).save()
+    # For now, user is activated by default
+    User.create(dto.username, password, dto.email, True).save()
 
     return OkResponse(OkDto("Welcome to MoBook, activate later~"))
 

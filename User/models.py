@@ -10,8 +10,8 @@ class User(models.Model):
     activated = models.BooleanField(default=False)
 
     @classmethod
-    def create(cls, username, password, email):
-        return cls(username=username, password=password, email=email)
+    def create(cls, username, password, email, activated=False):
+        return cls(username=username, password=password, email=email, activated=False)
 
     class Meta:
         managed = True

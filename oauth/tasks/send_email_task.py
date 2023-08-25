@@ -12,7 +12,7 @@ from shared.utils.email.email import generate_activation_code, send_activation_e
 from shared.utils.email.exception import EmailException
 
 
-@shared_task()
+@shared_task
 def send_activation_email_task(email, link):
     code = generate_activation_code()
     link += "?code=" + code
