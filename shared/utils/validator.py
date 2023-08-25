@@ -13,6 +13,11 @@ def validate_username(username: str) -> bool:
     return False
 
 
+def validate_name(name: str) -> bool:
+    if re.match('^([\u4e00-\u9fa5]{2,8}|[a-zA-Z.\\s]{2,20})$', name):
+        return True
+    return False
+
 def validate_email(email: str) -> bool:
     if re.match('^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$', email):
         return True

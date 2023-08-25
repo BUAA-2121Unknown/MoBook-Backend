@@ -7,7 +7,6 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from user.models import User
 from oauth.dtos.activate_dto import ActivateDto
 from oauth.dtos.register_dto import RegisterDto
 from oauth.dtos.send_activation_dto import SendActivationDto
@@ -20,6 +19,8 @@ from shared.utils.model.model_extension import first_or_default
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.token.password import generate_password
 from shared.utils.validator import validate_email, validate_username, validate_password
+from user.dtos.error_dtos import UserAlreadyRegisteredDto
+from user.models import User
 
 
 @api_view(['POST'])
@@ -60,7 +61,7 @@ def register(request):
 
     user = first_or_default(User, username=dto.username)
     if user is not None:
-        return OkResponse(ErrorDto(100004, "User already registered"))
+        return OkResponse(UserAlreadyRegisteredDto())
 
     password = generate_password(dto.password)
     # User.create(dto.username, password, dto.email).save()
