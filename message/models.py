@@ -4,7 +4,7 @@ from django.db import models
 class Message(models.Model):
     image_path = models.CharField(max_length=255, blank=True, null=True)
     file_path = models.IntegerField(blank=True, null=True)
-    type = models.IntegerField()
+    type = models.IntegerField()  # 0 : ordinary, 1 : image, 2 : file
     src_id = models.IntegerField()
     dst_id = models.IntegerField()
     chat_id = models.IntegerField(blank=True, null=True)

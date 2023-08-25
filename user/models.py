@@ -15,7 +15,7 @@ class User(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'User'
+        db_table = 'user'
         verbose_name = 'user'
 
 
