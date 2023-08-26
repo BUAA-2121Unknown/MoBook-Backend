@@ -10,8 +10,9 @@ from user.models import UserOrganizationProfile, User
 
 class MemberDto:
     def __init__(self, uop: UserOrganizationProfile):
-        self.orgId = uop.id
+        self.orgId = uop.org_id
         self.nickname = uop.nickname
+        self.auth = uop.auth
 
 
 # UserOrganizationProfileDto

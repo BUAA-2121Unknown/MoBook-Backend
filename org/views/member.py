@@ -63,6 +63,7 @@ def update_org_member_profile(request):
         return UnauthorizedResponse(UnauthorizedDto("Not your organization"))
 
     if dto.userId == user.id:
+        target = user
         target_uop = uop
     else:
         # modify other user
@@ -84,9 +85,15 @@ def update_org_member_profile(request):
             return UnauthorizedResponse(UnauthorizedDto("Be the creator to edit admin"))
 
     target_uop.nickname = dto.profile.nickname
-    target_uop.auth = dto.auth
+    # fix: creator cannot be changed
+    if target_uop.auth != UserAuth.CREATOR:
+        target_uop.auth = dto.auth
+    elif dto.auth != UserAuth.CREATOR:
+        return BadRequestResponse(BadRequestDto("Cannot change creator"))
 
-    return OkResponse(OkDto())
+    target_uop.save()
+
+    return OkResponse(OkDto(data=UopDto(target, target_uop)))
 
 
 @api_view(['GET'])
@@ -102,6 +109,9 @@ def get_org_members_profile(request):
 
     params = parse_param(request)
     org_id = parse_value(params.get('orgId'), int)
+    if org_id is None:
+        return BadRequestResponse(BadRequestDto("Missing orgId"))
+
     org, uop = get_org_with_user(org_id, user)
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
