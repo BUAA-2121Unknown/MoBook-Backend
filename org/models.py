@@ -70,11 +70,11 @@ class PendingStatus:
 
     @classmethod
     def all(cls):
-        return [PendingStatus.PENDING,
-                PendingStatus.REVOKED,
-                PendingStatus.ACCEPTED,
-                PendingStatus.REJECTED,
-                PendingStatus.DELETED]
+        return [cls.PENDING,
+                cls.REVOKED,
+                cls.ACCEPTED,
+                cls.REJECTED,
+                cls.DELETED]
 
 
 class PendingRecord(models.Model):

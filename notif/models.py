@@ -59,7 +59,7 @@ class NotifStatus:
 
     @classmethod
     def all(cls):
-        return [NotifStatus.UNREAD, NotifStatus.READ, NotifStatus.DELETED]
+        return [cls.UNREAD, cls.READ, cls.DELETED]
 
 
 class Notification(models.Model):

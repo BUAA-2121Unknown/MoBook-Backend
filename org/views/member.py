@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view
 
 from org.dtos.models.user_org_profile_dto import UopDto
 from org.dtos.requests.error_dtos import NoSuchOrgDto
-from org.dtos.requests.kick_member_dto import KickMemberDto, KickMemberSuccessData, KickMemberErrorData
+from org.dtos.requests.kick_member_dto import KickMemberDto, KickMemberErrorData
 from org.dtos.requests.update_member_profile_dto import UpdateMemberProfileDto
 from org.models import Organization
 from org.utils.member import kick_member_from_org
@@ -113,22 +113,23 @@ def get_org_members_profile(request):
     if org_id is None:
         return BadRequestResponse(BadRequestDto("Missing orgId"))
 
-    org, uop = get_org_with_user(org_id, user)
+    org, _ = get_org_with_user(org_id, user)
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
 
-    data = {
-        "orgId": org_id,
-        "members": []
-    }
     uops = UserOrganizationProfile.objects.filter(org_id=org_id)
+    member_list = []
     for uop in uops:
+        uop: UserOrganizationProfile
         user = get_user_by_id(uop.user_id)
         if user is None:
             continue
-        data["members"].append(UopDto(user, uop))
+        member_list.append(UopDto(user, uop))
 
-    return OkResponse(OkDto(data=data))
+    return OkResponse(OkDto({
+        "members": member_list,
+        "count": len(member_list)
+    }))
 
 
 @api_view(['POST'])
