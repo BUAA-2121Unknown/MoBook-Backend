@@ -6,15 +6,16 @@
 #
 import os
 
-BASE_URL = "http://81.70.161.76:5000/"
+from MoBook.settings import BASE_URL
+
 AVATAR_BASE_PATH = {
     "user": "./media/avatar/user",
     "org": "./media/avatar/org"
 }
 
 AVATAR_BASE_URL = {
-    "user": f"{BASE_URL}media/avatar/user/",
-    "org": f"{BASE_URL}media/avatar/org/"
+    "user": f"{BASE_URL}/media/avatar/user/",
+    "org": f"{BASE_URL}/media/avatar/org/"
 }
 
 
