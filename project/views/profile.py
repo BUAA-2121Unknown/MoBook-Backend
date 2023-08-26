@@ -52,33 +52,3 @@ def update_project_profile(request):
         "name": proj.name,
         "description": proj.description
     }))
-
-
-@api_view(['GET'])
-@csrf_exempt
-def get_projects_of_org(request):
-    """
-    Get all projects of an organization.
-    """
-    user = get_user_from_request(request)
-    if user is None:
-        return UnauthorizedResponse(UnauthorizedDto())
-
-    params = parse_param(request)
-    org_id = parse_value(params.get('orgId'), int)
-    if org_id is None:
-        return BadRequestResponse(BadRequestDto("Missing orgId"))
-    org, uop = get_org_with_user(org_id, user)
-    if org is None:
-        return NotFoundResponse(NoSuchOrgDto())
-    org: Organization
-    projects = Project.objects.filter(org_id=org.id)
-
-    proj_list = []
-    for project in projects:
-        proj_list.append(ProjectDto(project))
-
-    return OkResponse(OkDto({
-        "projects": proj_list,
-        "count": projects.count()
-    }))
