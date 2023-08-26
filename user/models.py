@@ -62,6 +62,17 @@ class UserAuth:
     def all(cls):
         return [UserAuth.CREATOR, UserAuth.ADMIN, UserAuth.NORMAL]
 
+    @classmethod
+    def to_string(cls, auth: int):
+        if auth == UserAuth.CREATOR:
+            return "Creator"
+        elif auth == UserAuth.ADMIN:
+            return "Administrator"
+        elif auth == UserAuth.NORMAL:
+            return "Member"
+        else:
+            return "Unknown"
+
 
 class UserOrganizationProfile(models.Model):
     # 0 creator, 1 admin, 2 normal
