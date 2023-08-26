@@ -11,7 +11,7 @@ from oauth.dtos.activate_dto import ActivateDto
 from oauth.dtos.register_dto import RegisterDto
 from oauth.dtos.send_activation_dto import SendActivationDto
 from oauth.tasks.send_email_task import send_activation_email_task
-from shared.dtos.OrdinaryResponseDto import BadRequestDto, ForbiddenDto, OkDto, ErrorDto
+from shared.dtos.ordinary_response_dto import BadRequestDto, ForbiddenDto, OkDto, ErrorDto
 from shared.response.json_response import BadRequestResponse, ForbiddenResponse, OkResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize

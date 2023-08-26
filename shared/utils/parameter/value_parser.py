@@ -30,7 +30,7 @@ def _parse_value(val, _type, default, raise_on_error, strict):
                 return val
             else:
                 return _default_or_exception(
-                    default, raise_on_error, "Bad datetime.datetime format"
+                        default, raise_on_error, "Bad datetime.datetime format"
                 )
         elif _type == datetime.date:
             if isinstance(val, str):
@@ -40,17 +40,17 @@ def _parse_value(val, _type, default, raise_on_error, strict):
                 return val
             else:
                 return _default_or_exception(
-                    default, raise_on_error, "Bad datetime.date format"
+                        default, raise_on_error, "Bad datetime.date format"
                 )
         else:
             if strict and not isinstance(val, _type):
                 return _default_or_exception(
-                    default, raise_on_error, f"Not strict match: {val} - [{_type}]"
+                        default, raise_on_error, f"Not strict match: {val} - [{_type}]"
                 )
             return _type(val)
     except ValueError:
         return _default_or_exception(
-            default, raise_on_error, f"Bad value type: {val} - [{_type}]"
+                default, raise_on_error, f"Bad value type: {val} - [{_type}]"
         )
 
 
@@ -60,3 +60,19 @@ def parse_value(val, _type, default=None, raise_on_error=False):
 
 def parse_value_strict(val, _type, default=None, raise_on_error=False):
     return _parse_value(val, _type, default, raise_on_error, True)
+
+
+def parse_value_with_check(val, _type, default=None, raise_on_error=False, predicate=None):
+    try:
+        value = parse_value(val, type, default, raise_on_error)
+    except ParameterException as e:
+        if raise_on_error:
+            raise e
+        return default
+    if predicate is None:
+        return value
+    if predicate(value):
+        return value
+    if raise_on_error:
+        raise ParameterException("Predicate failed")
+    return default

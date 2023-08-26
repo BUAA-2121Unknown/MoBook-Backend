@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
 from oauth.dtos.login_dto import LoginDto, LoginSuccessDto
-from shared.dtos.OrdinaryResponseDto import BadRequestDto, ErrorDto, OkDto, InternalServerErrorDto
+from shared.dtos.ordinary_response_dto import BadRequestDto, ErrorDto, OkDto, InternalServerErrorDto
 from shared.response.json_response import BadRequestResponse, OkResponse, InternalServerErrorResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize

@@ -14,7 +14,8 @@ from org.dtos.requests.kick_member_dto import KickMemberDto, KickMemberSuccessDa
 from org.dtos.requests.update_member_profile_dto import UpdateMemberProfileDto
 from org.models import Organization
 from org.utils.member import kick_member_from_org
-from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, BadRequestDto, OkDto
+from shared.dtos.OperationResponseData import OperationResponseData
+from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, NotFoundResponse, BadRequestResponse, OkResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
@@ -149,8 +150,7 @@ def kick_member(request):
     if uop.auth not in UserAuth.authorized():
         return UnauthorizedResponse(UnauthorizedDto("Not admin"))
 
-    data = KickMemberSuccessData()
-    data.init()
+    data = OperationResponseData().init()
     for uid in dto.members:
         if uid == user.id:
             data.errors.append(KickMemberErrorData(uid, "Cannot kick self"))

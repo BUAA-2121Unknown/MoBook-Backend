@@ -16,7 +16,7 @@ from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.dtos.requests.invitation_dtos import CreateInvitationDto, RevokeInvitationDto, ActivateInvSuccessData
 from org.models import Invitation, Organization, PendingRecord
 from org.utils.member import add_member_into_org
-from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, BadRequestDto, OkDto, NotFoundDto
+from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, NotFoundDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize

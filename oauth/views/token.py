@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view
 
 from oauth.dtos.get_token_dto import GetTokenSuccessDto, GetTokenDto
 from oauth.models import RefreshToken
-from shared.dtos.OrdinaryResponseDto import BadRequestDto, UnauthorizedDto, InternalServerErrorDto, OkDto
+from shared.dtos.ordinary_response_dto import BadRequestDto, UnauthorizedDto, InternalServerErrorDto, OkDto
 from shared.response.json_response import BadRequestResponse, UnauthorizedResponse, InternalServerErrorResponse, \
     OkResponse
 from shared.utils.json.exceptions import JsonDeserializeException

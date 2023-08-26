@@ -4,7 +4,7 @@
 # @Author  : Tony Skywalker
 # @File    : error_dtos.py
 #
-from shared.dtos.OrdinaryResponseDto import ErrorDto, NotFoundDto
+from shared.dtos.ordinary_response_dto import ErrorDto, NotFoundDto
 
 
 class UserAlreadyRegisteredDto(ErrorDto):

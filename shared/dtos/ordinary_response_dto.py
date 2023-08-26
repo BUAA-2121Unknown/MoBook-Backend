@@ -8,7 +8,7 @@
 #   Basic bad request dto template class.
 #
 
-from shared.dtos.BaseResponseDto import BaseResponseDto
+from shared.dtos.base_response_dto import BaseResponseDto
 
 
 class OkDto(BaseResponseDto):
