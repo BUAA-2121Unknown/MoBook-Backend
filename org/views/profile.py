@@ -7,7 +7,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from org.dtos.error_dtos import NoSuchOrgDto
+from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.models import Organization
 from org.utils.org_profile_provider import org_profile_provider_simple, org_profile_provider_full
 from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, BadRequestDto, OkDto

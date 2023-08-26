@@ -13,7 +13,7 @@ class User(models.Model):
 
     @classmethod
     def create(cls, username, password, email, activated=False):
-        return cls(username=username, password=password, email=email, activated=False)
+        return cls(username=username, password=password, email=email, activated=activated)
 
     class Meta:
         managed = True
@@ -57,6 +57,10 @@ class UserAuth:
     @classmethod
     def authorized(cls):
         return [UserAuth.CREATOR, UserAuth.ADMIN]
+
+    @classmethod
+    def all(cls):
+        return [UserAuth.CREATOR, UserAuth.ADMIN, UserAuth.NORMAL]
 
 
 class UserOrganizationProfile(models.Model):

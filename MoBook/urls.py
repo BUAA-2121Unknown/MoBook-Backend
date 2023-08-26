@@ -25,4 +25,5 @@ urlpatterns = [
                   path('api/oauth/', include(('oauth.urls', 'oauth'))),
                   path('api/chat/', include(('chat.urls', 'chat'))),
                   path('api/user/', include(('user.urls', 'user'))),
+                  path('api/org/', include(('org.urls', 'org'))),
               ] + static(MEDIA_URL, document_root=MEDIA_ROOT)

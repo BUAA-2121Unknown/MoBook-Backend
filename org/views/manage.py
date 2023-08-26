@@ -11,8 +11,8 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from org.dtos.cancel_org_dto import CancelOrgDto, CancelOrgSuccessData, CancelOrgErrorData
-from org.dtos.register_org_dto import RegisterOrgDto
+from org.dtos.requests.cancel_org_dto import CancelOrgDto, CancelOrgSuccessData, CancelOrgErrorData
+from org.dtos.requests.register_org_dto import RegisterOrgDto
 from org.models import Organization
 from org.utils.cancel_org import cancel_organization
 from org.utils.org_profile_provider import org_profile_provider_full
@@ -64,7 +64,7 @@ def cancel_org(request):
         return BadRequestResponse(BadRequestDto(data=e))
 
     data = CancelOrgSuccessData()
-    data.errors.clear()
+    data.init()
     for oid in dto.organizations:
         org, uop = get_org_with_user(oid, user)
         if org is None:
@@ -75,5 +75,6 @@ def cancel_org(request):
             data.errors.append(CancelOrgErrorData(oid, "Not creator"))
             continue
         cancel_organization(org)
+        data.success.append(oid)
 
     return OkResponse(OkDto(data=data))

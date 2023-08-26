@@ -18,10 +18,33 @@ from django.contrib import admin
 from django.urls import path
 
 from org.views.avatar import upload_org_avatar
+from org.views.invitation import create_invitation, revoke_invitation, activate_invitation
 from org.views.manage import create_org, cancel_org
+from org.views.member import update_org_member_profile, get_org_members_profile, kick_member
+from org.views.pending import user_update_pending, admin_update_pending
+from org.views.profile import update_org_profile, get_org_profile
 
 urlpatterns = [
     path('avatar/upload', upload_org_avatar),
+
     path('manage/create', create_org),
     path('manage/cancel', cancel_org),
+
+    path('profile/update', update_org_profile),
+    path('profile', get_org_profile),
+
+    path('member/profile/update', update_org_member_profile),
+    # path('member/profile', get_org_member_profile),
+    path('members/', get_org_members_profile),
+
+
+    path('member/auth/invite', create_invitation),
+    path('member/auth/revoke', revoke_invitation),
+    path('member/auth/activate', activate_invitation),
+    path('member/auth/kick', kick_member),
+
+    path('member/auth/pending/user/update', user_update_pending),
+    # path('member/auth/pending/user', user_get_pending),
+    path('member/auth/pending/admin/update', admin_update_pending),
+    # path('member/auth/pending/admin', admin_get_pending),
 ]

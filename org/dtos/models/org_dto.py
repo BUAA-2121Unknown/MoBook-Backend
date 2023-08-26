@@ -5,6 +5,7 @@
 # @File    : org_dto.py
 #
 from org.models import Organization
+from shared.utils.dir_utils import get_avatar_url
 
 
 class OrganizationDto:
@@ -13,3 +14,4 @@ class OrganizationDto:
         self.name = org.name
         self.description = org.description
         self.chatId = org.chat_id
+        self.avatarUrl = get_avatar_url('org', org.avatar)

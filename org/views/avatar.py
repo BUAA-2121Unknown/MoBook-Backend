@@ -8,8 +8,8 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from org.dtos.error_dtos import NoSuchOrgDto
-from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, OkDto, InternalServerErrorDto, BadRequestDto, NotFoundDto
+from org.dtos.requests.error_dtos import NoSuchOrgDto
+from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, OkDto, InternalServerErrorDto, BadRequestDto
 from shared.response.json_response import UnauthorizedResponse, OkResponse, InternalServerErrorResponse, \
     BadRequestResponse, NotFoundResponse
 from shared.utils.dir_utils import get_avatar_url, get_avatar_path

@@ -78,7 +78,7 @@ def refresh_jwt_token(request):
     response = OkResponse(OkDto(data=data))
 
     # set cookies
-    response.set_cookie(key="refreshToken", value=refresh_token.token, httponly=True)
+    response.set_cookie(key="refreshToken", value=new_refresh_token.token, httponly=True)
 
     return response
 
