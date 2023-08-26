@@ -7,15 +7,19 @@ from rest_framework.decorators import api_view
 
 from oauth.dtos.get_token_dto import GetTokenSuccessDto, GetTokenDto
 from oauth.models import RefreshToken
-from shared.dtos.ordinary_response_dto import BadRequestDto, UnauthorizedDto, InternalServerErrorDto, OkDto
+from shared.dtos.ordinary_response_dto import BadRequestDto, UnauthorizedDto, InternalServerErrorDto, OkDto, NotFoundDto
 from shared.response.json_response import BadRequestResponse, UnauthorizedResponse, InternalServerErrorResponse, \
-    OkResponse
+    OkResponse, NotFoundResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
+from shared.utils.model.user_extension import get_user_by_id
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.token.jwt_token import generate_jwt_token
+from shared.utils.token.password import verify_password
 from shared.utils.token.refresh_token import generate_refresh_token
+from user.dtos.error_dtos import NoSuchUserDto
+from user.models import User
 
 
 def _verify_user(uid, password):
@@ -32,6 +36,14 @@ def get_jwt_token(request):
         return BadRequestResponse(BadRequestDto("Request format error", data=e))
     if not _verify_user(dto.id, dto.password):
         return UnauthorizedResponse(UnauthorizedDto("Username or password error"))
+
+    user: User = get_user_by_id(dto.id)
+    if user is None:
+        return NotFoundResponse(NoSuchUserDto())
+    if not user.activated:
+        return UnauthorizedResponse(UnauthorizedDto("Not activated"))
+    if not verify_password(dto.password, user.password):
+        return UnauthorizedResponse(UnauthorizedDto("Wrong password"))
 
     try:
         token = generate_jwt_token(dto.id)

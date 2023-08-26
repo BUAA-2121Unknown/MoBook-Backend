@@ -8,13 +8,15 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
 from oauth.dtos.login_dto import LoginDto, LoginSuccessDto
-from shared.dtos.ordinary_response_dto import BadRequestDto, ErrorDto, OkDto, InternalServerErrorDto
-from shared.response.json_response import BadRequestResponse, OkResponse, InternalServerErrorResponse
+from shared.dtos.ordinary_response_dto import BadRequestDto, ErrorDto, OkDto, InternalServerErrorDto, UnauthorizedDto
+from shared.response.json_response import BadRequestResponse, OkResponse, InternalServerErrorResponse, \
+    UnauthorizedResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.token.jwt_token import generate_jwt_token
+from shared.utils.token.password import verify_password
 from shared.utils.token.refresh_token import generate_refresh_token
 from user.models import User
 
@@ -33,6 +35,9 @@ def login(request):
         return OkResponse(ErrorDto(1000021, "Not registered"))
     if not user.activated:
         return OkResponse(ErrorDto(1000022, "Not activated"))
+
+    if not verify_password(dto.password, user.password):
+        return UnauthorizedResponse(UnauthorizedDto("Wrong password"))
 
     # generate JWT token
     try:
