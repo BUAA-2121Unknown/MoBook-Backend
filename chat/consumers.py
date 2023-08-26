@@ -32,27 +32,29 @@ class ChatConsumer(WebsocketConsumer):
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-        name = text_data_json['name']
+        username = text_data_json['username']
+
+        # Message.objects.create(user=self.scope['user'], message=message, group_name=self.room_group_name
+        # image_path = image_path, file_path = file_path, type = type, src_id = src_id, dst_id = dst_id, chat_id = chat_id, timestamp = timestamp)
 
         # Send message to room group
-        async_to_sync(self.channel_layer.group_send)(   # 嵌套
+        async_to_sync(self.channel_layer.group_send)(  # 按照接口需求
             self.chat_id,
             {
-                'type': 'chat_message',
+                'type': 'chat_message',  # function
                 'message': message,
-                'name': name
+                'username': username
+
             }
         )
-        Message.create()
-
 
     # Receive message from room group
     def chat_message(self, event):
         message = event['message']
-        name = event['name']
+        username = event['username']
 
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'message': message,
-            'name': name
+            'username': username
         }))

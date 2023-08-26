@@ -19,11 +19,12 @@ from django.urls import path
 
 from chat import views
 from chat.views.chat_manage import create_chat, chat_invite_member, chat_remove_member
-from chat.views.chat_messages import jump_to_at, get_chat_list, get_messages, send_message
+from chat.views.chat_messages import jump_to_at, get_chat_list, get_messages
+
 urlpatterns = [
-    path('create/', create_chat, name='create_chat'),
-    path('chatlist/', get_chat_list, name='get_chat_list'),
-    path('<str:chat_id>/invite/', chat_invite_member, name='chat_invite_member'),
-    path('<str:chat_id>/remove/', chat_remove_member, name='chat_remove_member'),
-    path('<str:chat_id>/view', get_chat_list, name='get_chat_list'),
+    path('index', get_chat_list, name='get_chat_list'),
+    path('create', create_chat, name='create_chat'),
+    path('<str:chat_id>/invite', chat_invite_member, name='chat_invite_member'),
+    path('<str:chat_id>/remove', chat_remove_member, name='chat_remove_member'),
+    path('<str:chat_id>/view', get_messages, name='get_chat_list'),
 ]

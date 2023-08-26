@@ -1,3 +1,7 @@
+import json
+
+from django.http import HttpResponse
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
@@ -17,12 +21,16 @@ def jump_to_at(request):
     pass
 
 
+# @api_view(['POST'])
+# @csrf_exempt
 def get_chat_list(request):
-    pass
+
+    return render(request, 'index.html')
 
 
-# def get_messages(request):
-#     pass
+def get_messages(request, chat_id):
+    # return history messages
+    return render(request, 'chatroom.html', {'chat_id': chat_id})
 #
 #
 # def send_message(request):

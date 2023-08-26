@@ -44,6 +44,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -53,7 +54,11 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "oauth.apps.OauthConfig",
-    "channels"
+    "channels",
+    "chat",
+    "message",
+    "notif",
+    "org",
     "user.apps.UserConfig",
 ]
 
@@ -92,7 +97,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [('localhost', 6379)],
         },
     },
 }
