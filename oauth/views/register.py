@@ -36,7 +36,7 @@ def send_activation_link(request):
     if user is None:
         return OkResponse(ErrorDto(100010, "Invalid email"))
     if user.activated:
-        return ForbiddenResponse(ForbiddenDto("user already activated"))
+        return ForbiddenResponse(ForbiddenDto("User already activated"))
 
     send_activation_email_task.delay(dto.email, dto.url)
 
@@ -61,14 +61,10 @@ def register(request):
 
     user = first_or_default(User, username=dto.username)
     if user is not None:
-<<<<<<< HEAD
-        return OkResponse(ErrorDto(100004, "user already registered"))
-=======
         return OkResponse(UserAlreadyRegisteredDto())
->>>>>>> 30b7657f1aa3bc3191413021ef7b851d7ec00c24
 
     password = generate_password(dto.password)
-    # user.create(dto.username, password, dto.email).save()
+    # User.create(dto.username, password, dto.email).save()
     # For now, user is activated by default
     User.create(dto.username, password, dto.email, True).save()
 
@@ -86,11 +82,11 @@ def activate(request):
 
     user: User = first_or_default(User, email=dto.email)
     if user is None:
-        return OkResponse(ErrorDto(100005, "user not registered"))
+        return OkResponse(ErrorDto(100005, "User not registered"))
     if user.activated:
-        return OkResponse(OkDto("user already activated"))
+        return OkResponse(OkDto("User already activated"))
 
     user.activated = True
     user.save()
 
-    return OkResponse(OkDto("user successfully activated!"))
+    return OkResponse(OkDto("User successfully activated!"))

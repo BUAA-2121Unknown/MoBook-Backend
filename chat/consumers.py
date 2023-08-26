@@ -5,7 +5,7 @@ from channels.generic.websocket import WebsocketConsumer
 from message.models import Message
 
 
-class ChatConsumer(WebsocketConsumer):
+class ChatMessageConsumer(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
         self.chat_id = None
@@ -28,33 +28,45 @@ class ChatConsumer(WebsocketConsumer):
             self.channel_name
         )
 
-    # Receive message from WebSocket
+    # 前端需要发送文件的本名和url
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        username = text_data_json['username']
-
-        # Message.objects.create(user=self.scope['user'], message=message, group_name=self.room_group_name
-        # image_path = image_path, file_path = file_path, type = type, src_id = src_id, dst_id = dst_id, chat_id = chat_id, timestamp = timestamp)
+        category = text_data_json['type']
+        text = text_data_json['text']  # 如果是文件就是本名
+        file_url = text_data_json['file_url']
+        src_id = text_data_json['src_id']
+        src_name = text_data_json['src_name']
+        src_avatar_url = text_data_json['src_avatar_url']
 
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(  # 按照接口需求
             self.chat_id,
             {
                 'type': 'chat_message',  # function
-                'message': message,
-                'username': username
-
+                'category': category,
+                'text': text,
+                'file_url': file_url,
+                'src_id': src_id,
+                'src_name': src_name,
+                'src_avatar_url': src_avatar_url
             }
         )
 
     # Receive message from room group
     def chat_message(self, event):
-        message = event['message']
-        username = event['username']
+        category = event['type']
+        text = event['text']
+        file_url = event['file_url']
+        src_id = event['src_id']
+        src_name = event['src_name']
+        src_avatar_url = event['src_avatar_url']
 
         # Send message to WebSocket
         self.send(text_data=json.dumps({
-            'message': message,
-            'username': username
+            'category': category,
+            'text': text,
+            'file_url': file_url,
+            'src_id': src_id,
+            'src_name': src_name,
+            'src_avatar_url': src_avatar_url
         }))

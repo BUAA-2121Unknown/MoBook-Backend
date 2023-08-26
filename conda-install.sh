@@ -10,3 +10,4 @@ conda install channels-redis
 install redis
 install celery
 conda install daphne
+conda install pillow

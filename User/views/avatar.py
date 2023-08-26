@@ -24,9 +24,9 @@ from user.models import User
 @csrf_exempt
 def upload_avatar(request):
     user: User = get_user_from_request(request)
+
     if user is None:
         return UnauthorizedResponse(UnauthorizedDto())
-
     file = request.FILES.get('file')
     if file is None:
         return BadRequestResponse(BadRequestDto("Missing image file"))
