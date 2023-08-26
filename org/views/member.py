@@ -99,7 +99,7 @@ def update_org_member_profile(request):
 
 @api_view(['GET'])
 @csrf_exempt
-def get_org_members_profile(request):
+def get_members_of_org(request):
     """
     Get all member profiles in an org.
     ?orgId=123
