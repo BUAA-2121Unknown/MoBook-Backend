@@ -1,6 +1,7 @@
 from django.db import models
 
 from org.models import Organization
+from project.models import Project
 
 
 class User(models.Model):
@@ -62,6 +63,17 @@ class UserAuth:
     def all(cls):
         return [UserAuth.CREATOR, UserAuth.ADMIN, UserAuth.NORMAL]
 
+    @classmethod
+    def to_string(cls, auth: int):
+        if auth == UserAuth.CREATOR:
+            return "Creator"
+        elif auth == UserAuth.ADMIN:
+            return "Administrator"
+        elif auth == UserAuth.NORMAL:
+            return "Member"
+        else:
+            return "Unknown"
+
 
 class UserOrganizationProfile(models.Model):
     # 0 creator, 1 admin, 2 normal
@@ -80,3 +92,16 @@ class UserOrganizationProfile(models.Model):
         managed = True
         db_table = 'UserOrganizationProfile'
         unique_together = (('user_id', 'org_id'),)
+
+
+class UserProjectProfile(models.Model):
+    user_id = models.BigIntegerField(primary_key=True)
+    proj_id = models.BigIntegerField()
+    role = models.CharField(max_length=63)
+
+    @classmethod
+    def create(cls, user: User, proj: Project, role: str):
+        return cls(user_id=user.id, proj_id=proj.id, role=role)
+
+    class Meta:
+        verbose_name = 'user_project_profile'

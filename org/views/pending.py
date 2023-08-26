@@ -11,7 +11,7 @@ from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.dtos.requests.pending_dto import UpdatePendingDto, UpdatePendingSuccessData
 from org.models import PendingRecord, PendingStatus
 from org.utils.member import add_member_into_org
-from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, BadRequestDto, NotFoundDto, ForbiddenDto, OkDto
+from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, NotFoundDto, ForbiddenDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, ForbiddenResponse, \
     OkResponse
 from shared.utils.json.exceptions import JsonDeserializeException

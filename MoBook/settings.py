@@ -167,8 +167,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ################################################################################
 # CORS configurations
 #
+
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOWED_ORIGINS = SECRETS['CORS_ALLOWED_ORIGINS']
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+# CORS_ALLOWED_ORIGINS = SECRETS['CORS_ALLOWED_ORIGINS']
 
 ################################################################################
 
@@ -193,7 +197,6 @@ JWT_AUTH = {
 
 with open("config.yaml", "r") as f:
     CONFIG = yaml.safe_load(f)
-
 
 ################################################################################
 # Email configuration

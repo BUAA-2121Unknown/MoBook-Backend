@@ -21,7 +21,10 @@ def _parse_post_param(request: WSGIRequest, raise_exception=False) -> dict:
         try:
             return deserialize(request.body)
         except JsonDeserializeException as e:
-            raise ParameterException("Bad parameter format") from e
+            if raise_exception:
+                raise ParameterException("Bad parameter format") from e
+            else:
+                return {}
     elif content_type == "application/x-www-form-urlencoded":
         return request.POST.dict()
     elif content_type.startswith("multipart/form-data"):

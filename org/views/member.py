@@ -14,7 +14,8 @@ from org.dtos.requests.kick_member_dto import KickMemberDto, KickMemberSuccessDa
 from org.dtos.requests.update_member_profile_dto import UpdateMemberProfileDto
 from org.models import Organization
 from org.utils.member import kick_member_from_org
-from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, BadRequestDto, OkDto
+from shared.dtos.OperationResponseData import OperationResponseData
+from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, NotFoundResponse, BadRequestResponse, OkResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
@@ -63,6 +64,7 @@ def update_org_member_profile(request):
         return UnauthorizedResponse(UnauthorizedDto("Not your organization"))
 
     if dto.userId == user.id:
+        target = user
         target_uop = uop
     else:
         # modify other user
@@ -84,9 +86,15 @@ def update_org_member_profile(request):
             return UnauthorizedResponse(UnauthorizedDto("Be the creator to edit admin"))
 
     target_uop.nickname = dto.profile.nickname
-    target_uop.auth = dto.auth
+    # fix: creator cannot be changed
+    if target_uop.auth != UserAuth.CREATOR:
+        target_uop.auth = dto.auth
+    elif dto.auth != UserAuth.CREATOR:
+        return BadRequestResponse(BadRequestDto("Cannot change creator"))
 
-    return OkResponse(OkDto())
+    target_uop.save()
+
+    return OkResponse(OkDto(data=UopDto(target, target_uop)))
 
 
 @api_view(['GET'])
@@ -102,6 +110,9 @@ def get_org_members_profile(request):
 
     params = parse_param(request)
     org_id = parse_value(params.get('orgId'), int)
+    if org_id is None:
+        return BadRequestResponse(BadRequestDto("Missing orgId"))
+
     org, uop = get_org_with_user(org_id, user)
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
@@ -139,8 +150,7 @@ def kick_member(request):
     if uop.auth not in UserAuth.authorized():
         return UnauthorizedResponse(UnauthorizedDto("Not admin"))
 
-    data = KickMemberSuccessData()
-    data.init()
+    data = OperationResponseData().init()
     for uid in dto.members:
         if uid == user.id:
             data.errors.append(KickMemberErrorData(uid, "Cannot kick self"))

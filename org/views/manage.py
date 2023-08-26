@@ -16,7 +16,8 @@ from org.dtos.requests.register_org_dto import RegisterOrgDto
 from org.models import Organization
 from org.utils.cancel_org import cancel_organization
 from org.utils.org_profile_provider import org_profile_provider_full
-from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, BadRequestDto, OkDto
+from shared.dtos.OperationResponseData import OperationResponseData, OperationErrorData
+from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, OkResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
@@ -63,16 +64,15 @@ def cancel_org(request):
     except JsonDeserializeException as e:
         return BadRequestResponse(BadRequestDto(data=e))
 
-    data = CancelOrgSuccessData()
-    data.init()
+    data = OperationResponseData().init()
     for oid in dto.organizations:
         org, uop = get_org_with_user(oid, user)
         if org is None:
-            data.errors.append(CancelOrgErrorData(oid, "No such organization"))
+            data.errors.append(OperationErrorData(oid, "No such organization"))
             continue
         uop: UserOrganizationProfile
         if uop.auth != UserAuth.CREATOR:
-            data.errors.append(CancelOrgErrorData(oid, "Not creator"))
+            data.errors.append(OperationErrorData(oid, "Not creator"))
             continue
         cancel_organization(org)
         data.success.append(oid)

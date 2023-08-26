@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.models import Organization
 from org.utils.org_profile_provider import org_profile_provider_simple, org_profile_provider_full
-from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, BadRequestDto, OkDto
+from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse
 from shared.utils.model.organization_extension import get_org_with_user
 from shared.utils.model.user_extension import get_user_from_request

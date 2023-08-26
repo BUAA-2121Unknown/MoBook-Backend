@@ -10,7 +10,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, BadRequestDto, OkDto, InternalServerErrorDto
+from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, InternalServerErrorDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, OkResponse, \
     InternalServerErrorResponse
 from shared.utils.dir_utils import get_avatar_path, get_avatar_url

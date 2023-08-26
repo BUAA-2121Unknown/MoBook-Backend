@@ -6,14 +6,16 @@
 #
 import os
 
+from MoBook.settings import BASE_URL
+
 AVATAR_BASE_PATH = {
     "user": "./media/avatar/user",
     "org": "./media/avatar/org"
 }
 
 AVATAR_BASE_URL = {
-    "user": "/media/avatar/user/",
-    "org": "/media/avatar/org/"
+    "user": f"{BASE_URL}/media/avatar/user/",
+    "org": f"{BASE_URL}/media/avatar/org/"
 }
 
 

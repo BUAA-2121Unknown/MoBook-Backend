@@ -15,7 +15,7 @@ from message.models import Message
 from shared.utils.model.user_extension import get_user_from_request
 from user.models import User, UserOrganizationProfile, UserChatRelation, UserChatJump
 from oauth.dtos.login_dto import LoginDto
-from shared.dtos.OrdinaryResponseDto import BadRequestDto, ErrorDto, OkDto, UnauthorizedDto
+from shared.dtos.ordinary_response_dto import BadRequestDto, ErrorDto, OkDto, UnauthorizedDto
 from shared.response.json_response import BadRequestResponse, OkResponse, UnauthorizedResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize

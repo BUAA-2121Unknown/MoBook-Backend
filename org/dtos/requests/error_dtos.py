@@ -4,7 +4,7 @@
 # @Author  : Tony Skywalker
 # @File    : error_dtos.py
 #
-from shared.dtos.OrdinaryResponseDto import NotFoundDto
+from shared.dtos.ordinary_response_dto import NotFoundDto
 
 
 class NoSuchOrgDto(NotFoundDto):
