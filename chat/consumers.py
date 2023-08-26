@@ -31,7 +31,7 @@ class ChatMessageConsumer(WebsocketConsumer):
     # 前端需要发送文件的本名和url
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        category = text_data_json['type']
+        type = text_data_json['type']
         text = text_data_json['text']  # 如果是文件就是本名
         file_url = text_data_json['file_url']
         src_id = text_data_json['src_id']
@@ -43,7 +43,7 @@ class ChatMessageConsumer(WebsocketConsumer):
             self.chat_id,
             {
                 'type': 'chat_message',  # function
-                'category': category,
+                'category': type,
                 'text': text,
                 'file_url': file_url,
                 'src_id': src_id,
@@ -54,8 +54,8 @@ class ChatMessageConsumer(WebsocketConsumer):
 
     # Receive message from room group
     def chat_message(self, event):
-        category = event['type']
-        text = event['text']
+        category = event['category']
+        text = event['text']  # 前端接受过at就忽略这条消息，访问聊天后解除
         file_url = event['file_url']
         src_id = event['src_id']
         src_name = event['src_name']
@@ -69,4 +69,25 @@ class ChatMessageConsumer(WebsocketConsumer):
             'src_id': src_id,
             'src_name': src_name,
             'src_avatar_url': src_avatar_url
+        }))
+
+
+class NotificationConsumer(WebsocketConsumer):
+
+    async def connect(self):
+        await self.accept()
+
+    def disconnect(self, close_code):
+        pass
+
+    # 前端需要发送文件的本名和url
+    def receive(self, text_data):
+        pass
+
+    # Receive message from room group
+    def notify(self, event):
+
+        # Send message to WebSocket
+        self.send(text_data=json.dumps({
+            'data': event['data']
         }))

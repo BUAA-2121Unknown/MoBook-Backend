@@ -36,6 +36,8 @@ else:
 with open(SECRET_FILENAME, "r") as f:
     SECRETS = yaml.safe_load(f)
 
+BASE_URL = SECRETS['BASE_URL']
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = SECRETS["key"]
 ALLOWED_HOSTS = ['*']
