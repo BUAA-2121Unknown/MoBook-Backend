@@ -7,14 +7,16 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from user.models import User
-from oauth.dtos.login_dto import LoginDto
-from shared.dtos.OrdinaryResponseDto import BadRequestDto, ErrorDto, OkDto
-from shared.response.json_response import BadRequestResponse, OkResponse
+from oauth.dtos.login_dto import LoginDto, LoginSuccessDto
+from shared.dtos.OrdinaryResponseDto import BadRequestDto, ErrorDto, OkDto, InternalServerErrorDto
+from shared.response.json_response import BadRequestResponse, OkResponse, InternalServerErrorResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.parameter.parameter import parse_param
+from shared.utils.token.jwt_token import generate_jwt_token
+from shared.utils.token.refresh_token import generate_refresh_token
+from user.models import User
 
 
 @api_view(['POST'])
@@ -32,4 +34,17 @@ def login(request):
     if not user.activated:
         return OkResponse(ErrorDto(1000022, "Not activated"))
 
-    return OkResponse(OkDto(data={'id': user.id}))
+    # generate JWT token
+    try:
+        token = generate_jwt_token(user.id)
+        refresh_token = generate_refresh_token(user.id)
+        refresh_token.save()
+    except Exception as e:
+        return InternalServerErrorResponse(InternalServerErrorDto("Failed to generate JWT token", data=e))
+
+    response = OkResponse(OkDto(data=LoginSuccessDto(user, token)))
+
+    # set cookies
+    response.set_cookie(key="refreshToken", value=refresh_token.token, httponly=True)
+
+    return response
