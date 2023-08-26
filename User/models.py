@@ -13,7 +13,7 @@ class User(models.Model):
 
     @classmethod
     def create(cls, username, password, email, activated=False):
-        return cls(username=username, password=password, email=email, activated=False)
+        return cls(username=username, password=password, email=email, activated=activated)
 
     class Meta:
         managed = True

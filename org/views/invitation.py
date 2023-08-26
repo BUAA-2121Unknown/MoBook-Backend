@@ -10,11 +10,12 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
+from org.dtos.models.invitation_dto import InvitationDto
 from org.dtos.models.user_org_profile_dto import UopDto
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.dtos.requests.invitation_dtos import CreateInvitationDto, RevokeInvitationDto, ActivateInvSuccessData
 from org.models import Invitation, Organization, PendingRecord
-from org.utils.member import add_user_into_org
+from org.utils.member import add_member_into_org
 from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, BadRequestDto, OkDto, NotFoundDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse
 from shared.utils.json.exceptions import JsonDeserializeException
@@ -55,10 +56,11 @@ def create_invitation(request):
 
     token = generate_basic_token(31)
     created = timezone.now()
-    expires = created + timedelta(days=dto.expires)
-    Invitation.create(token, created, expires, dto.orgId, dto.review).save()
+    expires = (created + timedelta(days=dto.expires)) if dto.expires > 0 else None
+    invitation = Invitation.create(token, created, expires, dto.orgId, dto.review)
+    invitation.save()
 
-    return OkResponse(OkDto({"token": token}))
+    return OkResponse(OkDto(data=InvitationDto(invitation)))
 
 
 @api_view(['POST'])
@@ -92,11 +94,11 @@ def revoke_invitation(request):
     if invitation.oid != dto.orgId:
         return UnauthorizedResponse(UnauthorizedDto("Not invitation of this org"))
     if not invitation.is_active():
-        return OkResponse(OkDto("Already revoked or expired"))
+        return OkResponse(OkDto("Already revoked or expired", data=InvitationDto(invitation)))
     invitation.revoked = timezone.now()
     invitation.save()
-
-    return OkResponse(OkDto("Invitation revoked"))
+    
+    return OkResponse(OkDto("Invitation revoked", data=InvitationDto(invitation)))
 
 
 @api_view(['POST'])
@@ -108,6 +110,8 @@ def activate_invitation(request):
 
     params = parse_param(request)
     token = parse_value(params.get('token'), str)
+    if token is None:
+        return BadRequestResponse(BadRequestDto("Missing token"))
 
     invitation: Invitation = first_or_default(Invitation, token=token)
     if invitation is None:
@@ -128,7 +132,7 @@ def activate_invitation(request):
         PendingRecord.create(user.id, org.id).save()
         data = ActivateInvSuccessData(True, None, False)
     else:
-        uop = add_user_into_org(org, user)
+        uop = add_member_into_org(org, user)
         data = ActivateInvSuccessData(False, UopDto(user, uop), False)
 
     return OkResponse(OkDto(data=data))

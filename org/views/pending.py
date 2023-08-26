@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.dtos.requests.pending_dto import UpdatePendingDto, UpdatePendingSuccessData
 from org.models import PendingRecord, PendingStatus
-from org.utils.member import add_user_into_org
+from org.utils.member import add_member_into_org
 from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, BadRequestDto, NotFoundDto, ForbiddenDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, ForbiddenResponse, \
     OkResponse
@@ -98,7 +98,7 @@ def admin_update_pending(request):
     # now is admin editing
     if dto.action == PendingStatus.ACCEPTED:
         pending.user_status = pending.admin_status = PendingStatus.ACCEPTED
-        add_user_into_org(org, user)
+        add_member_into_org(org, user)
         # TODO: send notification
     elif dto.action == PendingStatus.REJECTED:
         pending.user_status = pending.admin_status = PendingStatus.REJECTED

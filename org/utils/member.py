@@ -9,7 +9,7 @@ from shared.utils.model.organization_extension import get_org_profile_of_user
 from user.models import User, UserOrganizationProfile, UserAuth
 
 
-def add_user_into_org(org: Organization, user: User):
+def add_member_into_org(org: Organization, user: User):
     uop = get_org_profile_of_user(org, user)
     if uop is not None:
         return uop
@@ -17,3 +17,7 @@ def add_user_into_org(org: Organization, user: User):
     uop.save()
 
     return uop
+
+
+def kick_member_from_org(org: Organization, user: User, uop: UserOrganizationProfile):
+    uop.delete()

@@ -21,7 +21,7 @@ class CreateInvitationDto(BaseInvitationDto):
         self.review: bool = False
 
     def is_valid(self):
-        return self.expires > 0
+        return self.expires > 0 or self.expires == -1
 
 
 class RevokeInvitationDto(BaseInvitationDto):

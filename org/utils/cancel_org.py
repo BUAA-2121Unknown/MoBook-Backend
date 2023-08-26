@@ -5,7 +5,9 @@
 # @File    : cancel_org.py
 #
 from org.models import Organization
+from user.models import UserOrganizationProfile
 
 
 def cancel_organization(org: Organization):
-    pass
+    UserOrganizationProfile.objects.filter(org_id=org.id).delete()
+    org.delete()

@@ -6,7 +6,7 @@ class Organization(models.Model):
     chat_id = models.IntegerField()
     description = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=63)
-    avatar = models.CharField(max_length=63)
+    avatar = models.CharField(max_length=63, default=None, null=True)
 
     @classmethod
     def create(cls, chat_id, description, name):
@@ -20,7 +20,7 @@ class Organization(models.Model):
 class Invitation(models.Model):
     token = models.CharField(max_length=63)
     created = models.DateTimeField()
-    expires = models.DateTimeField()
+    expires = models.DateTimeField(default=None, null=True)
     revoked = models.DateTimeField(default=None, null=True)
     oid = models.BigIntegerField()  # organization id
     review = models.BooleanField()  # whether it require review or not
@@ -30,7 +30,7 @@ class Invitation(models.Model):
         return cls(token=token, created=created, expires=expires, revoked=None, oid=oid, review=review)
 
     def is_expired(self):
-        return timezone.now() > self.expires
+        return self.expires is not None and timezone.now() > self.expires
 
     def is_active(self):
         return self.revoked is None and not self.is_expired()

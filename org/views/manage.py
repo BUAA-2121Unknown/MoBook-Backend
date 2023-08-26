@@ -64,7 +64,7 @@ def cancel_org(request):
         return BadRequestResponse(BadRequestDto(data=e))
 
     data = CancelOrgSuccessData()
-    data.errors.clear()
+    data.init()
     for oid in dto.organizations:
         org, uop = get_org_with_user(oid, user)
         if org is None:
@@ -75,5 +75,6 @@ def cancel_org(request):
             data.errors.append(CancelOrgErrorData(oid, "Not creator"))
             continue
         cancel_organization(org)
+        data.success.append(oid)
 
     return OkResponse(OkDto(data=data))

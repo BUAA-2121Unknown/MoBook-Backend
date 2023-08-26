@@ -10,8 +10,10 @@ from rest_framework.decorators import api_view
 
 from org.dtos.models.user_org_profile_dto import UopDto
 from org.dtos.requests.error_dtos import NoSuchOrgDto
+from org.dtos.requests.kick_member_dto import KickMemberDto, KickMemberSuccessData, KickMemberErrorData
 from org.dtos.requests.update_member_profile_dto import UpdateMemberProfileDto
 from org.models import Organization
+from org.utils.member import kick_member_from_org
 from shared.dtos.OrdinaryResponseDto import UnauthorizedDto, BadRequestDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, NotFoundResponse, BadRequestResponse, OkResponse
 from shared.utils.json.exceptions import JsonDeserializeException
@@ -27,7 +29,7 @@ from user.models import User, UserOrganizationProfile, UserAuth
 
 @api_view(['POST'])
 @csrf_exempt
-def update_member(request):
+def update_org_member_profile(request):
     """
     {
         orgId:
@@ -114,5 +116,48 @@ def get_org_members_profile(request):
         if user is None:
             continue
         data["members"].append(UopDto(user, uop))
+
+    return OkResponse(OkDto(data=data))
+
+
+@api_view(['POST'])
+@csrf_exempt
+def kick_member(request):
+    user = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse
+    params = parse_param(request)
+    try:
+        dto: KickMemberDto = deserialize(params, KickMemberDto)
+    except JsonDeserializeException as e:
+        return BadRequestResponse(BadRequestDto(data=e))
+
+    org, uop = get_org_with_user(dto.orgId, user)
+    if org is None:
+        return NotFoundResponse(NoSuchOrgDto())
+    uop: UserOrganizationProfile
+    if uop.auth not in UserAuth.authorized():
+        return UnauthorizedResponse(UnauthorizedDto("Not admin"))
+
+    data = KickMemberSuccessData()
+    data.init()
+    for uid in dto.members:
+        if uid == user.id:
+            data.errors.append(KickMemberErrorData(uid, "Cannot kick self"))
+            continue
+        target = get_user_by_id(uid)
+        if target is None:
+            data.errors.append(KickMemberErrorData(uid, "No such users"))
+            continue
+        target_org, target_uop = get_org_with_user(dto.orgId, target)
+        target_uop: UserOrganizationProfile
+        if target_org is None:
+            data.errors.append(KickMemberErrorData(uid, "User not in org"))
+            continue
+        if target_uop in UserAuth.authorized() and uop.auth != UserAuth.CREATOR:
+            data.errors.append(KickMemberErrorData(uid, "Not creator"))
+            continue
+        kick_member_from_org(target_org, target, target_uop)
+        data.success.append(uid)
 
     return OkResponse(OkDto(data=data))

@@ -14,7 +14,6 @@ from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.parameter.value_parser import parse_value
-from shared.utils.token.exception import TokenException
 from shared.utils.validator import validate_username, validate_name
 from user.dtos.error_dtos import UsernameOccupiedDto, NoSuchUserDto
 from user.models import User
@@ -24,10 +23,9 @@ from user.utils.user_profile_provider import user_profile_provider_full, user_pr
 @api_view(['POST'])
 @csrf_exempt
 def update_user_profile(request):
-    try:
-        user: User = get_user_from_request(request, True)
-    except TokenException as e:
-        return UnauthorizedResponse(UnauthorizedDto(data=e))
+    user: User = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
 
     params = parse_param(request)
     username = parse_value(params.get('username'), str)

@@ -21,3 +21,8 @@ class CancelOrgErrorData:
 class CancelOrgSuccessData:
     def __init__(self):
         self.errors: List[CancelOrgErrorData] = [CancelOrgErrorData()]
+        self.success: List[int] = [0]
+
+    def init(self):
+        self.errors.clear()
+        self.success.clear()
