@@ -18,7 +18,7 @@ class User(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'user'
+        db_table = 'User'
         verbose_name = 'user'
 
 
@@ -104,4 +104,4 @@ class UserProjectProfile(models.Model):
         return cls(user_id=user.id, proj_id=proj.id, role=role)
 
     class Meta:
-        verbose_name = 'user_project_profile'
+        db_table = 'UserProjectProfile'

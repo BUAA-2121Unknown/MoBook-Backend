@@ -51,3 +51,11 @@ def validate_org_descr(descr: str) -> bool:
 
 def validate_member_nickname(nickname: str) -> bool:
     return True
+
+
+def validate_proj_name(name: str) -> bool:
+    return True
+
+
+def validate_proj_descr(descr: str) -> bool:
+    return True
