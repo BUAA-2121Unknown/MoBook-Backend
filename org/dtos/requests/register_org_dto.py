@@ -12,5 +12,5 @@ class RegisterOrgDto:
         self.name: str = ""
         self.description: str = ""
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         return validate_org_name(self.name) and validate_org_descr(self.description)

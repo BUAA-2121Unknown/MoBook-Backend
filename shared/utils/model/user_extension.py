@@ -38,3 +38,7 @@ def get_user_from_request(request: WSGIRequest, raise_exception=False):
             raise e
         else:
             return None
+
+
+def get_user_by_id(uid):
+    return first_or_default(User, id=uid)

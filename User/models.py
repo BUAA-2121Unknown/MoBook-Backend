@@ -58,6 +58,10 @@ class UserAuth:
     def authorized(cls):
         return [UserAuth.CREATOR, UserAuth.ADMIN]
 
+    @classmethod
+    def all(cls):
+        return [UserAuth.CREATOR, UserAuth.ADMIN, UserAuth.NORMAL]
+
 
 class UserOrganizationProfile(models.Model):
     # 0 creator, 1 admin, 2 normal

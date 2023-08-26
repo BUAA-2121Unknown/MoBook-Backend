@@ -20,3 +20,8 @@ class UsernameOccupiedDto(ErrorDto):
 class NoSuchUserDto(NotFoundDto):
     def __init__(self):
         super().__init__("No such user")
+
+
+class NoSuchMemberDto(NotFoundDto):
+    def __init__(self):
+        super().__init__("No such member")

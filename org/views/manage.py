@@ -11,8 +11,8 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from org.dtos.cancel_org_dto import CancelOrgDto, CancelOrgSuccessData, CancelOrgErrorData
-from org.dtos.register_org_dto import RegisterOrgDto
+from org.dtos.requests.cancel_org_dto import CancelOrgDto, CancelOrgSuccessData, CancelOrgErrorData
+from org.dtos.requests.register_org_dto import RegisterOrgDto
 from org.models import Organization
 from org.utils.cancel_org import cancel_organization
 from org.utils.org_profile_provider import org_profile_provider_full

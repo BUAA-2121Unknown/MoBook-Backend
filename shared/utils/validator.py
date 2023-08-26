@@ -47,3 +47,7 @@ def validate_org_name(name: str) -> bool:
 
 def validate_org_descr(descr: str) -> bool:
     return True
+
+
+def validate_member_nickname(nickname: str) -> bool:
+    return True
