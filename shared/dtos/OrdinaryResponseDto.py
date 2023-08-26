@@ -17,7 +17,7 @@ class OkDto(BaseResponseDto):
 
 
 class ErrorDto(BaseResponseDto):
-    def __init__(self, code=-1, msg="Not available", **kwargs):
+    def __init__(self, code: object = -1, msg: object = "Not available", **kwargs: object) -> object:
         super().__init__(code, msg, **kwargs)
 
 
@@ -34,6 +34,11 @@ class UnauthorizedDto(BaseResponseDto):
 class ForbiddenDto(BaseResponseDto):
     def __init__(self, msg="Forbidden", **kwargs):
         super().__init__(403, msg, **kwargs)
+
+
+class NotFoundDto(BaseResponseDto):
+    def __init__(self, msg="Not Found", **kwargs):
+        super().__init__(404, msg, **kwargs)
 
 
 class InternalServerErrorDto(BaseResponseDto):

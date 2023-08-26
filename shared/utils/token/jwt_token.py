@@ -27,16 +27,19 @@ def generate_jwt_token(data):
         'exp': datetime.utcnow() + timedelta(1209600.0)
     }
     try:
-        token = jwt.encode(payload, key=SALT, headers=HEADER)
+        token = jwt.encode(payload, key=SALT, headers=HEADER).decode('UTF-8')
     except Exception as e:
         raise e
     return token
 
 
-def verify_jwt_token(token):
+def verify_jwt_token(token: str):
     payload = None
+    if token is None:
+        raise TokenException("Missing JWT token")
+    token = token.split(' ')[-1]
     try:
-        payload = jwt.decode(token, key=SALT, algorithms='HS256')
+        payload = jwt.decode(token.encode('UTF-8'), key=SALT, algorithms='HS256')
     except jwt.exceptions.DecodeError as e:
         raise TokenException("Failed to verify JWT token") from e
     except jwt.exceptions.ExpiredSignatureError as e:

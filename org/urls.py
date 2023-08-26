@@ -17,6 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from org.views.avatar import upload_org_avatar
+from org.views.manage import create_org, cancel_org
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('avatar/upload', upload_org_avatar),
+    path('manage/create', create_org),
+    path('manage/cancel', cancel_org),
 ]

@@ -1,12 +1,14 @@
 from django.db import models
 
+from org.models import Organization
+
 
 class User(models.Model):
     username = models.CharField(max_length=63)
     password = models.CharField(max_length=63)
     name = models.CharField(max_length=63, default=None, null=True)
     email = models.CharField(max_length=63)
-    avatar_url = models.CharField(max_length=127, default=None, null=True)
+    avatar = models.CharField(max_length=63, default=None, null=True)
     activated = models.BooleanField(default=False)
 
     @classmethod
@@ -47,11 +49,28 @@ class UserChatRelation(models.Model):
         unique_together = (('user_id', 'chat_id'),)
 
 
+class UserAuth:
+    CREATOR = 0
+    ADMIN = 1
+    NORMAL = 2
+
+    @classmethod
+    def authorized(cls):
+        return [UserAuth.CREATOR, UserAuth.ADMIN]
+
+
 class UserOrganizationProfile(models.Model):
-    auth = models.IntegerField(blank=True, null=True)
+    # 0 creator, 1 admin, 2 normal
+    auth = models.IntegerField()
     user_id = models.IntegerField(primary_key=True)
     org_id = models.IntegerField()
     nickname = models.CharField(max_length=63)
+
+    @classmethod
+    def create(cls, auth, user: User, org: Organization, nickname=None):
+        if nickname is None:
+            nickname = user.username
+        return cls(auth, user_id=user.id, org_id=org.id, nickname=nickname)
 
     class Meta:
         managed = True
