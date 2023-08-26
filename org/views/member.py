@@ -128,7 +128,7 @@ def get_members_of_org(request):
 
     return OkResponse(OkDto({
         "members": member_list,
-        "count": len(member_list)
+        "total": len(member_list)
     }))
 
 

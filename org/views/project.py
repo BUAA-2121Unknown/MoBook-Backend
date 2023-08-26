@@ -44,5 +44,5 @@ def get_projects_of_org(request):
 
     return OkResponse(OkDto({
         "projects": proj_list,
-        "count": projects.count()
+        "total": len(proj_list)
     }))
