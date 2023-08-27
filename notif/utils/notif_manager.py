@@ -16,7 +16,6 @@ from shared.utils.json.serializer import serialize
 
 def dispatch_notif(target_user_id, org_id, payload: NotifBasePayload):
     notif = Notification.create(target_user_id, org_id, payload)
-    print(notif)
     if notif is None:
         return
     notif.save()
