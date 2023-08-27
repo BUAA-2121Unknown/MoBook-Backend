@@ -28,9 +28,9 @@ def update_org_profile(request):
         return UnauthorizedResponse(UnauthorizedDto())
 
     params = parse_param(request)
-    oid = parse_value(params.get('id'), int)
+    oid = parse_value(params.get('orgId'), int)
     if oid is None:
-        return BadRequestResponse(BadRequestDto("Missing id"))
+        return BadRequestResponse(BadRequestDto("Missing orgId"))
     org, uop = get_org_with_user(oid, user)
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
@@ -68,9 +68,9 @@ def get_org_profile(request):
         return UnauthorizedResponse(UnauthorizedDto())
 
     params = parse_param(request)
-    oid = parse_value(params.get('id'), int)
+    oid = parse_value(params.get('orgId'), int)
     if oid is None:
-        return BadRequestResponse(BadRequestDto("Missing id"))
+        return BadRequestResponse(BadRequestDto("Missing orgId"))
     org, uop = get_org_with_user(oid, user)
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
