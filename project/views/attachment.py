@@ -54,7 +54,6 @@ def upload_artifact_attachment(request):
 
     old_path = artifact.get_path()
     name, ext = parse_filename(file.name)
-    artifact.filename = name
     artifact.extension = ext
     new_path = artifact.get_path()
 

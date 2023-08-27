@@ -35,6 +35,7 @@ class Project(models.Model):
 
 class Artifact(models.Model):
     proj_id = models.BigIntegerField()
+    creator_id = models.BigIntegerField()
 
     type = models.CharField(max_length=31)
     name = models.CharField(max_length=63)
@@ -51,8 +52,8 @@ class Artifact(models.Model):
     status = models.SmallIntegerField(default=Existence.ACTIVE)
 
     @classmethod
-    def create(cls, proj: Project, type: str, name: str, live: bool = False):
-        return cls(proj_id=proj.id, type=type, name=name, live=live)
+    def create(cls, proj_id, creator_id, type: str, name: str, live: bool = False):
+        return cls(proj_id=proj_id, creator_id=creator_id, type=type, name=name, live=live)
 
     def is_active(self):
         return self.status == Existence.ACTIVE
@@ -72,7 +73,7 @@ class Artifact(models.Model):
     def get_path(self):
         if self.is_external():
             return None
-        return f"./files/projects/{self.proj_id}/attachments/{self.id}-{self.filename}.{self.extension}"
+        return f"./files/projects/{self.proj_id}/attachments/{self.id}.{self.extension}"
 
     def get_filename(self):
         if self.is_external():

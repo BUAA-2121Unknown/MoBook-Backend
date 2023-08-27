@@ -6,6 +6,9 @@
 #
 from project.dtos.models.project_dto import ProjectCompleteDto
 from project.models import Artifact
+from shared.utils.model.model_extension import first_or_default
+from user.dtos.user_dto import UserDto
+from user.models import User
 
 
 class ArtifactBaseDto:
@@ -23,6 +26,9 @@ class ArtifactBaseDto:
 
         self.isLive = artifact.live
         self.status = artifact.status
+
+        creator = first_or_default(User, id=artifact.creator_id)
+        self.creator = None if creator is None else UserDto(creator)
 
 
 class ArtifactDto(ArtifactBaseDto):
