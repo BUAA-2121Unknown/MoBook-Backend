@@ -4,6 +4,7 @@
 # @Author  : Tony Skywalker
 # @File    : project_extension.py
 #
+from org.models import Organization
 from project.models import Project
 from shared.utils.model.model_extension import first_or_default
 from user.models import User, UserProjectProfile
@@ -38,3 +39,7 @@ def get_upps_of_project(project: Project):
 
 def get_users_of_project(project: Project):
     return list(map(lambda upp: upp.get_user(), get_upps_of_project(project)))
+
+
+def get_projects_of_organization(organization: Organization):
+    return Project.objects.filter(org_id=organization.id)
