@@ -4,10 +4,12 @@
 # @Author  : Tony Skywalker
 # @File    : member.py
 #
+from chat.models import Chat
 from chat.utils.assistance import add_users_to_chat, remove_users_from_chat
 from org.models import Organization
 from project.utils.assistance import add_users_to_project, remove_users_from_project
 from shared.utils.model.chat_extension import get_chats_of_organization
+from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.organization_extension import get_org_profile_of_user
 from shared.utils.model.project_extension import get_projects_of_organization
 from user.models import User, UserOrganizationProfile, UserAuth
@@ -28,8 +30,9 @@ def add_member_into_org(org: Organization, user: User):
     for project in get_projects_of_organization(org):
         add_users_to_project([user], project)
 
-    # add member to chats
-    for chat in get_chats_of_organization(org):
+    # add member to default chat only
+    chat = first_or_default(Chat, id=org.chat_id)
+    if chat is not None:
         add_users_to_chat([user], chat)
 
     return uop
@@ -46,6 +49,6 @@ def kick_member_from_org(org: Organization, user: User, uop: UserOrganizationPro
     for project in get_projects_of_organization(org):
         remove_users_from_project([user], project)
 
-    # remove member from chats
+    # remove member from all chats
     for chat in get_chats_of_organization(org):
         remove_users_from_chat([user], chat)
