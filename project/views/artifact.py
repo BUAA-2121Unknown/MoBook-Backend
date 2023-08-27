@@ -19,7 +19,7 @@ from shared.response.json_response import UnauthorizedResponse, BadRequestRespon
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
-from shared.utils.model.project_extension import get_proj_with_user
+from shared.utils.model.project_extension import get_project_with_user
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.parameter.value_parser import parse_value
@@ -41,7 +41,7 @@ def create_artifact(request):
     if not dto.is_valid():
         return BadRequestResponse(BadRequestDto("Bad value"))
 
-    proj, upp = get_proj_with_user(dto.projId, user)
+    proj, upp = get_project_with_user(dto.projId, user)
     if proj is None:
         return NotFoundResponse(NoSuchProjectDto())
     if not proj.is_active():
@@ -69,7 +69,7 @@ def update_artifact(request):
         return NotFoundResponse(NoSuchArtifactDto())
 
     # check belonging
-    proj, upp = get_proj_with_user(art.proj_id, user)
+    proj, upp = get_project_with_user(art.proj_id, user)
     proj: Project
     if proj is None:
         return NotFoundResponse(NoSuchProjectDto())
@@ -120,7 +120,7 @@ def update_artifact_status(request):
             data.add_error(art_id, "No such artifact")
             continue
         # check belonging
-        proj, upp = get_proj_with_user(art.proj_id, user)
+        proj, upp = get_project_with_user(art.proj_id, user)
         proj: Project
         if proj is None:
             data.add_error(art_id, "Belonging project not exists")

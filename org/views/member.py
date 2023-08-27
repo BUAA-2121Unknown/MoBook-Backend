@@ -152,7 +152,7 @@ def kick_member(request):
         return UnauthorizedResponse(UnauthorizedDto("Not admin"))
 
     data = OperationResponseData().init()
-    for uid in dto.members:
+    for uid in dto.users:
         if uid == user.id:
             data.errors.append(KickMemberErrorData(uid, "Cannot kick self"))
             continue

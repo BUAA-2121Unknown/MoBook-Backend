@@ -17,7 +17,7 @@ from shared.response.json_response import OkResponse, ForbiddenResponse, NotFoun
 from shared.utils.file.exceptions import FileException
 from shared.utils.file.file_handler import parse_filename, save_file, construct_file_response, load_file
 from shared.utils.model.model_extension import first_or_default
-from shared.utils.model.project_extension import get_proj_with_user
+from shared.utils.model.project_extension import get_project_with_user
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.parameter.value_parser import parse_value
@@ -39,7 +39,7 @@ def upload_artifact_attachment(request):
         return NotFoundResponse(NoSuchArtifactDto())
 
     # validate permissions
-    proj, upp = get_proj_with_user(artifact.proj_id, user)
+    proj, upp = get_project_with_user(artifact.proj_id, user)
     if proj is None:
         return NotFoundResponse(NoSuchProjectDto())
     if not proj.is_active():
@@ -84,7 +84,7 @@ def download_artifact_attachment(request):
         return NotFoundResponse(NoSuchArtifactDto())
 
     # validate permissions
-    proj, upp = get_proj_with_user(artifact.proj_id, user)
+    proj, upp = get_project_with_user(artifact.proj_id, user)
     if proj is None:
         return NotFoundResponse(NoSuchProjectDto())
     if not proj.is_active():

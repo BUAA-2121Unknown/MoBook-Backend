@@ -10,7 +10,7 @@ from typing import List
 class KickMemberDto:
     def __init__(self):
         self.orgId: int = 0
-        self.members: List[int] = [0]
+        self.users: List[int] = [0]
 
 
 class KickMemberErrorData:

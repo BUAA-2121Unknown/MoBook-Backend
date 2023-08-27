@@ -23,7 +23,7 @@ from shared.response.json_response import UnauthorizedResponse, BadRequestRespon
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.organization_extension import get_org_with_user, get_users_of_org
-from shared.utils.model.project_extension import get_proj_with_user
+from shared.utils.model.project_extension import get_project_with_user
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
 from user.models import User
@@ -95,7 +95,7 @@ def update_project_status(request):
 
     data = OperationResponseData().init()
     for proj_id in dto.projects:
-        proj, upp = get_proj_with_user(proj_id, user)
+        proj, upp = get_project_with_user(proj_id, user)
         if proj is None:
             data.errors.append(OperationErrorData(proj_id, "No such project"))
             continue

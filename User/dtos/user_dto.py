@@ -14,3 +14,4 @@ class UserDto:
         self.username = user.username
         self.name = user.name
         self.avatarUrl = get_avatar_url('user', user.avatar)
+        self.email = user.email
