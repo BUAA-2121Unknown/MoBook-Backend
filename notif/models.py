@@ -111,7 +111,9 @@ class Notification(models.Model):
         try:
             typ = payload.type
             pl = serialize(payload)
-        except Exception:
+        except Exception as e:
+            print("-----")
+            print(e)
             return None
         return cls(user_id=user_id, org_id=org_id, type=typ, payload=pl)
 

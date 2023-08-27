@@ -23,6 +23,7 @@ def dispatch_notif(target_user_id, org_id, payload: NotifBasePayload):
         data = serialize(notif)
     except JsonSerializeException as e:
         # exception swallowed, failed to send message :(
+        print(e)
         return
 
     channel_layer = get_channel_layer()
