@@ -8,7 +8,8 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 from notif.consumers import generate_notification_consumer_token
-from notif.models import Notification, NotifBasePayload
+from notif.dtos.notif_payload import NotifBasePayload
+from notif.models import Notification
 from shared.utils.json.exceptions import JsonSerializeException
 from shared.utils.json.serializer import serialize_as_raw_dict, serialize
 

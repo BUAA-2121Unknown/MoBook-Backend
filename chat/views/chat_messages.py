@@ -7,7 +7,7 @@ from MoBook.settings import BASE_URL
 from chat.models import Chat
 from chat.utils.message_manager import new_to_chat, pull_older, new_to_chat_ver1, pull_newer
 from message.models import Message
-from notif.models import NotifAtPayload
+from notif.dtos.notif_payload import NotifAtPayload
 from notif.utils.notif_manager import dispatch_notif
 from org.models import Organization
 from shared.utils.dir_utils import get_avatar_url

@@ -19,4 +19,4 @@ class UopData:
 class UopDto:
     def __init__(self, user: User, uop: UserOrganizationProfile):
         self.user = UserDto(user)
-        self.uop = UopData(uop)
+        self.member = UopData(uop)
