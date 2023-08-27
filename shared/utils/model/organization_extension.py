@@ -48,5 +48,5 @@ def get_org_managed_by_user(oid, user: User):
 
 
 def get_org_with_user(oid, user: User):
-    org, oup = _get_org_and_profile_of_user(oid, user)
-    return org, oup
+    org, uop = _get_org_and_profile_of_user(oid, user)
+    return org, uop

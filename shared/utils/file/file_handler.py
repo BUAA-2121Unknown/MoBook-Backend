@@ -7,11 +7,13 @@
 
 import os
 
+from django.http import FileResponse
+
 from shared.utils.file.exceptions import FileException
 
 
 def save_file(old_path, new_path, file):
-    if old_path and os.path.exists(old_path):
+    if old_path is not None and os.path.exists(old_path):
         try:
             os.remove(old_path)
         except Exception as e:
@@ -38,7 +40,14 @@ def load_file(file_path):
     except Exception as e:
         raise FileException("Failed to open file") from e
 
-# response = FileResponse(open(md_url, "rb"))
-# response['Content-Type'] = 'application/octet-stream'
-# response['Content-Disposition'] = 'attachment;filename={}'.format(escape_uri_path(document.document_title + '.md'))
-# return response
+
+def parse_filename(filename: str) -> (str, str):
+    name, ext = os.path.splitext(filename)
+    return name, ext
+
+
+def construct_file_response(file, filename):
+    response = FileResponse(file)
+    response['Content-Type'] = 'application/octet-stream'
+    response['Content-Disposition'] = 'attachment;filename={}'.format(filename)
+    return response

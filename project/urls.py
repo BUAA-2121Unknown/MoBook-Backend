@@ -8,6 +8,7 @@
 from django.urls import path
 
 from project.views.artifact import create_artifact, update_artifact_status, update_artifact
+from project.views.attachment import upload_artifact_attachment, download_artifact_attachment
 from project.views.management import create_project, update_project_status
 from project.views.profile import update_project_profile, get_artifacts_of_project
 
@@ -17,8 +18,11 @@ urlpatterns = [
     path('status/update', update_project_status),
 
     path('artifact/create', create_artifact),
-    path('artifact/profile/update', update_artifact),
     path('artifact/status/update', update_artifact_status),
+    path('artifact/profile/update', update_artifact),
+
+    path('artifact/file/upload', upload_artifact_attachment),
+    path('artifact/file/download', download_artifact_attachment),
 
     path('artifacts', get_artifacts_of_project),
 ]

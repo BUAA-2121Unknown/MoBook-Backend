@@ -15,12 +15,13 @@ class ArtifactBaseDto:
         self.name = artifact.name
         self.type = artifact.type
 
-        # external means whether server has the file or not
-        self.external = artifact.external
+        # filename is null if no file uploaded
+        self.filename = artifact.get_filename()
 
         self.created = artifact.created
         self.updated = artifact.updated
 
+        self.isLive = artifact.live
         self.status = artifact.status
 
 

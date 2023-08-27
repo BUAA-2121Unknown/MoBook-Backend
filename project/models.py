@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.encoding import escape_uri_path
 
 from org.models import Organization
 from shared.utils.model.model_extension import first_or_default
@@ -51,21 +52,20 @@ class Artifact(models.Model):
     type = models.CharField(max_length=31)
     name = models.CharField(max_length=63)
 
-    extension = models.CharField(max_length=15, default="")
-
-    # live collaborating documents are stored on another database and
-    # managed by another server
-    external = models.BooleanField(default=True)
+    filename = models.CharField(max_length=127, default=None, null=True)
+    extension = models.CharField(max_length=15, default=None, null=True)
 
     # created and updated fields are automatically set by Django
     created = models.DateTimeField(auto_now=True)
     updated = models.DateTimeField(auto_now_add=True)
 
+    live = models.BooleanField(default=False)
+
     status = models.SmallIntegerField(default=Existence.ACTIVE)
 
     @classmethod
-    def create(cls, proj: Project, type: str, name: str, external: bool = False):
-        return cls(proj_id=proj.id, type=type, name=name, external=external)
+    def create(cls, proj: Project, type: str, name: str, live: bool = False):
+        return cls(proj_id=proj.id, type=type, name=name, live=live)
 
     def is_active(self):
         return self.status == Existence.ACTIVE
@@ -76,8 +76,21 @@ class Artifact(models.Model):
     def get_org(self):
         return self.get_proj().get_org()
 
+    def is_external(self):
+        return self.filename is None or self.extension is None
+
+    def has_file(self):
+        return not self.is_external()
+
     def get_path(self):
-        return f"./files/{self.proj_id}/{self.id}.{self.extension}"
+        if self.is_external():
+            return None
+        return f"./files/projects/{self.proj_id}/attachments/{self.id}-{self.filename}.{self.extension}"
+
+    def get_filename(self):
+        if self.is_external():
+            return None
+        return escape_uri_path(f"{self.name}.{self.extension}")
 
     class Meta:
         verbose_name = 'artifact'
