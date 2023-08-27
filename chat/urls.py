@@ -19,7 +19,7 @@ from django.urls import path
 
 from chat import views
 from chat.views.chat_manage import create_chat, chat_invite_member, chat_remove_member
-from chat.views.chat_messages import jump_to_at, get_chat_list, get_messages, send_text, send_file
+from chat.views.chat_messages import get_chat_list, get_messages, send_text, send_file
 
 urlpatterns = [
     path('index', get_chat_list, name='get_chat_list'),

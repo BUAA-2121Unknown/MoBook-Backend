@@ -42,6 +42,7 @@ class UserChatRelation(models.Model):
     user_id = models.IntegerField(primary_key=True)
     chat_id = models.IntegerField()
     unread = models.IntegerField()
+    authority = models.IntegerField(default=0)  # 0 : ordinary, 1 : admin
     at_message_id = models.IntegerField(blank=True, null=True)
 
     class Meta:

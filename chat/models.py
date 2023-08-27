@@ -14,7 +14,7 @@ def chat_avatar_path(self, filename):
 class Chat(models.Model):
     org_id = models.IntegerField(default=0)
     chat_name = models.CharField(max_length=63)
-    chat_avatar = models.ImageField(upload_to=chat_avatar_path, blank=True, null=True)
+    chat_avatar = models.ImageField(upload_to=chat_avatar_path, blank=True, null=True)  # default
     latest_message = models.IntegerField(default=0)
     type = models.IntegerField(default=0)  # 0 : private, 1 : group chat
 

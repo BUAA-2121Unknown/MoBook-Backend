@@ -61,7 +61,8 @@ INSTALLED_APPS = [
     "message",
     "notif",
     "user.apps.UserConfig",
-    "org.apps.OrgConfig"
+    "org.apps.OrgConfig",
+    "project.apps.ProjectConfig",
 ]
 
 MIDDLEWARE = [

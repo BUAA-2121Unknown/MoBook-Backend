@@ -8,9 +8,9 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-
 from MoBook.settings import BASE_URL
 from chat.models import Chat
+from chat.utils.message_manager import new_to_chat, pull_older, new_to_chat_ver1, pull_newer
 from message.models import Message
 from shared.utils.model.user_extension import get_user_from_request
 from user.models import User, UserOrganizationProfile, UserChatRelation, UserChatJump
@@ -25,38 +25,110 @@ from shared.utils.parameter.parameter import parse_param
 
 @api_view(['POST'])
 @csrf_exempt
-def jump_to_at(request):
-    pass
-
-
-@api_view(['POST'])
-@csrf_exempt
 def get_chat_list(request):
     user: User = get_user_from_request(request)
     if user is None:
         return UnauthorizedResponse(UnauthorizedDto())
-    chat_list = UserChatRelation.objects.filter(user_id=user.id)
+
+    user_chat_relation_list = UserChatRelation.objects.filter(user_id=user.id)  # 可能数据类型不匹配
     data = {"chat_list": []}
-    for chat in chat_list:
+    # 获取群聊列表：基础信息
+    for user_chat_relation in user_chat_relation_list:
+        chat = Chat.objects.get(chat_id=user_chat_relation.chat_id)
         data["chat_list"].append({
-            "chat_id": chat.chat_id,
+            "chat_id": chat.id,
             "chat_name": chat.chat_name,
             "chat_avatar": chat.chat_avatar,
         })
-        at_message_id = UserChatRelation.objects.get(user_id=user.id, chat_id=chat.chat_id).at_message_id
-        if UserChatJump(user_id=user.id, chat_id=chat.chat_id, at_message_id=at_message_id).valid == 1:
-            data["chat_list"].append({"latest_message": at_message_id})
+
+        # 获取最新at消息
+        at_message_id = user_chat_relation.at_message_id
+
+        # 判断是否覆盖：如果at_message_id是0表示已经失效
+        if at_message_id != 0:
+            message = Message.objects.get(message_id=at_message_id)
+            data["chat_list"].append({"latest_message": message.text})  # 返回最新消息的数据：用户在组内昵称和消息文本
         else:
-            data["chat_list"].append({"latest_message": chat.latest_message})
+            message = Message.objects.get(message_id=chat.latest_message)
+            data["chat_list"].append({"latest_message": message.text})  # 返回最新消息的数据：用户在组内昵称和消息文本
 
     return OkResponse(OkDto(data=data))
 
 
 @api_view(['POST'])
 @csrf_exempt
-def get_messages(request, chat_id):  # unread = 0, valid = 0
-    # return history messages
-    return render(request, 'chatroom.html', {'chat_id': chat_id})
+def get_all_messages(request, chat_id):
+    user: User = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+    data = new_to_chat_ver1(user, chat_id)
+    return OkResponse(OkDto(data=data))
+
+
+@api_view(['POST'])
+@csrf_exempt
+def view_chat(request, chat_id):  # unread = 0, valid = 0
+    user: User = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+    data = new_to_chat(user, chat_id)
+    return OkResponse(OkDto(data=data))
+
+
+@api_view(['POST'])
+@csrf_exempt
+# 需要分页
+# 此时前端解除新消息锁定（ws）如果不行，就后端向前端发送ws通知
+# 找到基准消息，
+# 点击详情（最新），通知跳转（给id），at跳转（给id），搜索（返回匹配的消息列表（） + 给id跳转），刷新消息
+# 点击详情和通知跳转会返回未读at消息列表并且进行清零
+# 应该把获取消息（基于mid从底向上数）
+def pull_older_messages(request, chat_id):
+    user: User = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+    params = parse_param(request)
+    message_id = params.get('message_id')
+    message_num = params.get('message_num')
+    data = pull_older(message_id, chat_id, message_num)
+    return OkResponse(OkDto(data=data))
+
+
+@api_view(['POST'])
+@csrf_exempt
+def pull_newer_messages(request, chat_id):
+    user: User = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+    params = parse_param(request)
+    message_id = params.get('message_id')
+    message_num = params.get('message_num')
+    data = pull_newer(message_id, chat_id, message_num)
+    return OkResponse(OkDto(data=data))
+
+
+@api_view(['POST'])
+@csrf_exempt
+def search_messages(request):
+    pass
+
+
+@api_view(['POST'])
+@csrf_exempt
+def get_text_messages(request):
+    pass
+
+
+@api_view(['POST'])
+@csrf_exempt
+def get_image_messages(request):
+    pass
+
+
+@api_view(['POST'])
+@csrf_exempt
+def get_file_messages(request):
+    pass
 
 
 @api_view(['POST'])
@@ -93,11 +165,14 @@ def send_file(request, chat_id):  # form data
         image = request.FILES['image']
         message.image = image
         message.type = 1
+        message.text = image.name
         message.save()
+        response['text'] = image.name
         response['image_url'] = BASE_URL + message.image.url
         response['type'] = 1
     else:
         return BadRequestResponse(BadRequestDto("Missing content"))
+
     chat = Chat.objects.get(id=chat_id)
     chat.latest_message = message.id
     chat.save()
@@ -120,7 +195,7 @@ def send_text(request, chat_id):  # json
         return UnauthorizedResponse(UnauthorizedDto("Not in chat"))
 
     params = parse_param(request)
-    type = params.get('type')
+    type = params.get('type')  # 尝试get不存在的键不会报错
     response = {
         'src_id': user.id,
         'src_name': params.get('nickname'),  # 传过来团队内昵称
@@ -128,8 +203,8 @@ def send_text(request, chat_id):  # json
     }
 
     message = Message(src_id=user.id, chat_id=chat_id)
-    if 'text' in request.POST:
-        text = request.POST['text']
+    if params.get('type') is not None:
+        text = params.get('type')
         message.text = text
         message.type = 0
         response['text'] = text
@@ -140,24 +215,28 @@ def send_text(request, chat_id):  # json
             message.type = 3
             at_list = params.get('at_list')  # user_id
             for user_id in at_list:
+                # 更新at消息列表，群聊最新消息
                 user_chat_relation = UserChatRelation.objects.get(chat_id=chat_id)
                 user_chat_relation.at_message_id = message.id
                 user_chat_relation.save()
                 user_chat_jump = UserChatJump(user_id=user_id, chat_id=chat_id, message_id=message.id, valid=1)
                 user_chat_jump.save()
 
+                # 发送at通知
                 channel_layer = get_channel_layer()
-                async_to_sync(channel_layer.send)(user_id, {'type': 'notify', 'data': request.POST['data']})
+                async_to_sync(channel_layer.group_send)(str(user_id), {'type': 'notify', 'data': params.get('data')})
 
     else:
         return BadRequestResponse(BadRequestDto("Missing content"))
+
+    # 更新最新消息
     chat = Chat.objects.get(id=chat_id)
     chat.latest_message = message.id
     chat.save()
+
+    # 更新未读信息数目
     for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id):
         user_chat_relation.unread += 1
         user_chat_relation.save()
     message.save()
-
-
-
+    return OkResponse(OkDto(data=response))  # 需要返回文件的本名和url，前端（发送者）收到后进行ws请求
