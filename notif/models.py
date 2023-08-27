@@ -24,7 +24,7 @@ class NotifType:
 class NotifBasePayload:
     def __init__(self, typ: int, org: Organization):
         self.type: int = typ
-        self.organization = OrganizationDto(org)
+        self.org = OrganizationDto(org)
 
 
 class NotifTextPayload(NotifBasePayload):
@@ -74,10 +74,9 @@ class NotifNewProjectPayload(NotifBasePayload):
     """
 
     def __init__(self, text: str, org: Organization, user: User, project: Project):
-        super().__init__(NotifType.NEW_PROJECT, text)
+        super().__init__(NotifType.NEW_PROJECT, org)
         self.user: UserDto = UserDto(user)
         self.project: ProjectDto = ProjectDto(project)
-        self.organization: OrganizationDto = OrganizationDto(org)
 
 
 class NotifStatus:

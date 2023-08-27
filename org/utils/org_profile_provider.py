@@ -4,12 +4,12 @@
 # @Author  : Tony Skywalker
 # @File    : org_profile_provider.py
 #
-from org.dtos.models.org_dto import OrganizationDto
+from org.dtos.models.org_dto import OrganizationDto, OrgWithAuthDto
 from org.models import Organization
 
 
 def org_profile_provider_full(org: Organization):
-    return OrganizationDto(org)
+    return OrgWithAuthDto(org)
 
 
 def org_profile_provider_simple(org: Organization):
