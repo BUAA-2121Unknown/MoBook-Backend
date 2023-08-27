@@ -25,6 +25,7 @@ def create_chat(request):
 
     # 拉创始人
     user_chat_relation = UserChatRelation(user_id=src.id, chat_id=chat.id, authority=1)
+    user_chat_relation.save()
 
     # 拉n人
     invite_list = params.get('invite_list')
@@ -62,6 +63,22 @@ def chat_invite_member(request, chat_id):
     user_chat_relation.save()
 
     return OkResponse(OkDto())
+
+
+def get_chat_member(request, chat_id):
+    src: User = get_user_from_request(request)
+    if src is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+
+    data = {"users": []}
+    for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id):
+        user = User.objects.get(id=user_chat_relation.user_id)
+        data["users"].append({
+            "username": user.username,
+            "avatar": user.avatar
+        })
+
+    return OkResponse(OkDto(data=data))
 
 
 def chat_remove_member(request, chat_id):

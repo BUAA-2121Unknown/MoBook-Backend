@@ -12,6 +12,7 @@ from MoBook.settings import BASE_URL
 from chat.models import Chat
 from chat.utils.message_manager import new_to_chat, pull_older, new_to_chat_ver1, pull_newer
 from message.models import Message
+from shared.utils.dir_utils import get_avatar_url
 from shared.utils.model.user_extension import get_user_from_request
 from user.models import User, UserOrganizationProfile, UserChatRelation, UserChatJump
 from oauth.dtos.login_dto import LoginDto
@@ -25,20 +26,24 @@ from shared.utils.parameter.parameter import parse_param
 
 @api_view(['POST'])
 @csrf_exempt
+# at消息置顶？
 def get_chat_list(request):
     user: User = get_user_from_request(request)
     if user is None:
         return UnauthorizedResponse(UnauthorizedDto())
 
     user_chat_relation_list = UserChatRelation.objects.filter(user_id=user.id)  # 可能数据类型不匹配
+    params = parse_param(request)
     data = {"chat_list": []}
     # 获取群聊列表：基础信息
     for user_chat_relation in user_chat_relation_list:
         chat = Chat.objects.get(chat_id=user_chat_relation.chat_id)
-        data["chat_list"].append({
-            "chat_id": chat.id,
-            "chat_name": chat.chat_name,
-            "chat_avatar": chat.chat_avatar,
+        tmp = {}
+        tmp.append({
+            "roomId": chat.id,
+            "roomName": chat.chat_name,
+            "unreadCount": user_chat_relation.unread,
+            "avatar": BASE_URL + chat.chat_avatar.url,
         })
 
         # 获取最新at消息
@@ -47,11 +52,20 @@ def get_chat_list(request):
         # 判断是否覆盖：如果at_message_id是0表示已经失效
         if at_message_id != 0:
             message = Message.objects.get(message_id=at_message_id)
-            data["chat_list"].append({"latest_message": message.text})  # 返回最新消息的数据：用户在组内昵称和消息文本
         else:
             message = Message.objects.get(message_id=chat.latest_message)
-            data["chat_list"].append({"latest_message": message.text})  # 返回最新消息的数据：用户在组内昵称和消息文本
+        tmp.append({"latest_message": {
+            "content": message.text,
+            "senderId": message.src_id,  # ?
+            "username": UserOrganizationProfile.objects.get(user_id=message.src_id,
+                                                            org_id=params.get("org_id")).nickname,
+            "timestamp": message.timestamp.hour + ':' + message.timestamp.minute,
+        }})  # 返回最新消息的数据：用户在组内昵称和消息文本
 
+        tmp.append({"index": message.id})
+        tmp.append({"users": [],
+                    "messages": []})
+        data["chat_list"].append(tmp)
     return OkResponse(OkDto(data=data))
 
 
@@ -146,7 +160,7 @@ def send_file(request, chat_id):  # form data
     response = {
         'src_id': user.id,
         'src_name': params.get('nickname'),  # 传过来团队内昵称
-        'src_avatar_url': user.avatar
+        'src_avatar_url': get_avatar_url("user", user.avatar)
     }
 
     message = Message(src_id=user.id, chat_id=chat_id)
@@ -199,7 +213,7 @@ def send_text(request, chat_id):  # json
     response = {
         'src_id': user.id,
         'src_name': params.get('nickname'),  # 传过来团队内昵称
-        'src_avatar_url': user.avatar,
+        'src_avatar_url': get_avatar_url("user", user.avatar),
     }
 
     message = Message(src_id=user.id, chat_id=chat_id)
