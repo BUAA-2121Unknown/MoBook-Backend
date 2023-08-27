@@ -80,8 +80,8 @@ class UserAuth:
 class UserOrganizationProfile(models.Model):
     # 0 creator, 1 admin, 2 normal
     auth = models.IntegerField()
-    user_id = models.IntegerField(primary_key=True)
-    org_id = models.IntegerField()
+    user_id = models.BigIntegerField()
+    org_id = models.BigIntegerField()
     nickname = models.CharField(max_length=63)
 
     def get_user(self):
@@ -97,9 +97,7 @@ class UserOrganizationProfile(models.Model):
         return cls(auth, user_id=user.id, org_id=org.id, nickname=nickname)
 
     class Meta:
-        managed = True
         db_table = 'UserOrganizationProfile'
-        unique_together = (('user_id', 'org_id'),)
 
 
 class UserProjectProfile(models.Model):

@@ -7,6 +7,8 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
+from notif.models import NotifInvitationPayload
+from notif.utils.notif_manager import dispatch_notif
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from project.dtos.models.project_dto import ProjectCompleteDto
 from project.dtos.requests.create_project_dto import CreateProjectDto
@@ -22,6 +24,7 @@ from shared.utils.model.organization_extension import get_org_with_user
 from shared.utils.model.project_extension import get_proj_with_user
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
+from user.models import UserProjectProfile
 
 
 @api_view(['POST'])
@@ -52,9 +55,14 @@ def create_project(request):
     proj = Project.create(org, dto.name, dto.description)
     proj.save()
 
-    init_project_by_organization(proj)
+    init_project_by_organization(proj, add_user_to_project_callback)
 
     return OkResponse(OkDto(data=ProjectCompleteDto(proj)))
+
+
+def add_user_to_project_callback(user, project):
+    dispatch_notif(user, project.org_id, NotifInvitationPayload())
+    pass
 
 
 @api_view(['POST'])

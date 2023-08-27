@@ -14,19 +14,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path
 
-from chat import views
 from chat.views.chat_manage import create_chat, chat_invite_member, chat_remove_member
-from chat.views.chat_messages import get_chat_list, get_messages, send_text, send_file
+# from chat.views.chat_messages import get_chat_list, get_messages, send_text, send_file
 
 urlpatterns = [
-    path('index', get_chat_list, name='get_chat_list'),
+    # path('index', get_chat_list, name='get_chat_list'),
     path('create', create_chat, name='create_chat'),
-    path('<str:chat_id>/invite', chat_invite_member, name='chat_invite_member'),
-    path('<str:chat_id>/remove', chat_remove_member, name='chat_remove_member'),
-    path('<str:chat_id>/view', get_messages, name='get_messages'),
-    path('<str:chat_id>/send_text', send_text, name='send_text'),
-    path('<str:chat_id>/send_file', send_file, name='send_file'),
+    # path('<str:chat_id>/invite', chat_invite_member, name='chat_invite_member'),
+    # path('<str:chat_id>/remove', chat_remove_member, name='chat_remove_member'),
+    # path('<str:chat_id>/view', get_messages, name='get_messages'),
+    # path('<str:chat_id>/send_text', send_text, name='send_text'),
+    # path('<str:chat_id>/send_file', send_file, name='send_file'),
 ]

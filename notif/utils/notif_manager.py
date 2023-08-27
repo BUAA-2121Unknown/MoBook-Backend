@@ -15,8 +15,7 @@ from shared.utils.json.serializer import serialize
 from user.models import User
 
 
-def dispatch_notif(user: User, org: Organization, payload: NotifBasePayload):
-    org_id = None if org is None else org.id
+def dispatch_notif(user: User, org_id, payload: NotifBasePayload):
     notif = Notification.create(user.id, org_id, payload)
     if notif is None:
         return

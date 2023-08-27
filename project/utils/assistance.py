@@ -16,7 +16,7 @@ from shared.utils.model.project_extension import get_proj_profile_of_user
 from user.models import User, UserProjectProfile
 
 
-def add_users_to_project_by_id(users, project: Project):
+def add_users_to_project_by_id(users, project: Project, callback=None):
     data = OperationResponseData().init()
     user_list = []
     for uid in users:
@@ -25,17 +25,17 @@ def add_users_to_project_by_id(users, project: Project):
             data.add_error(uid, "No such user")
             continue
         user_list.append(user)
-    _add_users_to_project(user_list, project, data)
+    _add_users_to_project(user_list, project, callback, data)
     return data
 
 
-def add_users_to_project(users, project: Project):
+def add_users_to_project(users, project: Project, callback=None):
     data = OperationResponseData().init()
-    _add_users_to_project(users, project, data)
+    _add_users_to_project(users, project, callback, data)
     return data
 
 
-def _add_users_to_project(users, project: Project, data: OperationResponseData):
+def _add_users_to_project(users, project: Project, callback, data: OperationResponseData):
     for user in users:
         upp = get_proj_profile_of_user(project, user)
         if upp is not None:
@@ -43,9 +43,11 @@ def _add_users_to_project(users, project: Project, data: OperationResponseData):
             continue
         UserProjectProfile.create(user, project, "Member").save()
         data.add_success(user.id)
+        if callback:
+            callback(user, project)
 
 
-def remove_users_from_project_by_id(users, project: Project):
+def remove_users_from_project_by_id(users, project: Project, callback=None):
     data = OperationResponseData().init()
     user_list = []
     for uid in users:
@@ -54,17 +56,17 @@ def remove_users_from_project_by_id(users, project: Project):
             data.add_error(uid, "No such user")
             continue
         user_list.append(user)
-    _remove_users_from_project(user_list, project, data)
+    _remove_users_from_project(user_list, project, callback, data)
     return data
 
 
-def remove_users_from_project(users, project: Project):
+def remove_users_from_project(users, project: Project, callback=None):
     data = OperationResponseData().init()
-    _remove_users_from_project(users, project, data)
+    _remove_users_from_project(users, project, callback, data)
     return data
 
 
-def _remove_users_from_project(users, project: Project, data: OperationResponseData):
+def _remove_users_from_project(users, project: Project, callback, data: OperationResponseData):
     for user in users:
         upp: UserProjectProfile = get_proj_profile_of_user(project, user)
         if upp is None:
@@ -72,11 +74,11 @@ def _remove_users_from_project(users, project: Project, data: OperationResponseD
             continue
         upp.delete()
         data.add_success(user.id)
+        if callback:
+            callback(user, project)
 
 
-def init_project_by_organization(project: Project):
-    org: Organization = project.get_org()
-    if not org.is_active():
-        return OperationResponseData().init().add_error(org.id, "Organization is not active")
-
-    return add_users_to_project(get_users_of_org(org), project)
+def init_project_by_organization(user: User, project: Project, organization: Organization, callback=None):
+    # save first user to avoid unnecessary callback
+    UserProjectProfile.create(user, project, "Leader").save()
+    return add_users_to_project(get_users_of_org(organization), project, callback)

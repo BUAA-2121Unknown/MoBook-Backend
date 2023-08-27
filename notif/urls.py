@@ -17,6 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from notif.views.notification import get_notif_in_org, edit_notif
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('all', get_notif_in_org),
+    path('update', edit_notif),
 ]

@@ -1,6 +1,3 @@
-from django.shortcuts import render
-
-import user
 from chat.models import Chat
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, OkResponse

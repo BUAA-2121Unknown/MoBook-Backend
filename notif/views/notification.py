@@ -4,7 +4,6 @@
 # @Author  : Tony Skywalker
 # @File    : notification.py
 #
-from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
@@ -29,11 +28,7 @@ def get_notif_in_org(request):
     """
     {
         orgId:
-        status: [
-            0, unread
-            1, read
-            2, deleted
-        ]
+        status: 0 (only unread) | 1 (all)
     }
     """
     user = get_user_from_request(request)
@@ -45,32 +40,50 @@ def get_notif_in_org(request):
         dto: GetNotifDto = deserialize(params, GetNotifDto)
     except JsonDeserializeException as e:
         return BadRequestResponse(BadRequestDto(data=e))
-    if (dto.ps < 1) or (dto.p < 1):
+    if not dto.is_valid():
         return BadRequestResponse(BadRequestDto("Invalid value for pagination"))
 
     org, uop = get_org_with_user(dto.orgId, user)
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
 
-    if len(dto.status) == 0:
-        dto.status = [NotifStatus.UNREAD, NotifStatus.READ]
-    notifs = Notification.objects.filter(org_id__in=[dto.orgId, 0], status__in=dto.status)
-    paginator = Paginator(notifs, dto.ps)
-    page = paginator.get_page(dto.p)
+    if dto.status == NotifStatus.UNREAD:
+        notifs = Notification.objects.filter(org_id=dto.orgId, status=dto.status)
+    else:
+        notifs = Notification.objects.filter(org_id=dto.orgId, status__in=[NotifStatus.valid()])
+    notifs.order_by('-timestamp')
 
+    #
+    # TODO: pagination
+    #
+    # paginator = Paginator(notifs, dto.ps)
+    # page = paginator.get_page(dto.p)
+    #
+    # notif_list = []
+    # for notif in page.object_list:
+    #     notif_list.append(NotifDto(notif))
+    #
+    # data = {
+    #     'ps': dto.ps,
+    #     'p': dto.p,
+    #     'total': page.count(),
+    #     'next': paginator.num_pages > page.number,
+    #     'notifications': notif_list
+    # }
+    #
+
+    unread_count = 0
     notif_list = []
-    for notif in page.object_list:
+    for notif in notifs:
+        if notif.status == NotifStatus.UNREAD:
+            unread_count += 1
         notif_list.append(NotifDto(notif))
 
-    data = {
-        'ps': dto.ps,
-        'p': dto.p,
-        'total': page.count(),
-        'next': paginator.num_pages > page.number,
-        'notifications': notif_list
-    }
-
-    return OkResponse(OkDto(data=data))
+    return OkResponse(OkDto(data={
+        "notifications": notif_list,
+        "total": len(notif_list),
+        "unread": unread_count
+    }))
 
 
 @api_view(['POST'])
@@ -98,7 +111,8 @@ def edit_notif(request):
     data = OperationResponseData().init()
     for nid in dto.notifications:
         notif: Notification = first_or_default(Notification, id=nid, user_id=user.id)
-        if notif is None:
+        # can only change status of un-deleted notification
+        if notif is None or notif.status == NotifStatus.DELETED:
             data.errors.append(OperationErrorData(nid, "No such notification"))
             continue
         notif.status = dto.status
@@ -108,6 +122,7 @@ def edit_notif(request):
     return OkResponse(OkDto(data=data))
 
 
+# deprecated
 @api_view(['POST'])
 @csrf_exempt
 def delete_notif(request):
