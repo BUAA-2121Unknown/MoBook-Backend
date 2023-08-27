@@ -11,6 +11,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
+from chat.utils.chat_manager import create_chat
 from org.dtos.models.org_dto import OrgWithAuthDto
 from org.dtos.requests.cancel_org_dto import CancelOrgDto
 from org.dtos.requests.register_org_dto import RegisterOrgDto
@@ -42,14 +43,20 @@ def create_org(request):
         return BadRequestResponse(BadRequestDto(data=e))
     if not dto.is_valid():
         return BadRequestResponse(BadRequestDto())
+
     org = Organization.create(0, dto.name, dto.description)
     org.save()
 
+    # add user to organization
     uop = UserOrganizationProfile.create(UserAuth.CREATOR, user, org)
     uop.save()
 
-    data = org_profile_provider_full(org)
-    return OkResponse(OkDto(data=data))
+    # create default chat
+    chat = create_chat(org.id, org.name, user.id)
+    org.chat = chat.id
+    org.save()
+
+    return OkResponse(OkDto(data=org_profile_provider_full(org)))
 
 
 @api_view(['POST'])
