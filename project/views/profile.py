@@ -48,6 +48,7 @@ def update_project_profile(request):
         if not validate_proj_descr(descr):
             return BadRequestResponse(BadRequestDto("Bad description"))
         proj.description = descr
+    proj.save()
 
     return OkResponse(OkDto({
         "name": proj.name,

@@ -15,8 +15,8 @@ from shared.utils.json.serializer import serialize
 from user.models import User
 
 
-def dispatch_notif(user: User, org_id, payload: NotifBasePayload):
-    notif = Notification.create(user.id, org_id, payload)
+def dispatch_notif(target_user: User, org_id, payload: NotifBasePayload):
+    notif = Notification.create(target_user.id, org_id, payload)
     if notif is None:
         return
     notif.save()
@@ -28,7 +28,7 @@ def dispatch_notif(user: User, org_id, payload: NotifBasePayload):
         return
 
     channel_layer = get_channel_layer()
-    group_id = generate_notification_consumer_token(user.id, org_id)
+    group_id = generate_notification_consumer_token(target_user.id, org_id)
     async_to_sync(channel_layer.group_send)(group_id, {
         'type': 'notify',
         'data': data

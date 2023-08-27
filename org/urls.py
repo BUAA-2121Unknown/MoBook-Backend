@@ -17,7 +17,8 @@ Including another URLconf
 from django.urls import path
 
 from org.views.avatar import upload_org_avatar
-from org.views.invitation import create_invitation, revoke_invitation, activate_invitation
+from org.views.invitation import create_invitation, revoke_invitation, activate_invitation, get_invitation_of_org, \
+    get_preview_of_invitation
 from org.views.manage import create_org, cancel_org
 from org.views.member import update_org_member_profile, get_members_of_org, kick_member
 from org.views.pending import user_update_pending, admin_update_pending
@@ -41,6 +42,9 @@ urlpatterns = [
     path('member/auth/revoke', revoke_invitation),
     path('member/auth/activate', activate_invitation),
     path('member/auth/kick', kick_member),
+
+    path('member/auth/preview', get_invitation_of_org),
+    path('member/auth/invitations', get_preview_of_invitation),
 
     path('member/auth/pending/user/update', user_update_pending),
     # path('member/auth/pending/user', user_get_pending),
