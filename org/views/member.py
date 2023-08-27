@@ -11,7 +11,6 @@ from rest_framework.decorators import api_view
 from org.dtos.models.user_org_profile_dto import UopDto
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.dtos.requests.kick_member_dto import KickMemberDto, KickMemberErrorData
-from org.dtos.requests.update_member_profile_dto import UpdateMemberProfileDto
 from org.models import Organization
 from org.utils.assistance import kick_member_from_org
 from shared.dtos.OperationResponseData import OperationResponseData
@@ -24,6 +23,7 @@ from shared.utils.model.organization_extension import get_org_profile_of_user, g
 from shared.utils.model.user_extension import get_user_from_request, get_user_by_id
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.parameter.value_parser import parse_value
+from shared.utils.validator import validate_member_nickname
 from user.dtos.error_dtos import NoSuchUserDto, NoSuchMemberDto
 from user.models import User, UserOrganizationProfile, UserAuth
 
@@ -46,15 +46,15 @@ def update_org_member_profile(request):
         return UnauthorizedResponse(UnauthorizedDto())
 
     params = parse_param(request)
-    try:
-        dto: UpdateMemberProfileDto = deserialize(params, UpdateMemberProfileDto)
-    except JsonDeserializeException as e:
-        return BadRequestResponse(BadRequestDto(data=e))
-    if not dto.is_valid():
-        return BadRequestResponse(BadRequestDto())
+    org_id = parse_value(params.get('orgId'), int)
+    if org_id is None:
+        return BadRequestResponse(BadRequestDto("Missing orgId"))
+    user_id = parse_value(params.get('userId'), int)
+    if user_id is None:
+        return BadRequestResponse(BadRequestDto("Missing userId"))
 
     # get working organization
-    org: Organization = first_or_default(Organization, id=dto.orgId)
+    org: Organization = first_or_default(Organization, id=org_id)
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
 
@@ -63,7 +63,15 @@ def update_org_member_profile(request):
     if uop is None:
         return UnauthorizedResponse(UnauthorizedDto("Not your organization"))
 
-    if dto.userId == user.id:
+    profile = params.get('profile', None)
+    nickname = None
+    if profile is not None:
+        nickname = parse_value(profile.get('nickname'), str)
+        if nickname is not None and validate_member_nickname(nickname):
+            return BadRequestResponse(BadRequestDto("Invalid nickname"))
+    auth = parse_value(params.get('auth'), int)
+
+    if user_id == user.id:
         target = user
         target_uop = uop
     else:
@@ -72,7 +80,7 @@ def update_org_member_profile(request):
             return UnauthorizedResponse(UnauthorizedDto("Not admin"))
 
         # get target user
-        target: User = first_or_default(User, id=dto.userId)
+        target: User = first_or_default(User, id=user_id)
         if target is None:
             return NotFoundResponse(NoSuchUserDto())
 
@@ -85,12 +93,15 @@ def update_org_member_profile(request):
         if target_uop.auth in UserAuth.authorized() and uop.auth != UserAuth.CREATOR:
             return UnauthorizedResponse(UnauthorizedDto("Be the creator to edit admin"))
 
-    target_uop.nickname = dto.profile.nickname
+    if nickname is not None:
+        target_uop.nickname = nickname
+
     # fix: creator cannot be changed
-    if target_uop.auth != UserAuth.CREATOR:
-        target_uop.auth = dto.auth
-    elif dto.auth != UserAuth.CREATOR:
-        return BadRequestResponse(BadRequestDto("Cannot change creator"))
+    if auth is not None:
+        if target_uop.auth != UserAuth.CREATOR:
+            target_uop.auth = auth
+        elif auth != UserAuth.CREATOR:
+            return BadRequestResponse(BadRequestDto("Cannot change creator"))
 
     target_uop.save()
 
