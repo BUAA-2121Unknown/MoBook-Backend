@@ -16,8 +16,8 @@ class Project(models.Model):
 
     status = models.SmallIntegerField(default=Existence.ACTIVE)
 
-    created = models.DateTimeField(auto_now=True)
-    updated = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     @classmethod
     def create(cls, org: Organization, name: str, descr: str):
@@ -43,8 +43,8 @@ class Artifact(models.Model):
     extension = models.CharField(max_length=15, default=None, null=True)
 
     # created and updated fields are automatically set by Django
-    created = models.DateTimeField(auto_now=True)
-    updated = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     live = models.BooleanField(default=False)
 
