@@ -7,7 +7,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from notif.models import NotifNewProjectPayload
+from notif.dtos.notif_payload import NotifNewProjectPayload
 from notif.utils.notif_manager import dispatch_notif
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.models import Organization

@@ -8,13 +8,15 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 from notif.consumers import generate_notification_consumer_token
-from notif.models import Notification, NotifBasePayload
+from notif.dtos.notif_payload import NotifBasePayload
+from notif.models import Notification
 from shared.utils.json.exceptions import JsonSerializeException
 from shared.utils.json.serializer import serialize
 
 
 def dispatch_notif(target_user_id, org_id, payload: NotifBasePayload):
     notif = Notification.create(target_user_id, org_id, payload)
+    print(notif)
     if notif is None:
         return
     notif.save()
@@ -23,7 +25,6 @@ def dispatch_notif(target_user_id, org_id, payload: NotifBasePayload):
         data = serialize(notif)
     except JsonSerializeException as e:
         # exception swallowed, failed to send message :(
-        print(e)
         return
 
     channel_layer = get_channel_layer()

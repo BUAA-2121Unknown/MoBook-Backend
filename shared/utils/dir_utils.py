@@ -43,3 +43,9 @@ def get_avatar_url(typ, filename):
     if url is None:
         return None
     return url + filename
+
+
+def get_imagefield_url(typ, filename):
+    if filename is None:
+        return None
+    return BASE_URL + filename.url

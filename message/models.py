@@ -8,14 +8,14 @@ def message_image_path(self, filename):
     ext = filename.split('.')[-1]
     filename = '{}.{}'.format(uuid.uuid4().hex[:10], ext)
     # return the whole path to the file
-    return os.path.join(self.chat_id, "message/images", filename)
+    return os.path.join("chat/", self.chat_id, "message/images", filename)
 
 
 def message_file_path(self, filename):
     ext = filename.split('.')[-1]
     filename = '{}.{}'.format(uuid.uuid4().hex[:10], ext)
     # return the whole path to the file
-    return os.path.join(self.chat_id, "message/files", filename)
+    return os.path.join("chat/", self.chat_id, "message/files", filename)
 
 
 class Message(models.Model):
