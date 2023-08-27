@@ -20,7 +20,7 @@ from shared.response.json_response import UnauthorizedResponse, NotFoundResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
-from shared.utils.model.organization_extension import get_org_profile_of_user, get_org_with_user
+from shared.utils.model.organization_extension import get_org_profile_of_user, get_org_with_user, get_uops_of_org
 from shared.utils.model.user_extension import get_user_from_request, get_user_by_id
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.parameter.value_parser import parse_value
@@ -117,12 +117,11 @@ def get_members_of_org(request):
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
 
-    uops = UserOrganizationProfile.objects.filter(org_id=org_id)
     member_list = []
-    for uop in uops:
+    for uop in get_uops_of_org(org):
         uop: UserOrganizationProfile
-        user = get_user_by_id(uop.user_id)
-        if user is None:
+        user: User = uop.get_user()
+        if user is None or not user.is_active():
             continue
         member_list.append(UopDto(user, uop))
 

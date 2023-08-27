@@ -8,7 +8,7 @@ from user.dtos.user_dto import UserDto
 from user.models import UserOrganizationProfile, User
 
 
-class MemberDto:
+class UopData:
     def __init__(self, uop: UserOrganizationProfile):
         self.orgId = uop.org_id
         self.nickname = uop.nickname
@@ -19,4 +19,4 @@ class MemberDto:
 class UopDto:
     def __init__(self, user: User, uop: UserOrganizationProfile):
         self.user = UserDto(user)
-        self.uop = MemberDto(uop)
+        self.uop = UopData(uop)

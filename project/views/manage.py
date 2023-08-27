@@ -69,14 +69,9 @@ def create_project(request):
         u: User
         if u.id == user.id:
             continue
-        dispatch_notif(u, org.id, NotifNewProjectPayload(org, user, proj))
+        dispatch_notif(u.id, org.id, NotifNewProjectPayload(org, user, proj))
 
     return OkResponse(OkDto(data=ProjectCompleteDto(proj)))
-
-
-def add_user_to_project_callback(user, project):
-    dispatch_notif(user, project.org_id, NotifNewProjectPayload())
-    pass
 
 
 @api_view(['POST'])
