@@ -102,6 +102,7 @@ def edit_notif(request):
             data.errors.append(OperationErrorData(nid, "No such notification"))
             continue
         notif.status = dto.status
+        notif.save()
         data.success.append(nid)
 
     return OkResponse(OkDto(data=data))
