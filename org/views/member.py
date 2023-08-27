@@ -126,7 +126,7 @@ def get_members_of_org(request):
             continue
         member_list.append(UopDto(user, uop))
 
-    return OkResponse(OkDto({
+    return OkResponse(OkDto(data={
         "members": member_list,
         "total": len(member_list)
     }))

@@ -1,10 +1,5 @@
-import json
-import os
-
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-from django.http import HttpResponse
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
@@ -17,11 +12,11 @@ from shared.utils.model.user_extension import get_user_from_request
 from user.models import User, UserOrganizationProfile, UserChatRelation, UserChatJump
 from oauth.dtos.login_dto import LoginDto
 from shared.dtos.ordinary_response_dto import BadRequestDto, ErrorDto, OkDto, UnauthorizedDto
+from shared.dtos.ordinary_response_dto import BadRequestDto, OkDto, UnauthorizedDto
 from shared.response.json_response import BadRequestResponse, OkResponse, UnauthorizedResponse
-from shared.utils.json.exceptions import JsonDeserializeException
-from shared.utils.json.serializer import deserialize
-from shared.utils.model.model_extension import first_or_default
+from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
+from user.models import User, UserChatRelation, UserChatJump
 
 
 @api_view(['POST'])

@@ -1,9 +1,14 @@
 from django.db import models
 
+from chat.dtos.chat_dto import ChatDto
+from chat.models import Chat
 from org.dtos.models.org_dto import OrganizationDto
 from org.models import Organization
+from project.dtos.models.project_dto import ProjectDto
+from project.models import Project
 from shared.utils.json.serializer import serialize
-from user.models import UserAuth
+from user.dtos.user_dto import UserDto
+from user.models import UserAuth, User
 
 
 class NotifType:
@@ -13,25 +18,34 @@ class NotifType:
     INVITATION = 3
     ROLE_CHANGE = 4
     KICKED = 5
+    NEW_PROJECT = 6
 
 
 class NotifBasePayload:
-    def __init__(self, type: int, text: str):
-        self.type: int = type
-        self.text: str = text
+    def __init__(self, typ: int, org: Organization):
+        self.type: int = typ
+        self.organization = OrganizationDto(org)
 
 
 class NotifTextPayload(NotifBasePayload):
-    def __init__(self, text: str):
-        super().__init__(NotifType.TEXT, text)
+    """
+    system send you a text notification
+    """
+
+    def __init__(self, org: Organization, text: str):
+        super().__init__(NotifType.TEXT, org)
+        self.text: str = text
 
 
 class NotifAtPayload(NotifBasePayload):
-    def __init__(self, text: str, org_id: int, chat_id: int, msg_id: int):
-        super().__init__(NotifType.AT, text)
-        self.orgId = org_id
-        self.chatId = chat_id
-        self.msgId = msg_id
+    """
+    {someone} at you in {chat}
+    """
+
+    def __init__(self, org: Organization, user: User, chat: Chat):
+        super().__init__(NotifType.AT, org)
+        self.user: UserDto = UserDto(user)
+        self.chat: ChatDto = ChatDto(chat)
 
 
 class NotifInvitationPayload(NotifBasePayload):
@@ -54,6 +68,18 @@ class NotifKickedPayload(NotifBasePayload):
         self.org: OrganizationDto = OrganizationDto(org)
 
 
+class NotifNewProjectPayload(NotifBasePayload):
+    """
+    {someone} created a {new project} in {organization}
+    """
+
+    def __init__(self, text: str, org: Organization, user: User, project: Project):
+        super().__init__(NotifType.NEW_PROJECT, text)
+        self.user: UserDto = UserDto(user)
+        self.project: ProjectDto = ProjectDto(project)
+        self.organization: OrganizationDto = OrganizationDto(org)
+
+
 class NotifStatus:
     UNREAD = 0
     READ = 1
@@ -62,6 +88,10 @@ class NotifStatus:
     @classmethod
     def all(cls):
         return [cls.UNREAD, cls.READ, cls.DELETED]
+
+    @classmethod
+    def valid(cls):
+        return [cls.UNREAD, cls.READ]
 
 
 class Notification(models.Model):

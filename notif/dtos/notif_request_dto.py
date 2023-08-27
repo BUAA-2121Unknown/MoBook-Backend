@@ -7,14 +7,15 @@
 from typing import List
 
 from notif.models import NotifStatus
-from shared.dtos.paged_request_dto import PagedRequestDto
 
 
-class GetNotifDto(PagedRequestDto):
+class GetNotifDto:
     def __init__(self):
-        super().__init__()
         self.orgId: int = 0
-        self.status: List[int] = [0]
+        self.status: int = 0
+
+    def is_valid(self):
+        return self.status in NotifStatus.valid()
 
 
 class EditNotifDto:

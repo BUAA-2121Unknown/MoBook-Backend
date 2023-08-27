@@ -25,7 +25,7 @@ class User(models.Model):
 
 class UserChatJump(models.Model):
     user_id = models.IntegerField()
-    chat_id = models.IntegerField(primary_key=True)
+    chat_id = models.IntegerField()
     message_id = models.IntegerField()
     valid = models.IntegerField()
 
@@ -34,22 +34,18 @@ class UserChatJump(models.Model):
         return cls(user_id=user_id, chat_id=chat_id, message_id=message_id, valid=valid)
 
     class Meta:
-        managed = True
         db_table = 'UserChatJump'
-        unique_together = (('chat_id', 'user_id', 'message_id'),)
 
 
 class UserChatRelation(models.Model):
-    user_id = models.IntegerField(primary_key=True)
-    chat_id = models.IntegerField()
+    user_id = models.BigIntegerField()
+    chat_id = models.BigIntegerField()
     unread = models.IntegerField()
     authority = models.IntegerField(default=0)  # 0 : ordinary, 1 : admin
     at_message_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        managed = True
         db_table = 'UserChatRelation'
-        unique_together = (('user_id', 'chat_id'),)
 
 
 class UserAuth:
@@ -80,8 +76,8 @@ class UserAuth:
 class UserOrganizationProfile(models.Model):
     # 0 creator, 1 admin, 2 normal
     auth = models.IntegerField()
-    user_id = models.IntegerField(primary_key=True)
-    org_id = models.IntegerField()
+    user_id = models.BigIntegerField()
+    org_id = models.BigIntegerField()
     nickname = models.CharField(max_length=63)
 
     def get_user(self):
@@ -97,13 +93,11 @@ class UserOrganizationProfile(models.Model):
         return cls(auth, user_id=user.id, org_id=org.id, nickname=nickname)
 
     class Meta:
-        managed = True
         db_table = 'UserOrganizationProfile'
-        unique_together = (('user_id', 'org_id'),)
 
 
 class UserProjectProfile(models.Model):
-    user_id = models.BigIntegerField(primary_key=True)
+    user_id = models.BigIntegerField()
     proj_id = models.BigIntegerField()
     role = models.CharField(max_length=63)
 
