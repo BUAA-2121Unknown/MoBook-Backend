@@ -40,6 +40,8 @@ def update_user_profile(request):
         if not validate_name(name):
             return BadRequestResponse(BadRequestDto("Invalid name"))
         user.name = name
+    user.save()
+
     return OkResponse(OkDto(data={
         "username": user.username,
         "name": user.name
