@@ -94,7 +94,7 @@ def get_orgs_of_user(request):
         org = uops.get_org()
         org_list.append(OrgWithAuthDto(org, uop))
 
-    return OkResponse(OkDto({
+    return OkResponse(OkDto(data={
         "organizations": org_list,
         "total": len(org_list)
     }))

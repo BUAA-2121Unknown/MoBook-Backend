@@ -50,7 +50,7 @@ def update_project_profile(request):
         proj.description = descr
     proj.save()
 
-    return OkResponse(OkDto({
+    return OkResponse(OkDto(data={
         "name": proj.name,
         "description": proj.description
     }))
@@ -81,7 +81,7 @@ def get_artifacts_of_project(request):
     for art in artifacts:
         art_list.append(ArtifactDto(art))
 
-    return OkResponse(OkDto({
+    return OkResponse(OkDto(data={
         "artifacts": art_list,
         "total": len(artifacts)
     }))

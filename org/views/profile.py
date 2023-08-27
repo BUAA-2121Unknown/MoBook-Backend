@@ -51,7 +51,7 @@ def update_org_profile(request):
         org.description = descr
     org.save()
 
-    return OkResponse(OkDto({
+    return OkResponse(OkDto(data={
         "name": org.name,
         "description": org.description
     }))

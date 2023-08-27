@@ -92,7 +92,7 @@ def update_artifact(request):
         art.type = typ
     art.save()
 
-    return OkResponse(OkDto({
+    return OkResponse(OkDto(data={
         "name": art.name,
         "type": art.type
     }))

@@ -44,7 +44,7 @@ def get_projects_of_org(request):
     for project in projects:
         proj_list.append(ProjectDto(project))
 
-    return OkResponse(OkDto({
+    return OkResponse(OkDto(data={
         "projects": proj_list,
         "total": len(proj_list)
     }))
