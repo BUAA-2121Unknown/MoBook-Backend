@@ -6,7 +6,7 @@
 #
 from typing import List
 
-from project.models import Existence
+from shared.utils.model.model_extension import Existence
 
 
 class UpdateProjectStatusDto:

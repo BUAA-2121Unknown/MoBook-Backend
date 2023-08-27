@@ -1,6 +1,9 @@
 from django.db import models
 from django.utils import timezone
 
+from shared.utils.model.model_extension import Existence
+from user.models import User
+
 
 class Organization(models.Model):
     chat_id = models.IntegerField()
@@ -8,6 +11,11 @@ class Organization(models.Model):
     name = models.CharField(max_length=63)
     avatar = models.CharField(max_length=63, default=None, null=True)
 
+    status = models.SmallIntegerField(default=Existence.ACTIVE)
+
+    def is_active(self):
+        return self.status == Existence.ACTIVE
+    
     @classmethod
     def create(cls, chat_id, description, name):
         return cls(chat_id=chat_id, description=description, name=name)

@@ -2,23 +2,10 @@ from django.db import models
 from django.utils.encoding import escape_uri_path
 
 from org.models import Organization
-from shared.utils.model.model_extension import first_or_default
+from shared.utils.model.model_extension import first_or_default, Existence
 
 
 # Create your models here.
-
-class Existence:
-    ACTIVE = 0
-    RECYCLED = 1
-    DELETED = 2
-
-    @classmethod
-    def all(cls):
-        return [cls.ACTIVE, cls.RECYCLED, cls.DELETED]
-
-    @classmethod
-    def get_validator(cls):
-        return lambda x: x in cls.all()
 
 
 class Project(models.Model):
@@ -39,7 +26,7 @@ class Project(models.Model):
     def is_active(self):
         return self.status == Existence.ACTIVE
 
-    def get_org(self):
+    def get_org(self) -> Organization:
         return first_or_default(Organization, id=self.org_id)
 
     class Meta:

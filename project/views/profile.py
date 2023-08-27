@@ -9,11 +9,11 @@ from rest_framework.decorators import api_view
 
 from project.dtos.models.artifact_dto import ArtifactDto
 from project.dtos.requests.error_dtos import NoSuchProjectDto
-from project.models import Project, Artifact, Existence
+from project.models import Project, Artifact
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, ForbiddenDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse, \
     ForbiddenResponse
-from shared.utils.model.model_extension import first_or_default
+from shared.utils.model.model_extension import first_or_default, Existence
 from shared.utils.model.project_extension import get_proj_with_user
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param

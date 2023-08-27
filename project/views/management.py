@@ -12,6 +12,7 @@ from project.dtos.models.project_dto import ProjectCompleteDto
 from project.dtos.requests.create_project_dto import CreateProjectDto
 from project.dtos.requests.update_project_status_dto import UpdateProjectStatusDto
 from project.models import Project
+from project.utils.assistance import init_project_by_organization
 from shared.dtos.OperationResponseData import OperationResponseData, OperationErrorData
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse
@@ -51,7 +52,7 @@ def create_project(request):
     proj = Project.create(org, dto.name, dto.description)
     proj.save()
 
-    # TODO: import members
+    init_project_by_organization(proj)
 
     return OkResponse(OkDto(data=ProjectCompleteDto(proj)))
 

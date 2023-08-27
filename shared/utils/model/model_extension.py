@@ -10,3 +10,17 @@ def first_or_default(model, *args, **kwargs):
     if objs.exists():
         return objs.first()
     return None
+
+
+class Existence:
+    ACTIVE = 0
+    RECYCLED = 1
+    DELETED = 2
+
+    @classmethod
+    def all(cls):
+        return [cls.ACTIVE, cls.RECYCLED, cls.DELETED]
+
+    @classmethod
+    def get_validator(cls):
+        return lambda x: x in cls.all()

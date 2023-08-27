@@ -9,7 +9,8 @@ from rest_framework.decorators import api_view
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.models import Organization
 from project.dtos.models.project_dto import ProjectDto
-from project.models import Project, Existence
+from project.models import Project
+from shared.utils.model.model_extension import Existence
 from shared.dtos.ordinary_response_dto import OkDto, BadRequestDto, UnauthorizedDto
 from shared.response.json_response import OkResponse, NotFoundResponse, BadRequestResponse, UnauthorizedResponse
 from shared.utils.model.organization_extension import get_org_with_user

@@ -107,7 +107,7 @@ class UserProjectProfile(models.Model):
     role = models.CharField(max_length=63)
 
     @classmethod
-    def create(cls, user: User, proj: Project, role: str):
+    def create(cls, user: User, proj: Project, role: str = "Member"):
         return cls(user_id=user.id, proj_id=proj.id, role=role)
 
     class Meta:

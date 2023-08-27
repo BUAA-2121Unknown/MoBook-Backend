@@ -27,9 +27,11 @@ class NotifTextPayload(NotifBasePayload):
 
 
 class NotifAtPayload(NotifBasePayload):
-    def __init__(self, text: str, chat_id: int):
+    def __init__(self, text: str, org_id: int, chat_id: int, msg_id: int):
         super().__init__(NotifType.AT, text)
+        self.orgId = org_id
         self.chatId = chat_id
+        self.msgId = msg_id
 
 
 class NotifInvitationPayload(NotifBasePayload):
