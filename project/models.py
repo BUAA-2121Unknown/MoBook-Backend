@@ -6,7 +6,7 @@ from shared.utils.model.model_extension import first_or_default
 
 # Create your models here.
 
-class ProjectStatus:
+class Existence:
     ACTIVE = 0
     RECYCLED = 1
     DELETED = 2
@@ -18,9 +18,11 @@ class ProjectStatus:
 
 class Project(models.Model):
     org_id = models.BigIntegerField()
+
     name = models.CharField(max_length=63)
     description = models.CharField(max_length=255)
-    status = models.SmallIntegerField()
+
+    status = models.SmallIntegerField(default=Existence.ACTIVE)
 
     @classmethod
     def create(cls, org: Organization, name: str, descr: str):
@@ -48,6 +50,8 @@ class Artifact(models.Model):
     # created and updated fields are automatically set by Django
     created = models.DateTimeField(auto_now=True)
     updated = models.DateTimeField(auto_now_add=True)
+
+    status = models.SmallIntegerField(default=Existence.ACTIVE)
 
     @classmethod
     class Meta:

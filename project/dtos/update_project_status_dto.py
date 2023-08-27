@@ -4,7 +4,7 @@
 # @Author  : Tony Skywalker
 # @File    : update_project_status_dto.py
 #
-from project.models import ProjectStatus
+from project.models import Existence
 
 
 class UpdateProjectStatusDto:
@@ -13,4 +13,4 @@ class UpdateProjectStatusDto:
         self.status = status
 
     def is_valid(self) -> bool:
-        return self.status in ProjectStatus.all()
+        return self.status in Existence.all()
