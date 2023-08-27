@@ -31,7 +31,10 @@ def upload_org_avatar(request):
     if user is None:
         return UnauthorizedResponse(UnauthorizedDto())
 
-    oid = parse_value(params.get('id'), int)
+    oid = parse_value(params.get('orgId'), int)
+    if oid is None:
+        return BadRequestResponse(BadRequestDto("Missing orgId"))
+
     org, uop = get_org_with_user(oid, user)
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())

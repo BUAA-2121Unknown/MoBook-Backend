@@ -2,6 +2,7 @@ from django.db import models
 
 from org.models import Organization
 from project.models import Project
+from shared.utils.model.model_extension import first_or_default
 
 
 class User(models.Model):
@@ -62,7 +63,7 @@ class UserAuth:
 
     @classmethod
     def all(cls):
-        return [UserAuth.CREATOR, UserAuth.ADMIN, UserAuth.NORMAL]
+        return [cls.CREATOR, cls.ADMIN, cls.NORMAL]
 
     @classmethod
     def to_string(cls, auth: int):
@@ -83,6 +84,12 @@ class UserOrganizationProfile(models.Model):
     org_id = models.IntegerField()
     nickname = models.CharField(max_length=63)
 
+    def get_user(self):
+        return first_or_default(User, id=self.user_id)
+
+    def get_org(self):
+        return first_or_default(Organization, id=self.org_id)
+
     @classmethod
     def create(cls, auth, user: User, org: Organization, nickname=None):
         if nickname is None:
@@ -101,8 +108,8 @@ class UserProjectProfile(models.Model):
     role = models.CharField(max_length=63)
 
     @classmethod
-    def create(cls, user: User, proj: Project, role: str):
+    def create(cls, user: User, proj: Project, role: str = "Member"):
         return cls(user_id=user.id, proj_id=proj.id, role=role)
 
     class Meta:
-        verbose_name = 'user_project_profile'
+        db_table = 'UserProjectProfile'

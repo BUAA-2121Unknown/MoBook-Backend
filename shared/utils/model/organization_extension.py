@@ -48,5 +48,13 @@ def get_org_managed_by_user(oid, user: User):
 
 
 def get_org_with_user(oid, user: User):
-    org, oup = _get_org_and_profile_of_user(oid, user)
-    return org, oup
+    org, uop = _get_org_and_profile_of_user(oid, user)
+    return org, uop
+
+
+def get_uops_of_org(org: Organization):
+    return UserOrganizationProfile.objects.filter(org_id=org.id)
+
+
+def get_users_of_org(org: Organization):
+    return list(map(lambda uop: uop.get_user(), get_uops_of_org(org)))

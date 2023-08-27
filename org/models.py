@@ -1,12 +1,19 @@
 from django.db import models
 from django.utils import timezone
 
+from shared.utils.model.model_extension import Existence
+
 
 class Organization(models.Model):
     chat_id = models.IntegerField()
     description = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=63)
     avatar = models.CharField(max_length=63, default=None, null=True)
+
+    status = models.SmallIntegerField(default=Existence.ACTIVE)
+
+    def is_active(self):
+        return self.status == Existence.ACTIVE
 
     @classmethod
     def create(cls, chat_id, description, name):
@@ -70,11 +77,11 @@ class PendingStatus:
 
     @classmethod
     def all(cls):
-        return [PendingStatus.PENDING,
-                PendingStatus.REVOKED,
-                PendingStatus.ACCEPTED,
-                PendingStatus.REJECTED,
-                PendingStatus.DELETED]
+        return [cls.PENDING,
+                cls.REVOKED,
+                cls.ACCEPTED,
+                cls.REJECTED,
+                cls.DELETED]
 
 
 class PendingRecord(models.Model):

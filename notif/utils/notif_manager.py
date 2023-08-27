@@ -17,3 +17,5 @@ def dispatch_notif(user: User, org: Organization, payload: NotifBasePayload):
     notif.save()
 
     # TODO: trigger database update event, notification count++
+
+# <user_id>-<org_id>/notifications

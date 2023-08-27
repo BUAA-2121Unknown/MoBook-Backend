@@ -11,7 +11,8 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from org.dtos.requests.cancel_org_dto import CancelOrgDto, CancelOrgSuccessData, CancelOrgErrorData
+from org.dtos.models.org_dto import OrgWithAuthDto
+from org.dtos.requests.cancel_org_dto import CancelOrgDto
 from org.dtos.requests.register_org_dto import RegisterOrgDto
 from org.models import Organization
 from org.utils.cancel_org import cancel_organization
@@ -78,3 +79,22 @@ def cancel_org(request):
         data.success.append(oid)
 
     return OkResponse(OkDto(data=data))
+
+
+@api_view(['GET'])
+@csrf_exempt
+def get_orgs_of_user(request):
+    user = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+
+    uops = UserOrganizationProfile.objects.filter(user_id=user.id)
+    org_list = []
+    for uop in uops:
+        org = uops.get_org()
+        org_list.append(OrgWithAuthDto(org, uop))
+
+    return OkResponse(OkDto({
+        "organizations": org_list,
+        "total": len(org_list)
+    }))

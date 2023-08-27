@@ -6,6 +6,7 @@
 #
 from org.models import Organization
 from shared.utils.dir_utils import get_avatar_url
+from user.models import UserOrganizationProfile
 
 
 class OrganizationDto:
@@ -15,3 +16,9 @@ class OrganizationDto:
         self.description = org.description
         self.chatId = org.chat_id
         self.avatarUrl = get_avatar_url('org', org.avatar)
+
+
+class OrgWithAuthDto:
+    def __init__(self, org: Organization, uop: UserOrganizationProfile):
+        self.org = OrganizationDto(org)
+        self.auth = uop.auth
