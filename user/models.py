@@ -13,6 +13,9 @@ class User(models.Model):
     avatar = models.CharField(max_length=63, default=None, null=True)
     activated = models.BooleanField(default=False)
 
+    def is_active(self):
+        return self.activated
+
     @classmethod
     def create(cls, username, password, email, activated=False):
         return cls(username=username, password=password, email=email, activated=activated)
@@ -91,7 +94,7 @@ class UserOrganizationProfile(models.Model):
     def create(cls, auth, user: User, org: Organization, nickname=None):
         if nickname is None:
             nickname = user.username
-        return cls(auth, user_id=user.id, org_id=org.id, nickname=nickname)
+        return cls(auth=auth, user_id=user.id, org_id=org.id, nickname=nickname)
 
     class Meta:
         db_table = 'UserOrganizationProfile'
@@ -105,6 +108,15 @@ class UserProjectProfile(models.Model):
     @classmethod
     def create(cls, user: User, proj: Project, role: str = "Member"):
         return cls(user_id=user.id, proj_id=proj.id, role=role)
+
+    def get_user(self):
+        return first_or_default(User, id=self.user_id)
+
+    def get_proj(self):
+        return first_or_default(Project, id=self.proj_id)
+
+    def get_org(self):
+        return self.get_proj().get_org()
 
     class Meta:
         db_table = 'UserProjectProfile'

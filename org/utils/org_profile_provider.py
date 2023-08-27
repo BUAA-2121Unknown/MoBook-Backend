@@ -4,7 +4,7 @@
 # @Author  : Tony Skywalker
 # @File    : org_profile_provider.py
 #
-from org.dtos.models.org_dto import OrganizationDto
+from org.dtos.models.org_dto import OrganizationDto, OrgWithAuthDto
 from org.models import Organization
 
 

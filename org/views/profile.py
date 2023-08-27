@@ -7,9 +7,9 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
+from org.dtos.models.org_dto import OrgWithAuthDto
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.models import Organization
-from org.utils.org_profile_provider import org_profile_provider_simple, org_profile_provider_full
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse
 from shared.utils.model.organization_extension import get_org_with_user
@@ -51,7 +51,7 @@ def update_org_profile(request):
         org.description = descr
     org.save()
 
-    return OkResponse(OkDto({
+    return OkResponse(OkDto(data={
         "name": org.name,
         "description": org.description
     }))
@@ -75,10 +75,4 @@ def get_org_profile(request):
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
 
-    if parse_value(params.get('mode'), str) == 'full':
-        provider = org_profile_provider_full
-    else:
-        provider = org_profile_provider_simple
-    data = provider(org)
-
-    return OkResponse(OkDto(data=data))
+    return OkResponse(OkDto(data=OrgWithAuthDto(org, uop)))

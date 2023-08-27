@@ -7,24 +7,26 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from notif.models import NotifInvitationPayload
+from notif.models import NotifNewProjectPayload
 from notif.utils.notif_manager import dispatch_notif
 from org.dtos.requests.error_dtos import NoSuchOrgDto
+from org.models import Organization
 from project.dtos.models.project_dto import ProjectCompleteDto
 from project.dtos.requests.create_project_dto import CreateProjectDto
 from project.dtos.requests.update_project_status_dto import UpdateProjectStatusDto
 from project.models import Project
-from project.utils.assistance import init_project_by_organization
+from project.utils.assistance import add_users_to_project
 from shared.dtos.OperationResponseData import OperationResponseData, OperationErrorData
-from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto
-from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse
+from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, ForbiddenDto
+from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse, \
+    ForbiddenResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
-from shared.utils.model.organization_extension import get_org_with_user
-from shared.utils.model.project_extension import get_proj_with_user
+from shared.utils.model.organization_extension import get_org_with_user, get_users_of_org
+from shared.utils.model.project_extension import get_project_with_user
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
-from user.models import UserProjectProfile
+from user.models import User
 
 
 @api_view(['POST'])
@@ -49,20 +51,27 @@ def create_project(request):
         return BadRequestResponse(BadRequestDto("Bad value"))
 
     org, uop = get_org_with_user(dto.orgId, user)
+    org: Organization
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
+    if not org.is_active():
+        return ForbiddenResponse(ForbiddenDto("Organization not active"))
 
     proj = Project.create(org, dto.name, dto.description)
     proj.save()
 
-    init_project_by_organization(proj, add_user_to_project_callback)
+    # add all users to the project
+    target_users = get_users_of_org(org)
+    add_users_to_project(target_users, proj)
+
+    # send notifications
+    for u in target_users:
+        u: User
+        if u.id == user.id:
+            continue
+        dispatch_notif(u.id, org.id, NotifNewProjectPayload(org, user, proj))
 
     return OkResponse(OkDto(data=ProjectCompleteDto(proj)))
-
-
-def add_user_to_project_callback(user, project):
-    dispatch_notif(user, project.org_id, NotifInvitationPayload())
-    pass
 
 
 @api_view(['POST'])
@@ -81,7 +90,7 @@ def update_project_status(request):
 
     data = OperationResponseData().init()
     for proj_id in dto.projects:
-        proj, upp = get_proj_with_user(proj_id, user)
+        proj, upp = get_project_with_user(proj_id, user)
         if proj is None:
             data.errors.append(OperationErrorData(proj_id, "No such project"))
             continue

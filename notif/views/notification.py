@@ -50,7 +50,7 @@ def get_notif_in_org(request):
     if dto.status == NotifStatus.UNREAD:
         notifs = Notification.objects.filter(org_id=dto.orgId, status=dto.status)
     else:
-        notifs = Notification.objects.filter(org_id=dto.orgId, status__in=[NotifStatus.valid()])
+        notifs = Notification.objects.filter(org_id=dto.orgId, status__in=NotifStatus.valid())
     notifs.order_by('-timestamp')
 
     #

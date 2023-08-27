@@ -7,7 +7,7 @@ conda install djangorestframework-jwt
 conda install djangorestframework
 conda install channels
 conda install channels-redis
-install redis
-install celery
+conda install redis
+conda install celery
 conda install daphne
 conda install pillow

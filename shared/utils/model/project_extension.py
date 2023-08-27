@@ -27,6 +27,14 @@ def _get_proj_and_profile_of_user(pid, user: User):
     return proj, upp
 
 
-def get_proj_with_user(pid, user: User):
+def get_project_with_user(pid, user: User):
     proj, upp = _get_proj_and_profile_of_user(pid, user)
     return proj, upp
+
+
+def get_upps_of_project(project: Project):
+    return UserProjectProfile.objects.filter(proj_id=project.id)
+
+
+def get_users_of_project(project: Project):
+    return list(map(lambda upp: upp.get_user(), get_upps_of_project(project)))

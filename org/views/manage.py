@@ -91,10 +91,10 @@ def get_orgs_of_user(request):
     uops = UserOrganizationProfile.objects.filter(user_id=user.id)
     org_list = []
     for uop in uops:
-        org = uops.get_org()
+        org = uop.get_org()
         org_list.append(OrgWithAuthDto(org, uop))
 
-    return OkResponse(OkDto({
+    return OkResponse(OkDto(data={
         "organizations": org_list,
         "total": len(org_list)
     }))

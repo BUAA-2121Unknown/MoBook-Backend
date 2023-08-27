@@ -78,7 +78,6 @@ def _remove_users_from_project(users, project: Project, callback, data: Operatio
             callback(user, project)
 
 
-def init_project_by_organization(user: User, project: Project, organization: Organization, callback=None):
+def init_project_by_organization(project: Project, organization: Organization):
     # save first user to avoid unnecessary callback
-    UserProjectProfile.create(user, project, "Leader").save()
-    return add_users_to_project(get_users_of_org(organization), project, callback)
+    return add_users_to_project(get_users_of_org(organization), project)

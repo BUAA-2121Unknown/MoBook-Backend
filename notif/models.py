@@ -24,7 +24,7 @@ class NotifType:
 class NotifBasePayload:
     def __init__(self, typ: int, org: Organization):
         self.type: int = typ
-        self.organization = OrganizationDto(org)
+        self.org = OrganizationDto(org)
 
 
 class NotifTextPayload(NotifBasePayload):
@@ -49,6 +49,9 @@ class NotifAtPayload(NotifBasePayload):
 
 
 class NotifInvitationPayload(NotifBasePayload):
+    """
+    On hold
+    """
     def __init__(self, text: str, status: int, org: Organization):
         super().__init__(NotifType.INVITATION, text)
         self.status: int = status  # 0 rejected, 1 accepted
@@ -56,28 +59,26 @@ class NotifInvitationPayload(NotifBasePayload):
 
 
 class NotifRoleChangePayload(NotifBasePayload):
+    """
+    your role in {organization} changed to {new_auth}
+    """
     def __init__(self, text: str, org: Organization, new_auth: int):
-        super().__init__(NotifType.ROLE_CHANGE, text)
+        super().__init__(NotifType.ROLE_CHANGE, org)
         self.newAuth: str = UserAuth.to_string(new_auth)
-        self.org: OrganizationDto = OrganizationDto(org)
-
 
 class NotifKickedPayload(NotifBasePayload):
-    def __init__(self, text: str, org: Organization):
-        super().__init__(NotifType.KICKED, text)
-        self.org: OrganizationDto = OrganizationDto(org)
-
+    def __init__(self, org: Organization):
+        super().__init__(NotifType.KICKED, org)
 
 class NotifNewProjectPayload(NotifBasePayload):
     """
     {someone} created a {new project} in {organization}
     """
 
-    def __init__(self, text: str, org: Organization, user: User, project: Project):
-        super().__init__(NotifType.NEW_PROJECT, text)
+    def __init__(self, org: Organization, user: User, project: Project):
+        super().__init__(NotifType.NEW_PROJECT, org)
         self.user: UserDto = UserDto(user)
         self.project: ProjectDto = ProjectDto(project)
-        self.organization: OrganizationDto = OrganizationDto(org)
 
 
 class NotifStatus:

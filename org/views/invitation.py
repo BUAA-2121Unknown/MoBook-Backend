@@ -10,14 +10,15 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from org.dtos.models.invitation_dto import InvitationDto
+from org.dtos.models.invitation_dto import InvitationDto, InvitationCompleteDto
 from org.dtos.models.user_org_profile_dto import UopDto
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.dtos.requests.invitation_dtos import CreateInvitationDto, RevokeInvitationDto, ActivateInvSuccessData
 from org.models import Invitation, Organization, PendingRecord
 from org.utils.member import add_member_into_org
-from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, NotFoundDto
-from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse
+from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, NotFoundDto, ForbiddenDto
+from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse, \
+    ForbiddenResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
@@ -97,7 +98,7 @@ def revoke_invitation(request):
         return OkResponse(OkDto("Already revoked or expired", data=InvitationDto(invitation)))
     invitation.revoked = timezone.now()
     invitation.save()
-    
+
     return OkResponse(OkDto("Invitation revoked", data=InvitationDto(invitation)))
 
 
@@ -136,3 +137,52 @@ def activate_invitation(request):
         data = ActivateInvSuccessData(False, UopDto(user, uop), False)
 
     return OkResponse(OkDto(data=data))
+
+
+@api_view(['GET'])
+@csrf_exempt
+def get_invitation_of_org(request):
+    user = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+
+    params = parse_param(request)
+    org_id = parse_value(params.get('orgId'), int)
+    if org_id is None:
+        return BadRequestResponse(BadRequestDto("Missing orgId"))
+
+    org, uop = get_org_with_user(org_id, user)
+    org: Organization
+    if org is None:
+        return NotFoundResponse(NoSuchOrgDto())
+    if not org.is_active():
+        return ForbiddenResponse(ForbiddenDto("Organization not active"))
+    if uop.auth not in UserAuth.authorized():
+        return UnauthorizedResponse(UnauthorizedDto("Not admin"))
+
+    inv_list = []
+    for inv in Invitation.objects.filter(oid=org_id):
+        inv_list.append(InvitationDto(inv))
+
+    return OkResponse(OkDto(data={
+        "invitations": inv_list,
+        "total": len(inv_list)
+    }))
+
+
+@api_view(['GET'])
+@csrf_exempt
+def get_preview_of_invitation(request):
+    # need no authorization
+
+    params = parse_param(request)
+    token = parse_value(params.get('token'), str)
+    if token is None:
+        return BadRequestResponse(BadRequestDto("Missing token"))
+    invitation: Invitation = first_or_default(Invitation, token=token)
+    if invitation is None:
+        return NotFoundResponse(NotFoundDto("No such invitation"))
+    if not invitation.is_active():
+        return UnauthorizedResponse(UnauthorizedDto("Invitation expired"))
+
+    return OkResponse(OkDto(data=InvitationCompleteDto(invitation)))

@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
-from shared.utils.model.model_extension import Existence
+from shared.utils.model.model_extension import Existence, first_or_default
 
 
 class Organization(models.Model):
@@ -16,8 +16,8 @@ class Organization(models.Model):
         return self.status == Existence.ACTIVE
 
     @classmethod
-    def create(cls, chat_id, description, name):
-        return cls(chat_id=chat_id, description=description, name=name)
+    def create(cls, chat_id, name, description):
+        return cls(chat_id=chat_id, name=name, description=description)
 
     class Meta:
         managed = True
@@ -41,6 +41,9 @@ class Invitation(models.Model):
 
     def is_active(self):
         return self.revoked is None and not self.is_expired()
+
+    def get_org(self):
+        return first_or_default(Organization, oid=self.oid)
 
     class Meta:
         verbose_name = 'invitation'
