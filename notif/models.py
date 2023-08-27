@@ -1,7 +1,5 @@
 from django.db import models
 
-from shared.utils.json.serializer import serialize
-
 
 class NotifStatus:
     UNREAD = 0
@@ -29,15 +27,8 @@ class Notification(models.Model):
     status = models.SmallIntegerField(default=NotifStatus.UNREAD)
 
     @classmethod
-    def create(cls, user_id, org_id, payload):
-        try:
-            print(payload)
-            typ = payload.type
-            pl = serialize(payload)
-        except Exception as e:
-            print(e)
-            return None
-        return cls(user_id=user_id, org_id=org_id, type=typ, payload=pl)
+    def create(cls, user_id, org_id, type, payload):
+        return cls(user_id=user_id, org_id=org_id, type=type, payload=payload)
 
     class Meta:
         managed = True
