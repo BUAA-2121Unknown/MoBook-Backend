@@ -90,7 +90,7 @@ class UserOrganizationProfile(models.Model):
     def create(cls, auth, user: User, org: Organization, nickname=None):
         if nickname is None:
             nickname = user.username
-        return cls(auth, user_id=user.id, org_id=org.id, nickname=nickname)
+        return cls(auth=auth, user_id=user.id, org_id=org.id, nickname=nickname)
 
     class Meta:
         db_table = 'UserOrganizationProfile'
