@@ -15,7 +15,7 @@ from org.dtos.models.user_org_profile_dto import UopDto
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.dtos.requests.invitation_dtos import CreateInvitationDto, RevokeInvitationDto, ActivateInvSuccessData
 from org.models import Invitation, Organization, PendingRecord
-from org.utils.member import add_member_into_org
+from org.utils.assistance import add_member_into_org
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, NotFoundDto, ForbiddenDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse, \
     ForbiddenResponse

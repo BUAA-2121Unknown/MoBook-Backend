@@ -40,6 +40,11 @@ class UserChatJump(models.Model):
         db_table = 'UserChatJump'
 
 
+class ChatAuth:
+    NORMAL = 0
+    ADMIN = 1
+
+
 class UserChatRelation(models.Model):
     user_id = models.BigIntegerField()
     chat_id = models.BigIntegerField()
@@ -47,6 +52,10 @@ class UserChatRelation(models.Model):
     unread = models.IntegerField(default=0)
     authority = models.IntegerField(default=0)  # 0 : ordinary, 1 : admin
     at_message_id = models.IntegerField(default=0)
+
+    @classmethod
+    def create(cls, user_id, chat_id, org_id, authority):
+        return cls(user_id=user_id, chat_id=chat_id, org_id=org_id, authority=authority)
 
     class Meta:
         db_table = 'UserChatRelation'

@@ -11,7 +11,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from chat.utils.chat_manager import create_chat
+from chat.utils.assistance import init_default_chat
 from org.dtos.models.org_dto import OrgWithAuthDto
 from org.dtos.requests.cancel_org_dto import CancelOrgDto
 from org.dtos.requests.register_org_dto import RegisterOrgDto
@@ -52,7 +52,7 @@ def create_org(request):
     uop.save()
 
     # create default chat
-    chat = create_chat(org.id, org.name, user.id)
+    chat = init_default_chat(org, user)
     org.chat = chat.id
     org.save()
 

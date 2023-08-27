@@ -13,7 +13,7 @@ from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.dtos.requests.kick_member_dto import KickMemberDto, KickMemberErrorData
 from org.dtos.requests.update_member_profile_dto import UpdateMemberProfileDto
 from org.models import Organization
-from org.utils.member import kick_member_from_org
+from org.utils.assistance import kick_member_from_org
 from shared.dtos.OperationResponseData import OperationResponseData
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, NotFoundResponse, BadRequestResponse, OkResponse
