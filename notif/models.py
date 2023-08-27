@@ -109,9 +109,12 @@ class Notification(models.Model):
     @classmethod
     def create(cls, user_id, org_id, payload):
         try:
+            print(payload)
             typ = payload.type
             pl = serialize(payload)
-        except Exception:
+
+        except Exception as e:
+            print(e)
             return None
         return cls(user_id=user_id, org_id=org_id, type=typ, payload=pl)
 

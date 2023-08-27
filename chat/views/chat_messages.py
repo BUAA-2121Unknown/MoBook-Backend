@@ -216,7 +216,7 @@ def send_text(request, chat_id):  # json
 
     response = {
         'src_id': user.id,
-        'src_name': first_or_default(UserOrganizationProfile, user_id=user.id),  # 传过来团队内昵称
+        'src_name': first_or_default(UserOrganizationProfile, user_id=user.id).nickname,  # 传过来团队内昵称
         'src_avatar_url': get_avatar_url("user", user.avatar),
     }
 
