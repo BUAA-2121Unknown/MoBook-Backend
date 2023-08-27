@@ -7,7 +7,11 @@ from MoBook.settings import BASE_URL
 from chat.models import Chat
 from chat.utils.message_manager import new_to_chat, pull_older, new_to_chat_ver1, pull_newer
 from message.models import Message
+from notif.models import NotifAtPayload
+from notif.utils.notif_manager import dispatch_notif
+from org.models import Organization
 from shared.utils.dir_utils import get_avatar_url
+from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
 from user.models import User, UserOrganizationProfile, UserChatRelation, UserChatJump
 from oauth.dtos.login_dto import LoginDto
@@ -22,43 +26,52 @@ from user.models import User, UserChatRelation, UserChatJump
 @api_view(['POST'])
 @csrf_exempt
 # at消息置顶？
-def get_chat_list(request):
+def get_chat_list(request):  # org内的
     user: User = get_user_from_request(request)
     if user is None:
         return UnauthorizedResponse(UnauthorizedDto())
 
-    user_chat_relation_list = UserChatRelation.objects.filter(user_id=user.id)  # 可能数据类型不匹配
     params = parse_param(request)
+    user_chat_relation_list = UserChatRelation.objects.filter(user_id=user.id, org_id=params.get("org_id"))  # 可能数据类型不匹配
+
+    # 以上chat中，当前user所在的
     data = {"chat_list": []}
     # 获取群聊列表：基础信息
     for user_chat_relation in user_chat_relation_list:
-        chat = Chat.objects.get(chat_id=user_chat_relation.chat_id)
-        tmp = {}
-        tmp.append({
+
+        chat = first_or_default(Chat, id=user_chat_relation.chat_id)
+        tmp = {
             "roomId": chat.id,
             "roomName": chat.chat_name,
             "unreadCount": user_chat_relation.unread,
             "avatar": BASE_URL + chat.chat_avatar.url,
-        })
+        }
 
         # 获取最新at消息
         at_message_id = user_chat_relation.at_message_id
 
         # 判断是否覆盖：如果at_message_id是0表示已经失效
-        if at_message_id != 0:
-            message = Message.objects.get(message_id=at_message_id)
+        if chat.latest_message != 0:
+            if at_message_id != 0:
+                message = first_or_default(Message, id=at_message_id)
+            else:
+                message = first_or_default(Message, id=chat.latest_message)
+            tmp.update({"latest_message": {
+                "content": message.text,
+                "senderId": message.src_id,  # ?
+                "username": first_or_default(UserOrganizationProfile, user_id=message.src_id,
+                                             org_id=params.get("org_id")).nickname,
+                "timestamp": message.timestamp.hour + ':' + message.timestamp.minute,
+                "index": message.id  # at消息置为很大的值
+            }})  # 返回最新消息的数据：用户在组内昵称和消息文本
         else:
-            message = Message.objects.get(message_id=chat.latest_message)
-        tmp.append({"latest_message": {
-            "content": message.text,
-            "senderId": message.src_id,  # ?
-            "username": UserOrganizationProfile.objects.get(user_id=message.src_id,
-                                                            org_id=params.get("org_id")).nickname,
-            "timestamp": message.timestamp.hour + ':' + message.timestamp.minute,
-        }})  # 返回最新消息的数据：用户在组内昵称和消息文本
-
-        tmp.append({"index": message.id})
-        tmp.append({"users": [],
+            tmp.update({"latest_message": {
+                "content": "",
+                "senderId": "",  # ?
+                "username": "",
+                "timestamp": "",
+            }})
+        tmp.update({"users": [],
                     "messages": []})
         data["chat_list"].append(tmp)
     return OkResponse(OkDto(data=data))
@@ -113,6 +126,7 @@ def pull_newer_messages(request, chat_id):
     message_id = params.get('message_id')
     message_num = params.get('message_num')
     data = pull_newer(message_id, chat_id, message_num)
+    print(data)
     return OkResponse(OkDto(data=data))
 
 
@@ -124,19 +138,7 @@ def search_messages(request):
 
 @api_view(['POST'])
 @csrf_exempt
-def get_text_messages(request):
-    pass
-
-
-@api_view(['POST'])
-@csrf_exempt
-def get_image_messages(request):
-    pass
-
-
-@api_view(['POST'])
-@csrf_exempt
-def get_file_messages(request):
+def get_messages_by_type(request):
     pass
 
 
@@ -152,6 +154,8 @@ def send_file(request, chat_id):  # form data
 
     params = parse_param(request)
     type = params.get('type')
+    org_id = params.get('org_id')
+
     response = {
         'src_id': user.id,
         'src_name': params.get('nickname'),  # 传过来团队内昵称
@@ -182,10 +186,10 @@ def send_file(request, chat_id):  # form data
     else:
         return BadRequestResponse(BadRequestDto("Missing content"))
 
-    chat = Chat.objects.get(id=chat_id)
+    chat = first_or_default(Chat, id=chat_id)
     chat.latest_message = message.id
     chat.save()
-    for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id):
+    for user_chat_relation in first_or_default(UserChatRelation, chat_id=chat_id):
         user_chat_relation.unread += 1
         user_chat_relation.save()
     message.save()
@@ -199,21 +203,26 @@ def send_text(request, chat_id):  # json
     user: User = get_user_from_request(request)
     if user is None:
         return UnauthorizedResponse(UnauthorizedDto())
+    print(user.id)
     # security check: chat不存在。是否会拖慢速度？
     if not UserChatRelation.objects.filter(user_id=user.id, chat_id=chat_id).exists():
         return UnauthorizedResponse(UnauthorizedDto("Not in chat"))
 
     params = parse_param(request)
     type = params.get('type')  # 尝试get不存在的键不会报错
+    org_id = params.get('org_id')
+    org = first_or_default(Organization, id=org_id)
+    chat = first_or_default(Chat, id=chat_id)
+
     response = {
         'src_id': user.id,
-        'src_name': params.get('nickname'),  # 传过来团队内昵称
+        'src_name': first_or_default(UserOrganizationProfile, user_id=user.id),  # 传过来团队内昵称
         'src_avatar_url': get_avatar_url("user", user.avatar),
     }
 
     message = Message(src_id=user.id, chat_id=chat_id)
-    if params.get('type') is not None:
-        text = params.get('type')
+    if params.get('text') is not None:
+        text = params.get('text')
         message.text = text
         message.type = 0
         response['text'] = text
@@ -225,21 +234,20 @@ def send_text(request, chat_id):  # json
             at_list = params.get('at_list')  # user_id
             for user_id in at_list:
                 # 更新at消息列表，群聊最新消息
-                user_chat_relation = UserChatRelation.objects.get(chat_id=chat_id)
+                user_chat_relation = first_or_default(UserChatRelation, chat_id=chat_id)
                 user_chat_relation.at_message_id = message.id
                 user_chat_relation.save()
                 user_chat_jump = UserChatJump(user_id=user_id, chat_id=chat_id, message_id=message.id, valid=1)
                 user_chat_jump.save()
 
-                # 发送at通知
-                channel_layer = get_channel_layer()
-                async_to_sync(channel_layer.group_send)(str(user_id), {'type': 'notify', 'data': params.get('data')})
+                notif_at_payload = NotifAtPayload(org, user, chat)
+                dispatch_notif(user_id, org_id, notif_at_payload)
 
     else:
         return BadRequestResponse(BadRequestDto("Missing content"))
 
     # 更新最新消息
-    chat = Chat.objects.get(id=chat_id)
+
     chat.latest_message = message.id
     chat.save()
 
