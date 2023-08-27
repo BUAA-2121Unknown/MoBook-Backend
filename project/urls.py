@@ -7,10 +7,12 @@
 
 from django.urls import path
 
-from project.views.artifact import create_artifact, update_artifact_status, update_artifact
+from project.views.artifact import create_artifact, update_artifact_status, update_artifact, get_artifacts_of_project, \
+    get_artifact
 from project.views.attachment import upload_artifact_attachment, download_artifact_attachment
 from project.views.manage import create_project, update_project_status
-from project.views.profile import update_project_profile, get_artifacts_of_project
+from project.views.member import update_project_member_profile, get_project_members
+from project.views.profile import update_project_profile
 
 urlpatterns = [
     path('create', create_project),
@@ -25,7 +27,8 @@ urlpatterns = [
     path('artifact/file/download', download_artifact_attachment),
 
     path('artifacts', get_artifacts_of_project),
+    path('artifact/profile', get_artifact),
 
-    # path('member/profile/update', ),
-    # path('members/', ),
+    path('member/profile/update', update_project_member_profile),
+    path('members/', get_project_members),
 ]

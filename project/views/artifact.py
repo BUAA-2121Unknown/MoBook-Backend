@@ -7,7 +7,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from project.dtos.models.artifact_dto import ArtifactCompleteDto
+from project.dtos.models.artifact_dto import ArtifactCompleteDto, ArtifactDto
 from project.dtos.requests.create_artifact_dto import CreateArtifactDto
 from project.dtos.requests.error_dtos import NoSuchProjectDto, NoSuchArtifactDto
 from project.dtos.requests.update_artifact_status_dto import UpdateArtifactStatusDto
@@ -18,11 +18,11 @@ from shared.response.json_response import UnauthorizedResponse, BadRequestRespon
     ForbiddenResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
-from shared.utils.model.model_extension import first_or_default
+from shared.utils.model.model_extension import first_or_default, Existence
 from shared.utils.model.project_extension import get_project_with_user
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
-from shared.utils.parameter.value_parser import parse_value
+from shared.utils.parameter.value_parser import parse_value, parse_value_with_check
 from shared.utils.validator import validate_artifact_name, validate_artifact_type
 
 
@@ -133,3 +133,65 @@ def update_artifact_status(request):
         data.add_success(art_id)
 
     return OkResponse(OkDto(data=data))
+
+
+@api_view(['GET'])
+@csrf_exempt
+def get_artifacts_of_project(request):
+    user = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+
+    params = parse_param(request)
+    proj_id = parse_value(params.get('projId'), int)
+    if proj_id is None:
+        return BadRequestResponse(BadRequestDto("Missing projId"))
+
+    proj, upp = get_project_with_user(proj_id, user)
+    if proj is None:
+        return NotFoundResponse(NoSuchProjectDto())
+    if not proj.is_active():
+        return ForbiddenResponse(ForbiddenDto("Project not active"))
+
+    status = parse_value_with_check(params.get('status'), int, Existence.get_validator(), Existence.ACTIVE)
+    artifacts = Artifact.objects.filter(proj_id=proj_id, status=status)
+
+    art_list = []
+    for art in artifacts:
+        art_list.append(ArtifactDto(art))
+
+    return OkResponse(OkDto(data={
+        "artifacts": art_list,
+        "total": len(artifacts)
+    }))
+
+
+@api_view(['GET'])
+@csrf_exempt
+def get_artifact(request):
+    user = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+
+    params = parse_param(request)
+    art_id = parse_value(params.get('artId'), int)
+    if art_id is None:
+        return BadRequestResponse(BadRequestDto("Missing artId"))
+
+    art: Artifact = first_or_default(Artifact, id=art_id)
+    if art is None:
+        return NotFoundResponse(NoSuchArtifactDto())
+
+    # check belonging
+    proj, upp = get_project_with_user(art.proj_id, user)
+    proj: Project
+    if proj is None:
+        return NotFoundResponse(NoSuchProjectDto())
+    if not proj.is_active():
+        return ForbiddenResponse(ForbiddenDto("Project not active"))
+
+    # check artifact status
+    if not art.is_active():
+        return ForbiddenResponse(ForbiddenDto("Artifact not active"))
+
+    return OkResponse(OkDto(data=ArtifactCompleteDto(art)))
