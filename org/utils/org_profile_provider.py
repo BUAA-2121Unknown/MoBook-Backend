@@ -9,7 +9,7 @@ from org.models import Organization
 
 
 def org_profile_provider_full(org: Organization):
-    return OrgWithAuthDto(org)
+    return OrganizationDto(org)
 
 
 def org_profile_provider_simple(org: Organization):
