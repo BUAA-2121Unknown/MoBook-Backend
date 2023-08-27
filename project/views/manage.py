@@ -26,7 +26,7 @@ from shared.utils.model.organization_extension import get_org_with_user, get_use
 from shared.utils.model.project_extension import get_project_with_user
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
-from user.models import User
+from user.models import User, UserProjectProfile
 
 
 @api_view(['POST'])
@@ -61,6 +61,8 @@ def create_project(request):
     proj.save()
 
     # add all users to the project
+    # default leader user first
+    UserProjectProfile.create(user, proj, "Leader").save()
     target_users = get_users_of_org(org)
     add_users_to_project(target_users, proj)
 
