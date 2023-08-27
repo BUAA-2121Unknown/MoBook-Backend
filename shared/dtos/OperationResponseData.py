@@ -22,3 +22,11 @@ class OperationResponseData:
         self.errors.clear()
         self.success.clear()
         return self
+
+    def add_error(self, _id: int, _msg: str = ""):
+        self.errors.append(OperationErrorData(_id=_id, _msg=_msg))
+        return self
+
+    def add_success(self, _id: int):
+        self.success.append(_id)
+        return self

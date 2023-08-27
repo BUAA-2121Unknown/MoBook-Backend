@@ -10,3 +10,8 @@ from shared.dtos.ordinary_response_dto import NotFoundDto
 class NoSuchProjectDto(NotFoundDto):
     def __init__(self):
         super().__init__("No such project")
+
+
+class NoSuchArtifactDto(NotFoundDto):
+    def __init__(self):
+        super().__init__("No such artifact")

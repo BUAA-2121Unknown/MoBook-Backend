@@ -59,3 +59,11 @@ def validate_proj_name(name: str) -> bool:
 
 def validate_proj_descr(descr: str) -> bool:
     return True
+
+
+def validate_artifact_name(name: str) -> bool:
+    return True
+
+
+def validate_artifact_type(typ: str) -> bool:
+    return True

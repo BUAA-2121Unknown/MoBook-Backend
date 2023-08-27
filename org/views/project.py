@@ -8,14 +8,14 @@ from rest_framework.decorators import api_view
 
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.models import Organization
-from project.dtos.project_dto import ProjectDto
-from project.models import Project
+from project.dtos.models.project_dto import ProjectDto
+from project.models import Project, Existence
 from shared.dtos.ordinary_response_dto import OkDto, BadRequestDto, UnauthorizedDto
 from shared.response.json_response import OkResponse, NotFoundResponse, BadRequestResponse, UnauthorizedResponse
 from shared.utils.model.organization_extension import get_org_with_user
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
-from shared.utils.parameter.value_parser import parse_value
+from shared.utils.parameter.value_parser import parse_value, parse_value_with_check
 
 
 @api_view(['GET'])
@@ -36,7 +36,8 @@ def get_projects_of_org(request):
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
     org: Organization
-    projects = Project.objects.filter(org_id=org.id)
+    status = parse_value_with_check(params.get('status'), int, Existence.get_validator(), Existence.ACTIVE)
+    projects = Project.objects.filter(org_id=org.id, status=status).order_by('-created')
 
     proj_list = []
     for project in projects:

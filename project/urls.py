@@ -7,12 +7,18 @@
 
 from django.urls import path
 
+from project.views.artifact import create_artifact, update_artifact_status, update_artifact
 from project.views.management import create_project, update_project_status
-from project.views.profile import update_project_profile
+from project.views.profile import update_project_profile, get_artifacts_of_project
 
 urlpatterns = [
-    path('manage/create', create_project),
-    path('manage/status', update_project_status),
+    path('create', create_project),
+    path('profile/update', update_project_profile),
+    path('status/update', update_project_status),
 
-    path('profile/update', update_project_profile)
+    path('artifact/create', create_artifact),
+    path('artifact/profile/update', update_artifact),
+    path('artifact/status/update', update_artifact_status),
+
+    path('artifacts', get_artifacts_of_project),
 ]

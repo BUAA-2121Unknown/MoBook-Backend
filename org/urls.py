@@ -27,8 +27,8 @@ from org.views.project import get_projects_of_org
 urlpatterns = [
     path('avatar/upload', upload_org_avatar),
 
-    path('manage/create', create_org),
-    path('manage/cancel', cancel_org),
+    path('create', create_org),
+    path('cancel', cancel_org),
 
     path('profile/update', update_org_profile),
     path('profile', get_org_profile),
