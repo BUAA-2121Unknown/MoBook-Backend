@@ -15,6 +15,7 @@ class ProjectStatus:
     def all(cls):
         return [cls.ACTIVE, cls.RECYCLED, cls.DELETED]
 
+
 class Project(models.Model):
     org_id = models.BigIntegerField()
     name = models.CharField(max_length=63)
@@ -34,9 +35,19 @@ class Project(models.Model):
 
 class Artifact(models.Model):
     proj_id = models.BigIntegerField()
-    name = models.CharField(max_length=63)
+
     type = models.CharField(max_length=31)
-    suffix = models.CharField(max_length=15)
+
+    filename = models.CharField(max_length=63)
+    extension = models.CharField(max_length=15)
+
+    # live collaborating documents are stored on another database and
+    # managed by another server
+    external = models.BooleanField(default=False)
+
+    # created and updated fields are automatically set by Django
+    created = models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now_add=True)
 
     @classmethod
     class Meta:
