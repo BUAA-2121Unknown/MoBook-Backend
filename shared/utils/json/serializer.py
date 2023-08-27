@@ -78,6 +78,15 @@ def serialize_as_dict(obj):
     return deserialize(serialize(obj))
 
 
+def serialize_as_raw_dict(obj):
+    try:
+        return json.loads(serialize(obj))
+    except JsonSerializeException as e:
+        raise e
+    except JSONDecodeError as e:
+        raise JsonDeserializeException(f"Failed to deserialize!\n\t{e}", obj)
+
+
 ######################################################################
 # Deserializer
 #
