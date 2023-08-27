@@ -25,7 +25,7 @@ def _get_user_from_jwt(request: WSGIRequest):
         raise e
 
     user: User = first_or_default(User, id=data)
-    if not user.activated:
+    if user is None or not user.activated:
         return None
     return user
 

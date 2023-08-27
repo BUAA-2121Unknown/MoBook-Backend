@@ -47,7 +47,7 @@ def create_artifact(request):
     if not proj.is_active():
         return ForbiddenResponse(ForbiddenDto("Project not active"))
 
-    artifact = Artifact.create(proj, dto.type, dto.name, dto.external)
+    artifact = Artifact.create(proj, dto.type, dto.name, dto.live)
     artifact.save()
 
     return OkResponse(OkDto(data=ArtifactCompleteDto(artifact)))
