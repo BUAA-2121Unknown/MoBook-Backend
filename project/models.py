@@ -73,12 +73,12 @@ class Artifact(models.Model):
     def get_path(self):
         if self.is_external():
             return None
-        return f"./files/projects/{self.proj_id}/attachments/{self.id}.{self.extension}"
+        return f"./files/projects/{self.proj_id}/attachments/{self.id}{self.extension}"
 
     def get_filename(self):
         if self.is_external():
             return None
-        return escape_uri_path(f"{self.name}.{self.extension}")
+        return escape_uri_path(f"{self.name}{self.extension}")
 
     class Meta:
         verbose_name = 'artifact'
