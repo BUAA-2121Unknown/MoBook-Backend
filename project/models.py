@@ -40,6 +40,7 @@ class Artifact(models.Model):
     type = models.CharField(max_length=31)
     name = models.CharField(max_length=63)
 
+    raw = models.BooleanField(default=True)
     filename = models.CharField(max_length=127, default=None, null=True)
     extension = models.CharField(max_length=15, default=None, null=True)
 
@@ -73,12 +74,12 @@ class Artifact(models.Model):
     def get_path(self):
         if self.is_external():
             return None
-        return f"./files/projects/{self.proj_id}/attachments/{self.id}.{self.extension}"
+        return f"./files/projects/{self.proj_id}/attachments/{self.id}{self.extension}"
 
     def get_filename(self):
         if self.is_external():
             return None
-        return escape_uri_path(f"{self.name}.{self.extension}")
+        return escape_uri_path(f"{self.name}{self.extension}")
 
     class Meta:
         verbose_name = 'artifact'

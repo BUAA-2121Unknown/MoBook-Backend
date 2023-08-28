@@ -8,8 +8,9 @@ from chat.dtos.chat_dto import ChatDto
 from chat.models import Chat
 from org.dtos.models.org_dto import OrganizationDto
 from org.models import Organization
+from project.dtos.models.artifact_dto import ArtifactDto
 from project.dtos.models.project_dto import ProjectDto
-from project.models import Project
+from project.models import Project, Artifact
 from user.dtos.user_dto import UserDto
 from user.models import User, UserAuth
 
@@ -22,6 +23,7 @@ class NotifType:
     ROLE_CHANGE = 4
     KICKED = 5
     NEW_PROJECT = 6
+    ARTIFACT_AT = 7
 
 
 class NotifBasePayload:
@@ -64,11 +66,12 @@ class NotifInvitationPayload(NotifBasePayload):
 
 class NotifRoleChangePayload(NotifBasePayload):
     """
-    your role in {organization} changed to {new_auth}
+    your role in {organization} changed from {old_auth} to {new_auth}
     """
 
-    def __init__(self, org: Organization, new_auth: int):
+    def __init__(self, org: Organization, old_auth: int, new_auth: int):
         super().__init__(NotifType.ROLE_CHANGE, org)
+        self.oldAuth: str = UserAuth.to_string(old_auth)
         self.newAuth: str = UserAuth.to_string(new_auth)
 
 
@@ -86,3 +89,15 @@ class NotifNewProjectPayload(NotifBasePayload):
         super().__init__(NotifType.NEW_PROJECT, org)
         self.user: UserDto = UserDto(user)
         self.project: ProjectDto = ProjectDto(project)
+
+
+class NotifArtAtPayload(NotifBasePayload):
+    """
+    {someone} at you in {artifact}
+    """
+
+    def __init__(self, org: Organization, target_user: User, proj: Project, art: Artifact):
+        super().__init__(NotifType.ARTIFACT_AT, org)
+        self.user: UserDto = UserDto(target_user)
+        self.project: ProjectDto = ProjectDto(proj)
+        self.artifact: ArtifactDto = ArtifactDto(art)

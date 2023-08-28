@@ -8,7 +8,7 @@ from chat.models import Chat
 from chat.utils.message_manager import new_to_chat, pull_older, new_to_chat_ver1, pull_newer
 from message.models import Message
 from notif.dtos.notif_payload import NotifAtPayload
-from notif.utils.notif_manager import dispatch_notif
+from notif.utils.notif_manager import dispatch_notification
 from org.models import Organization
 from shared.utils.dir_utils import get_avatar_url
 from shared.utils.model.model_extension import first_or_default
@@ -266,7 +266,7 @@ def send_text(request):  # json
                 user_chat_jump.save()
 
                 notif_at_payload = NotifAtPayload(org, user, chat)
-                dispatch_notif(user_id, org_id, notif_at_payload)
+                dispatch_notification(user_id, org_id, notif_at_payload)
 
     else:
         return BadRequestResponse(BadRequestDto("Missing content"))

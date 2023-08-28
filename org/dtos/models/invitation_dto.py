@@ -16,6 +16,7 @@ class InvitationBaseDto:
         self.created = inv.created
         self.expires = inv.expires
         self.revoked = inv.revoked
+        self.active = inv.is_active()
         review = inv.review
 
 

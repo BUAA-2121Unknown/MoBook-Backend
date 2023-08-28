@@ -6,6 +6,8 @@
 #
 import re
 
+from shared.utils.file.file_handler import parse_filename
+
 
 def validate_username(username: str) -> bool:
     if re.match('^[a-zA-Z_-]{4,16}$', username):
@@ -35,10 +37,8 @@ VALID_IMAGE_FILE_EXT = ['.jpg', '.jpeg', '.png']
 
 
 def validate_image_name(filename: str) -> bool:
-    for ext in VALID_IMAGE_FILE_EXT:
-        if filename.endswith(ext):
-            return True
-    return False
+    name, ext = parse_filename(filename)
+    return ext in VALID_IMAGE_FILE_EXT
 
 
 def validate_org_name(name: str) -> bool:

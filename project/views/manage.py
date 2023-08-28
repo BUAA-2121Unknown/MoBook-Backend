@@ -4,11 +4,12 @@
 # @Author  : Tony Skywalker
 # @File    : management.py
 #
+from asgiref.sync import sync_to_async
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
 from notif.dtos.notif_payload import NotifNewProjectPayload
-from notif.utils.notif_manager import dispatch_notif
+from notif.utils.notif_manager import dispatch_notification
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.models import Organization
 from project.dtos.models.project_dto import ProjectCompleteDto
@@ -71,7 +72,7 @@ def create_project(request):
         u: User
         if u.id == user.id:
             continue
-        dispatch_notif(u.id, org.id, NotifNewProjectPayload(org, user, proj))
+        dispatch_notification(u.id, org.id, NotifNewProjectPayload(org, user, proj))
 
     return OkResponse(OkDto(data=ProjectCompleteDto(proj)))
 

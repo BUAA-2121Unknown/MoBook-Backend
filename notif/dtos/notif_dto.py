@@ -10,6 +10,7 @@ from shared.utils.json.serializer import deserialize
 
 class NotifDto:
     def __init__(self, notif: Notification):
+        self.id = notif.id
         self.userId = notif.user_id
         self.orgId = notif.org_id
         self.type = notif.type

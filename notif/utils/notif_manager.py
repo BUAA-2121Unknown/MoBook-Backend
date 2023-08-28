@@ -15,7 +15,7 @@ from shared.utils.json.exceptions import JsonSerializeException
 from shared.utils.json.serializer import serialize
 
 
-def dispatch_notif(target_user_id, org_id, payload: NotifBasePayload):
+def dispatch_notification(target_user_id, org_id, payload: NotifBasePayload):
     try:
         payload_str = serialize(payload)
     except Exception:
