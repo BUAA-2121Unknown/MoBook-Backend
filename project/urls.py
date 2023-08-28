@@ -13,11 +13,12 @@ from project.views.attachment import upload_artifact_attachment, download_artifa
     download_artifact_content_attachment, upload_artifact_content_attachment
 from project.views.manage import create_project, update_project_status
 from project.views.member import update_project_member_profile, get_project_members
-from project.views.profile import update_project_profile
+from project.views.profile import update_project_profile, get_project_profile
 
 urlpatterns = [
     path('create', create_project),
     path('profile/update', update_project_profile),
+    path('profile', get_project_profile),
     path('status/update', update_project_status),
 
     path('artifact/create', create_artifact),
