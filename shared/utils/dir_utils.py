@@ -46,6 +46,7 @@ def get_avatar_url(typ, filename):
 
 
 def get_imagefield_url(filename):
-    if filename is None:
-        return None
-    return BASE_URL + filename.url
+    return "https://w.wallhaven.cc/full/vq/wallhaven-vqexj8.jpg"
+    # if filename is None:
+    #     return None
+    # return BASE_URL + filename.url

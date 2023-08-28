@@ -10,18 +10,15 @@ from message.models import Message
 from notif.dtos.notif_payload import NotifAtPayload
 from notif.utils.notif_manager import dispatch_notification
 from org.models import Organization
-from shared.utils.dir_utils import get_avatar_url
-from shared.utils.model.model_extension import first_or_default
-from shared.utils.model.user_extension import get_user_from_request
-from shared.utils.time_utils import get_date, get_time
-from user.models import User, UserOrganizationProfile, UserChatRelation, UserChatJump
-from oauth.dtos.login_dto import LoginDto
-from shared.dtos.ordinary_response_dto import BadRequestDto, ErrorDto, OkDto, UnauthorizedDto
 from shared.dtos.ordinary_response_dto import BadRequestDto, OkDto, UnauthorizedDto
 from shared.response.json_response import BadRequestResponse, OkResponse, UnauthorizedResponse
+from shared.utils.dir_utils import get_avatar_url, get_imagefield_url
+from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
+from shared.utils.time_utils import get_date, get_time
 from user.models import User, UserChatRelation, UserChatJump
+from user.models import UserOrganizationProfile
 
 
 @api_view(['POST'])
@@ -34,9 +31,9 @@ def get_chat_list(request):  # org内的
     params = parse_param(request)
     user_chat_relation_list = UserChatRelation.objects.filter(user_id=user.id, org_id=params.get("org_id"))  # 可能数据类型不匹配
     # 以上chat中，当前user所在的
-    print(user.id)
-    print(params.get("org_id"))
-    print(user_chat_relation_list)
+    # print(user.id)
+    # print(params.get("org_id"))
+    # print(user_chat_relation_list)
     data = {"chat_list": []}
     # 获取群聊列表：基础信息
     for user_chat_relation in user_chat_relation_list:
@@ -46,7 +43,7 @@ def get_chat_list(request):  # org内的
             "roomId": chat.id,
             "roomName": chat.chat_name,
             "unreadCount": user_chat_relation.unread,
-            "avatar": BASE_URL + chat.chat_avatar.url,
+            "avatar": get_imagefield_url(chat.chat_avatar.url),
 
         }
 
@@ -173,7 +170,7 @@ def send_file(request):  # form data
     response = {
         'src_id': user.id,
         'src_name': first_or_default(UserOrganizationProfile, user_id=user.id,
-                                             org_id=params.get("org_id")).nickname,  # 传过来团队内昵称
+                                     org_id=params.get("org_id")).nickname,  # 传过来团队内昵称
         'src_avatar_url': get_avatar_url("user", user.avatar)
     }
 
@@ -263,7 +260,8 @@ def send_text(request):  # json
                 user_chat_relation = first_or_default(UserChatRelation, chat_id=params.get('chat_id'))
                 user_chat_relation.at_message_id = message.id
                 user_chat_relation.save()
-                user_chat_jump = UserChatJump(user_id=user_id, chat_id=params.get('chat_id'), message_id=message.id, valid=1)
+                user_chat_jump = UserChatJump(user_id=user_id, chat_id=params.get('chat_id'), message_id=message.id,
+                                              valid=1)
                 user_chat_jump.save()
 
                 notif_at_payload = NotifAtPayload(org, user, chat)
@@ -289,6 +287,5 @@ def send_text(request):  # json
         'type': 'chat_message',
         'data': response
     })
-
 
     return OkResponse(OkDto(data=response))  # 需要返回文件的本名和url，前端（发送者）收到后进行ws请求

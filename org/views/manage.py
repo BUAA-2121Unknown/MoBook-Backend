@@ -44,7 +44,7 @@ def create_org(request):
     if not dto.is_valid():
         return BadRequestResponse(BadRequestDto())
 
-    org = Organization.create(0, dto.name, dto.description)
+    org: Organization = Organization.create(0, dto.name, dto.description)
     org.save()
 
     # add user to organization
@@ -53,7 +53,7 @@ def create_org(request):
 
     # create default chat
     chat = init_default_chat(org, user)
-    org.chat = chat.id
+    org.chat_id = chat.id
     org.save()
 
     return OkResponse(OkDto(data=org_profile_provider_full(org)))
