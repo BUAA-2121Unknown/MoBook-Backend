@@ -16,6 +16,10 @@ def new_to_chat(user, chat_id, message_num, org_id):
 
 def new_to_chat_ver1(user, chat_id, org_id):
     data = pull_all(chat_id, org_id)
+    user_chat_relation = first_or_default(UserChatRelation, user_id=user.id, chat_id=chat_id)
+    user_chat_relation.at_message_id = 0
+    user_chat_relation.unread = 0
+    user_chat_relation.save()
     data.update(_get_chat_members(chat_id, org_id))
     # 返回所有未读at消息，然后把它们valid置零
 
@@ -27,12 +31,13 @@ def new_to_chat_ver1(user, chat_id, org_id):
 def get_at_list(user, chat_id):
     data = {"at_message_list": []}
 
-    # 获取最新未读at消息，并且置零，重新加载解锁查看静态的最新消息，unread置零
-    user_chat_relation = first_or_default(UserChatRelation, user_id=user.id, chat_id=chat_id)
-    at_message_id = user_chat_relation.at_message_id
-    user_chat_relation.at_message_id = 0
-    user_chat_relation.unread = 0
-    user_chat_relation.save()
+    # # 获取最新未读at消息，并且置零，重新加载解锁查看静态的最新消息，unread置零
+    # user_chat_relation = first_or_default(UserChatRelation, user_id=user.id, chat_id=chat_id)
+    # at_message_id = user_chat_relation.at_message_id
+    #
+    # user_chat_relation.at_message_id = 0
+    # user_chat_relation.unread = 0
+    # user_chat_relation.save()
 
     # 返回所有未读at消息，然后把它们valid置零
     user_chat_jump_list = UserChatJump.objects.filter(user_id=user.id, chat_id=chat_id, valid=1)  # 顺序
