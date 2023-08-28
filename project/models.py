@@ -40,6 +40,7 @@ class Artifact(models.Model):
     type = models.CharField(max_length=31)
     name = models.CharField(max_length=63)
 
+    raw = models.BooleanField(default=True)
     filename = models.CharField(max_length=127, default=None, null=True)
     extension = models.CharField(max_length=15, default=None, null=True)
 

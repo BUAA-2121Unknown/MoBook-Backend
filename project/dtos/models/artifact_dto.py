@@ -19,6 +19,7 @@ class ArtifactBaseDto:
         self.type = artifact.type
 
         # filename is null if no file uploaded
+        self.isRaw = artifact.raw
         self.filename = artifact.get_filename()
 
         self.created = artifact.created
