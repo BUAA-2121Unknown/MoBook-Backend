@@ -37,8 +37,11 @@ def get_projects_of_org(request):
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
     org: Organization
-    status = parse_value_with_check(params.get('status'), int, Existence.get_validator(), Existence.ACTIVE)
-    projects = Project.objects.filter(org_id=org.id, status=status).order_by('-created')
+    status = parse_value_with_check(params.get('status'), int, Existence.get_validator())
+    if status is None:
+        projects = Project.objects.filter(org_id=org.id).order_by('-created')
+    else:
+        projects = Project.objects.filter(org_id=org.id, status=status).order_by('-created')
 
     proj_list = []
     for project in projects:
