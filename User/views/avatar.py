@@ -42,6 +42,7 @@ def upload_avatar(request):
     try:
         save_avatar('user', old_path, new_path, file)
     except Exception as e:
+        print(e)
         return InternalServerErrorResponse(InternalServerErrorDto("Failed to save avatar", data=e))
 
     user.avatar = new_avatar

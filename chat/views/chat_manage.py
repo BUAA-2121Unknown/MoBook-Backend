@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from chat.models import Chat
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, OkResponse
+from shared.utils.dir_utils import get_avatar_url
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
@@ -41,17 +42,17 @@ def create_chat(request):
 
 @api_view(['POST'])
 @csrf_exempt
-def dismiss_chat(request, chat_id):
+def dismiss_chat(request):
+    params = parse_param(request)
     src: User = get_user_from_request(request)
     if src is None:
         return UnauthorizedResponse(UnauthorizedDto())
-    if not UserChatRelation.objects.filter(user_id=src.id, chat_id=chat_id, authority=1).exists():
+    if not UserChatRelation.objects.filter(user_id=src.id, chat_id=params.get('chat_id'), authority=1).exists():
         return UnauthorizedResponse(UnauthorizedDto())
 
-    params = parse_param(request)
-    chat = Chat(id=chat_id)
+    chat = Chat(id=params.get('chat_id'))
     chat.delete()
-    for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id):
+    for user_chat_relation in UserChatRelation.objects.filter(chat_id=params.get('chat_id')):
         user_chat_relation.delete()
 
     return OkResponse(OkDto())
@@ -59,14 +60,14 @@ def dismiss_chat(request, chat_id):
 
 @api_view(['POST'])
 @csrf_exempt
-def chat_invite_member(request, chat_id):
+def chat_invite_member(request):
     src: User = get_user_from_request(request)
     if src is None:
         return UnauthorizedResponse(UnauthorizedDto())
 
     params = parse_param(request)
     user = params.get('user')
-    user_chat_relation = UserChatRelation(user_id=user.id, chat_id=chat_id, org_id=params.get('org_id'))
+    user_chat_relation = UserChatRelation(user_id=user.id, chat_id=params.get('chat_id'), org_id=params.get('org_id'))
     user_chat_relation.save()
 
     return OkResponse(OkDto())
@@ -74,34 +75,28 @@ def chat_invite_member(request, chat_id):
 
 @api_view(['POST'])
 @csrf_exempt
-def get_chat_members(request, chat_id):
+def get_chat_members(request):
     src: User = get_user_from_request(request)
     if src is None:
         return UnauthorizedResponse(UnauthorizedDto())
 
-    data = {"users": []}
-    for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id):
-        user = first_or_default(User, id=user_chat_relation.user_id)
-        data["users"].append({
-            "username": user.username,
-            "avatar": user.avatar
-        })
+    params = parse_param(request)
 
-    return OkResponse(OkDto(data=data))
+    return OkResponse(OkDto(data=get_chat_members(params.get('chat_id'), params.get('org_id'))))
 
 
 @api_view(['POST'])
 @csrf_exempt
-def chat_remove_member(request, chat_id):
+def chat_remove_member(request):
+    params = parse_param(request)
     src: User = get_user_from_request(request)
     if src is None:
         return UnauthorizedResponse(UnauthorizedDto())
-    if not UserChatRelation.objects.filter(user_id=src.id, chat_id=chat_id, authority=1).exists():
+    if not UserChatRelation.objects.filter(user_id=src.id, chat_id=params.get('chat_id'), authority=1).exists():
         return UnauthorizedResponse(UnauthorizedDto())
 
-    params = parse_param(request)
     user = params.get('user')
-    user_chat_relation = first_or_default(UserChatRelation, user_id=user.id, chat_id=chat_id)
+    user_chat_relation = first_or_default(UserChatRelation, user_id=user.id, chat_id=params.get('chat_id'))
     user_chat_relation.delete()
 
     return OkResponse(OkDto())
@@ -109,14 +104,14 @@ def chat_remove_member(request, chat_id):
 
 @api_view(['POST'])
 @csrf_exempt
-def leave_chat(request, chat_id):
+def leave_chat(request):
     user: User = get_user_from_request(request)
     if user is None:
         return UnauthorizedResponse(UnauthorizedDto())
 
     params = parse_param(request)
     user = params.get('user')
-    user_chat_relation = first_or_default(UserChatRelation, user_id=user.id, chat_id=chat_id)
+    user_chat_relation = first_or_default(UserChatRelation, user_id=user.id, chat_id=params.get('chat_id'))
     user_chat_relation.delete()
 
     return OkResponse(OkDto())
