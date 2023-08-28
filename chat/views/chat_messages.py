@@ -289,4 +289,6 @@ def send_text(request):  # json
         'type': 'chat_message',
         'data': response
     })
+
+
     return OkResponse(OkDto(data=response))  # 需要返回文件的本名和url，前端（发送者）收到后进行ws请求
