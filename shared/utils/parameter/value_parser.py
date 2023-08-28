@@ -64,7 +64,7 @@ def parse_value_strict(val, _type, default=None, raise_on_error=False):
 
 def parse_value_with_check(val, _type, predicate=None, default=None, raise_on_error=False):
     try:
-        value = parse_value(val, type, default, raise_on_error)
+        value = parse_value(val, _type, default, raise_on_error)
     except ParameterException as e:
         if raise_on_error:
             raise e
