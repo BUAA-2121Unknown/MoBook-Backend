@@ -13,6 +13,7 @@ from org.models import Organization
 from shared.utils.dir_utils import get_avatar_url
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
+from shared.utils.time_utils import get_date, get_time
 from user.models import User, UserOrganizationProfile, UserChatRelation, UserChatJump
 from oauth.dtos.login_dto import LoginDto
 from shared.dtos.ordinary_response_dto import BadRequestDto, ErrorDto, OkDto, UnauthorizedDto
@@ -63,8 +64,8 @@ def get_chat_list(request):  # org内的
                 "senderId": str(message.src_id),  # ?
                 "username": first_or_default(UserOrganizationProfile, user_id=message.src_id,
                                              org_id=params.get("org_id")).nickname,
-                "timestamp": str(message.timestamp.hour) + ':' + str(message.timestamp.minute),
-                "date": str(message.timestamp.month) + '.' + str(message.timestamp.day),
+                "timestamp": get_time(message.timestamp),
+                "date": get_date(message.timestamp),
 
                 "saved": True,
                 "distributed": True,
@@ -249,8 +250,8 @@ def send_text(request):  # json
         message.save()
         response.update({
             "_id": message.id,
-            "timestamp": str(message.timestamp.hour) + ':' + str(message.timestamp.minute),
-            "date": str(message.timestamp.month) + '.' + str(message.timestamp.day),
+            "timestamp": get_time(message.timestamp),
+            "date": get_date(message.timestamp),
 
         })
         if category == 3:

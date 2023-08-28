@@ -3,6 +3,7 @@ from chat.utils.chat_manager import _get_chat_members
 from message.models import Message
 from shared.utils.dir_utils import get_avatar_path, get_avatar_url
 from shared.utils.model.model_extension import first_or_default
+from shared.utils.time_utils import get_time, get_date
 from user.models import UserChatRelation, UserChatJump, UserOrganizationProfile, User
 
 
@@ -83,9 +84,8 @@ def pull_message(message_list, org_id):
             "avatar": get_avatar_url("user", first_or_default(User, id=message.src_id).avatar),
             "username": first_or_default(UserOrganizationProfile, user_id=message.src_id,
                                              org_id=org_id).nickname,
-            "timestamp": str(message.timestamp.hour) + ':' + str(message.timestamp.minute),
-            "date": str(message.timestamp.month) + '.' + str(message.timestamp.day),
-
+            "timestamp": get_time(message.timestamp),
+            "date": get_date(message.timestamp),
             "saved": True,
             "distributed": True,
             "seen": True,

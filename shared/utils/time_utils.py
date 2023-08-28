@@ -7,5 +7,9 @@
 import datetime
 
 
-def add_offset(timestamp: datetime.datetime):
-    return timestamp.astimezone(datetime.timezone(datetime.timedelta(hours=8)))
+def get_date(timestamp: datetime.datetime):
+    return timestamp.astimezone(datetime.timezone(datetime.timedelta(hours=8))).strftime("%m-%d")
+
+
+def get_time(timestamp: datetime.datetime):
+    return timestamp.astimezone(datetime.timezone(datetime.timedelta(hours=8))).strftime("%H:%M")
