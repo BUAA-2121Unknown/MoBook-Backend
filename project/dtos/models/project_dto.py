@@ -16,6 +16,7 @@ class ProjectBaseDto:
         self.description = proj.description
         self.created = proj.created
         self.updated = proj.updated
+        self.status = proj.status
 
 
 class ProjectDto(ProjectBaseDto):
