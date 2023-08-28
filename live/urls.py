@@ -12,6 +12,6 @@ from live.views.share import create_share_token, revoke_share_token, authorize_s
 urlpatterns = [
     path('token/create', create_share_token),
     path('token/revoke', revoke_share_token),
-    path('token/autho', authorize_share_token),
+    path('token/auth', authorize_share_token),
     path('token/all', get_share_tokens_of_artifact)
 ]

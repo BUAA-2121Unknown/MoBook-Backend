@@ -82,7 +82,7 @@ def revoke_share_token(request):
 
     share_token: ShareToken = first_or_default(ShareToken, token=token)
     if share_token is None:
-        return OkResponse(OkDto(data=AuthorizeDto(ShareAuth.DENIED, "Invalid token")))
+        return NotFoundResponse(NotFoundDto(data=AuthorizeDto(ShareAuth.DENIED, "Invalid token")))
 
     # only user in project can revoke share token
     proj, upp = get_project_with_user(share_token.proj_id, user)
@@ -92,11 +92,11 @@ def revoke_share_token(request):
 
     # now can revoke token
     if not share_token.is_active():
-        return OkResponse(OkDto("Token already expired or revoked"))
+        return OkResponse(OkDto("Token already expired or revoked", data=ShareTokenDto(share_token)))
     share_token.revoked = timezone.now()
     share_token.save()
 
-    return OkResponse(OkDto("Token revoked"))
+    return OkResponse(OkDto("Token revoked", data=ShareTokenDto(share_token)))
 
 
 @api_view(['GET'])

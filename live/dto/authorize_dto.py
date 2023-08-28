@@ -8,4 +8,4 @@
 class AuthorizeDto:
     def __init__(self, auth: int, msg: str):
         self.auth = auth
-        self.msg = msg
+        self.message = msg
