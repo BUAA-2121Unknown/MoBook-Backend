@@ -67,7 +67,7 @@ def update_org_member_profile(request):
     nickname = None
     if profile is not None:
         nickname = parse_value(profile.get('nickname'), str)
-        if nickname is not None and validate_member_nickname(nickname):
+        if nickname is not None and not validate_member_nickname(nickname):
             return BadRequestResponse(BadRequestDto("Invalid nickname"))
     auth = parse_value(params.get('auth'), int)
 
