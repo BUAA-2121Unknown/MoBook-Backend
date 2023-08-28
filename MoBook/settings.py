@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "user.apps.UserConfig",
     "org.apps.OrgConfig",
     "project.apps.ProjectConfig",
+    "live.apps.LiveConfig",
 ]
 
 MIDDLEWARE = [

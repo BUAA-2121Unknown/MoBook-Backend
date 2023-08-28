@@ -143,3 +143,4 @@ secrets_debug.yaml
 **/migrations
 static/
 media/
+files/
