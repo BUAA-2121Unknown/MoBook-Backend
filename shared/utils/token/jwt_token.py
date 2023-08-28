@@ -29,7 +29,7 @@ def generate_jwt_token(data):
     try:
         token = jwt.encode(payload, key=SALT, headers=HEADER).decode('UTF-8')
     except Exception as e:
-        raise e
+        raise TokenException("Failed to generate JWT token") from e
     return token
 
 

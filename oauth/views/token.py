@@ -1,5 +1,4 @@
 # Create your views here.
-from datetime import datetime
 
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -7,7 +6,8 @@ from rest_framework.decorators import api_view
 
 from oauth.dtos.get_token_dto import GetTokenSuccessDto, GetTokenDto
 from oauth.models import RefreshToken
-from shared.dtos.ordinary_response_dto import BadRequestDto, UnauthorizedDto, InternalServerErrorDto, OkDto, NotFoundDto
+from oauth.utils.gererate_jwt_token_pair import generate_jwt_token_pair
+from shared.dtos.ordinary_response_dto import BadRequestDto, UnauthorizedDto, InternalServerErrorDto, OkDto
 from shared.response.json_response import BadRequestResponse, UnauthorizedResponse, InternalServerErrorResponse, \
     OkResponse, NotFoundResponse
 from shared.utils.json.exceptions import JsonDeserializeException
@@ -15,6 +15,7 @@ from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_by_id
 from shared.utils.parameter.parameter import parse_param
+from shared.utils.token.exception import TokenException
 from shared.utils.token.jwt_token import generate_jwt_token
 from shared.utils.token.password import verify_password
 from shared.utils.token.refresh_token import generate_refresh_token
@@ -45,14 +46,13 @@ def get_jwt_token(request):
     if not verify_password(dto.password, user.password):
         return UnauthorizedResponse(UnauthorizedDto("Wrong password"))
 
+    # create JWT token and refresh token
     try:
-        token = generate_jwt_token(dto.id)
-        refresh_token = generate_refresh_token(dto.id)
-        refresh_token.save()
-    except Exception as e:
+        jwt_token, refresh_token = generate_jwt_token_pair(user.id)
+    except TokenException as e:
         return InternalServerErrorResponse(InternalServerErrorDto("Failed to generate JWT token", data=e))
 
-    data = GetTokenSuccessDto(dto.id, token, refresh_token.expires)
+    data = GetTokenSuccessDto(user.id, jwt_token, refresh_token.expires)
     response = OkResponse(OkDto(data=data))
 
     # set cookies
