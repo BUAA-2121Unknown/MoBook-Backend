@@ -32,7 +32,7 @@ def update_user_profile(request):
     if username is not None and username != user.username:
         if not validate_username(username):
             return BadRequestResponse(BadRequestDto("Invalid username"))
-        if first_or_default(User, username=username) is not None:
+        if first_or_default(User, username__exact=username) is not None:
             return OkResponse(UsernameOccupiedDto())
         user.username = username
     name = parse_value(params.get('name'), str)
