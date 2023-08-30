@@ -11,6 +11,7 @@ class RefreshToken(models.Model):
     expires = models.DateTimeField()
     revoked = models.DateTimeField(default=None, null=True)
 
+
     @classmethod
     def create(cls, uid, token, created, expires):
         return cls(uid=uid, token=token, created=created, expires=expires)

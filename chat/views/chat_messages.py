@@ -34,9 +34,6 @@ def get_chat_list(request):  # org内的
     params = parse_param(request)
     user_chat_relation_list = UserChatRelation.objects.filter(user_id=user.id, org_id=params.get("org_id"))  # 可能数据类型不匹配
     # 以上chat中，当前user所在的
-    print(user.id)
-    print(params.get("org_id"))
-    print(user_chat_relation_list)
     data = {"chat_list": []}
     # 获取群聊列表：基础信息
     for user_chat_relation in user_chat_relation_list:
@@ -139,7 +136,6 @@ def pull_newer_messages(request):
     message_id = params.get('message_id')
     message_num = params.get('message_num')
     data = pull_newer(message_id, params.get('chat_id'), message_num, params.get('org_id'))
-    print(data)
     return OkResponse(OkDto(data=data))
 
 
@@ -284,11 +280,13 @@ def send_text(request):  # json
 
         user_chat_relation.save()
     message.save()
+
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(str(chat.id), {
         'type': 'chat_message',
         'data': response
     })
 
-
     return OkResponse(OkDto(data=response))  # 需要返回文件的本名和url，前端（发送者）收到后进行ws请求
+
+

@@ -36,14 +36,11 @@ def remove_from_chat(chat_id, user_list):
 def _get_chat_members(chat_id, org_id):
     data = {"users": []}
     for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id):
-        # print(chat_id)
-        # print(org_id)
-        # print(user_chat_relation.user_id)
         user = first_or_default(User, id=user_chat_relation.user_id)
         data["users"].append({
             "_id": user.id,
             "username": first_or_default(UserOrganizationProfile, user_id=user.id,
                                              org_id=org_id).nickname,
-            "avatar": get_avatar_url("user", user.username),
+            "avatar": get_avatar_url("user", user.avatar),
         })
     return data

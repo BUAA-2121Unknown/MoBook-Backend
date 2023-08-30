@@ -17,7 +17,7 @@ Including another URLconf
 from django.urls import path
 
 from chat.views.chat_manage import create_chat, chat_invite_member, chat_remove_member, dismiss_chat, get_chat_members, \
-    leave_chat
+    leave_chat, upload_chat_avatar
 from chat.views.chat_messages import get_chat_list, get_all_messages, send_text, send_file, view_chat, \
     pull_older_messages, pull_newer_messages, get_messages_by_type, search_messages
 
@@ -25,6 +25,7 @@ urlpatterns = [
     path('index', get_chat_list, name='get_chat_list'),
 
     path('create', create_chat, name='create_chat'),
+    path('upload_chat_avatar', upload_chat_avatar, name='upload_chat_avatar'),
     path('dismiss', dismiss_chat, name='chat_invite_member'),
     path('invite', chat_invite_member, name='chat_invite_member'),
     path('get_members', get_chat_members, name='get_chat_members'),

@@ -42,6 +42,19 @@ def create_chat(request):
 
 @api_view(['POST'])
 @csrf_exempt
+def upload_chat_avatar(request):
+    src: User = get_user_from_request(request)
+    if src is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+    params = parse_param(request)
+    chat_id = params.get('chat_id')
+    chat = first_or_default(Chat, chat_id=chat_id)
+    chat.chat_avatar = request.FILES("chat_avatar")
+    chat.save()
+
+
+@api_view(['POST'])
+@csrf_exempt
 def dismiss_chat(request):
     params = parse_param(request)
     src: User = get_user_from_request(request)
