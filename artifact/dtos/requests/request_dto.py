@@ -20,7 +20,7 @@ class ItemRequestBaseDto:
 class CreateItemBaseDto(ItemRequestBaseDto):
     def __init__(self):
         super().__init__()
-        self.name: str = ""
+        self.filename: str = ""
 
     def is_valid(self):
         return validate_item_name(self.name)
@@ -37,13 +37,13 @@ class CreateFolderDto(CreateItemBaseDto):
 class CreateFileDto(CreateItemBaseDto):
     def __init__(self):
         super().__init__()
-        self.property: int = 0
+        self.prop: int = 0
         self.live: bool = False
 
     def is_valid(self):
         if not super().is_valid():
             return False
-        return self.property in ItemProperty.files()
+        return self.prop in ItemProperty.files()
 
 
 class UpdateItemStatusDto:
@@ -75,6 +75,13 @@ class DownloadFileDto(ItemRequestBaseDto):
         super().__init__()
         self.token: str = ""
         self.version: int = 0
+
+    def init(self, proj_id, item_id, token, version):
+        self.projId = proj_id
+        self.itemId = item_id
+        self.token = token
+        self.version = version
+        return self
 
 
 class GetVersionsDto(ItemRequestBaseDto):

@@ -9,7 +9,7 @@ from shared.utils.model.model_extension import first_or_default, Existence
 
 class Project(models.Model):
     org_id = models.BigIntegerField()
-    root_id = models.BigIntegerField()  # root folder id
+    root_id = models.BigIntegerField(default=0)  # root folder id
 
     name = models.CharField(max_length=63)
     description = models.CharField(max_length=255)

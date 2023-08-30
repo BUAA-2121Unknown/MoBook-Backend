@@ -16,7 +16,7 @@ class ItemDto:
         self.name = item.name
 
         self.type = item.type
-        self.property = item.prop
+        self.prop = item.prop
 
         self.created = item.created
         self.updated = item.updated

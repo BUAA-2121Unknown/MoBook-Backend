@@ -53,7 +53,7 @@ def create_org(request):
 
     # create default chat
     chat = init_default_chat(org, user)
-    org.chat = chat.id
+    org.chat_id = chat.id
     org.save()
 
     return OkResponse(OkDto(data=org_profile_provider_full(org)))

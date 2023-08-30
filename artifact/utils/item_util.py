@@ -23,7 +23,7 @@ def init_root_folder(proj: Project):
     """
     node = Item.add_root(name=proj.name,
                          type=ItemType.ROOT,
-                         property=ItemProperty.FOLDER,
+                         prop=ItemProperty.FOLDER,
                          proj_id=proj.id,
                          org_id=proj.org_id)
     root = get_item_lambda()(node.pk)
@@ -39,7 +39,7 @@ def create_folder_aux(dst: Item, name: str, proj: Project):
     node = dst.add_child(name=name,
                          extension="",
                          type=ItemType.DIRECTORY,
-                         property=ItemProperty.FOLDER,
+                         prop=ItemProperty.FOLDER,
                          proj_id=proj.id,
                          org_id=proj.org_id)
     return get_item_lambda()(node.pk)
@@ -56,7 +56,7 @@ def create_file_aux(dst: Item, name: str, prop: int, live: bool, file, user: Use
     node = dst.add_child(name=name,
                          extension=ext,
                          type=ItemType.FILE,
-                         property=prop,
+                         prop=prop,
                          live=live,
                          proj_id=proj.id,
                          org_id=proj.org_id)
@@ -74,8 +74,7 @@ def move_item_aux(src: Item, dst: Item):
     """
     if dst.type not in ItemType.dirs():
         return
-    src.move(dst)
-    src.save()
+    src.move(dst, 'sorted-child')
 
 
 def update_item_status_aux(item: Item, status: int):

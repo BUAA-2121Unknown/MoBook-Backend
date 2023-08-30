@@ -5,7 +5,7 @@ from shared.utils.model.model_extension import Existence, first_or_default
 
 
 class Organization(models.Model):
-    chat_id = models.IntegerField()
+    chat_id = models.IntegerField(default=0)
     description = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=63)
     avatar = models.CharField(max_length=63, default=None, null=True)

@@ -92,7 +92,7 @@ def create_file(request):
     if not item.is_dir():
         return ForbiddenResponse(ForbiddenDto("Not a folder"))
 
-    file = create_file_aux(item, dto.name, dto.property, dto.live, None, user, proj)
+    file, version = create_file_aux(item, dto.filename, dto.prop, dto.live, None, user, proj)
 
     return OkResponse(OkDto(data=FileDto(file)))
 
@@ -122,16 +122,12 @@ def update_item_status(request):
     data = OperationResponseData().init()
     for item_id in list(set(dto.items)):
         item: Item = first_or_default(Item, id=item_id)
-        if item is None or not item.is_active():
+        if item is None:
             data.add_error(item_id, "No such item")
             continue
         if item.proj_id != dto.projId:
             data.add_error(item_id, "Item is not under this project")
             continue
-        if not item.is_dir():
-            data.add_error(item_id, "Not a folder")
-            continue
-
         update_item_status_aux(item, dto.status)
         data.add_success(item_id)
 
@@ -172,8 +168,8 @@ def move_item(request):
         item: Item = first_or_default(Item, id=item_id)
         try:
             move_item_aux(item, dst_item)
+            data.add_success(item_id)
         except Exception as e:
             data.add_error(item_id, str(e))
-        data.add_success(item_id)
 
     return OkResponse(OkDto(data=data))

@@ -59,17 +59,19 @@ def get_item(request):
         return UnauthorizedResponse(UnauthorizedDto())
 
     params = parse_param(request)
-    try:
-        dto: GetItemDto = deserialize(params, GetItemDto)
-    except JsonDeserializeException as e:
-        return BadRequestResponse(BadRequestDto(data=e))
+    proj_id = parse_value(params.get('projId'), int)
+    if proj_id is None:
+        return BadRequestResponse(BadRequestDto("Missing projId"))
+    item_id = parse_value(params.get('itemId'), int)
+    if item_id is None:
+        return BadRequestResponse(BadRequestDto("Missing itemId"))
 
-    proj, org, error = get_proj_and_org(dto.projId, user)
+    proj, org, error = get_proj_and_org(proj_id, user)
     if error:
         return NotFoundResponse(error)
     proj: Project
 
-    item: Item = first_or_default(Item, id=dto.itemId)
+    item: Item = first_or_default(Item, id=item_id)
     if item is None or not item.is_active():
         return NotFoundResponse(NoSuchItemDto())
 
@@ -89,18 +91,20 @@ def get_all_versions(request):
         return UnauthorizedResponse(UnauthorizedDto())
 
     params = parse_param(request)
-    try:
-        dto: GetVersionsDto = deserialize(params, GetVersionsDto)
-    except JsonDeserializeException as e:
-        return BadRequestResponse(BadRequestDto(data=e))
+    proj_id = parse_value(params.get('projId'), int)
+    if proj_id is None:
+        return BadRequestResponse(BadRequestDto("Missing projId"))
+    item_id = parse_value(params.get('itemId'), int)
+    if item_id is None:
+        return BadRequestResponse(BadRequestDto("Missing itemId"))
 
     # get working project
-    proj, org, error = get_proj_and_org(dto.projId, user)
+    proj, org, error = get_proj_and_org(proj_id, user)
     if error:
         return NotFoundResponse(error)
 
     # get file
-    file: Item = first_or_default(Item, id=dto.itemId)
+    file: Item = first_or_default(Item, id=item_id)
     if file is None or not file.is_active():
         return NotFoundResponse(NoSuchItemDto())
     if file.is_dir():
@@ -111,6 +115,8 @@ def get_all_versions(request):
         version_list.append(VersionDto(version))
 
     return OkResponse(OkDto(data={
+        "itemId": item_id,
+        "lastVersion": file.version,
         "versions": version_list,
         "total": len(version_list)
     }))

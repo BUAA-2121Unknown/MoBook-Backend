@@ -68,7 +68,7 @@ class Item(MP_Node):
 
     file_id = models.SmallIntegerField(default=0)  # only valid when property is not FOLDER
 
-    node_order = ['name']
+    node_order_by = ['type', 'name']
 
     def is_active(self):
         return self.status == Existence.ACTIVE

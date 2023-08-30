@@ -21,11 +21,11 @@ def create_version_aux(file, version, item: Item, user: User):
     FileVersion.objects.filter(file_id=item.id, version__gte=version).delete()
 
     # create new version
-    version = FileVersion.create(version, item.file_id, user.id)
+    version = FileVersion.create(version, item.id, user.id)
     version.save()
 
     # get internal file storage path
-    path = get_item_path(item, version)
+    path = get_item_path(item, version.version)
 
     if file is not None:
         # save actual file

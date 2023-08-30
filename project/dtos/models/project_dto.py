@@ -12,6 +12,7 @@ from project.models import Project
 class ProjectBaseDto:
     def __init__(self, proj: Project):
         self.id = None if proj is None else proj.id
+        self.root = None if proj is None else proj.root_id
         self.name = None if proj is None else proj.name
         self.description = None if proj is None else proj.description
         self.created = None if proj is None else proj.created
