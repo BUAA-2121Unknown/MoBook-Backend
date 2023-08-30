@@ -6,39 +6,6 @@
 #
 from org.models import Organization
 from project.models import Project
-from shared.utils.model.model_extension import first_or_default
-from user.models import User, UserProjectProfile
-
-
-def get_proj_profile_of_user(proj: Project, user: User):
-    # User Organization Profile
-    return first_or_default(UserProjectProfile, proj_id=proj.id, user_id=user.id)
-
-
-def _get_proj_and_profile_of_user(pid, user: User):
-    if pid is None or user is None:
-        return None, None
-
-    proj = first_or_default(Project, id=pid)
-    if proj is None:
-        return None, None
-    upp = get_proj_profile_of_user(proj, user)
-    if upp is None:
-        return None, None
-    return proj, upp
-
-
-def get_project_with_user(pid, user: User):
-    proj, upp = _get_proj_and_profile_of_user(pid, user)
-    return proj, upp
-
-
-def get_upps_of_project(project: Project):
-    return UserProjectProfile.objects.filter(proj_id=project.id)
-
-
-def get_users_of_project(project: Project):
-    return list(map(lambda upp: upp.get_user(), get_upps_of_project(project)))
 
 
 def get_projects_of_organization(organization: Organization):

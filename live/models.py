@@ -20,10 +20,13 @@ class ShareAuth:
 
 
 class ShareToken(models.Model):
-    art_id = models.BigIntegerField()  # artifact id
+    item_id = models.BigIntegerField()  # item id
+
     proj_id = models.BigIntegerField()  # project id
     org_id = models.BigIntegerField()  # organization id
+
     token = models.CharField(max_length=63)
+
     created = models.DateTimeField()
     expires = models.DateTimeField(default=None, null=True)
     revoked = models.DateTimeField(default=None, null=True)

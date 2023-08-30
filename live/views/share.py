@@ -4,7 +4,7 @@
 # @Author  : Tony Skywalker
 # @File    : live.py
 #
-from datetime import timedelta
+wfrom datetime import timedelta
 
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
