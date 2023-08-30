@@ -2,7 +2,7 @@
 #
 # @Time    : 8/29/2023 17:02
 # @Author  : Tony Skywalker
-# @File    : artifact.py
+# @File    : item_util.py
 #
 # Description:
 #   Artifact creation utils.
@@ -10,7 +10,9 @@
 from typing import List
 
 from artifact.models import Item, ItemType, ItemProperty
+from artifact.utils.file_util import create_version_aux
 from project.models import Project
+from shared.utils.file.file_handler import parse_filename
 from shared.utils.model.item_extension import get_item_lambda
 from user.models import User
 
@@ -35,6 +37,7 @@ def create_folder_aux(dst: Item, name: str, proj: Project):
     Create a folder under dst item.
     """
     node = dst.add_child(name=name,
+                         extension="",
                          type=ItemType.DIRECTORY,
                          property=ItemProperty.FOLDER,
                          proj_id=proj.id,
@@ -42,31 +45,50 @@ def create_folder_aux(dst: Item, name: str, proj: Project):
     return get_item_lambda()(node.pk)
 
 
-def create_file_aux(dst: Item, name: str, prop: int, live: bool, user: User, proj: Project):
+def create_file_aux(dst: Item, name: str, prop: int, live: bool, file, user: User, proj: Project):
     """
     Create a file under dst item.
     """
 
-    # first, create a file
+    _, ext = parse_filename(name)
+
+    # first, create a file item
     node = dst.add_child(name=name,
+                         extension=ext,
                          type=ItemType.FILE,
                          property=prop,
+                         live=live,
                          proj_id=proj.id,
                          org_id=proj.org_id)
-    file = get_item_lambda()(node.pk)
+    item = get_item_lambda()(node.pk)
 
-    # then create a file item
+    # then create a version
+    version = create_version_aux(file, 1, item, user)
 
-    pass
+    return item, version
 
 
 def move_item_aux(src: Item, dst: Item):
     """
     Move src item as child of dst item.
     """
+    if dst.type not in ItemType.dirs():
+        return
+    src.move(dst)
+    src.save()
 
 
-def update_item_status_asx(items: List[Item], status: int):
+def update_item_status_aux(item: Item, status: int):
     """
-    update given items' status.
+    update given item's status.
     """
+    if item.prop == ItemProperty.FOLDER:
+        item.get_descendants().update(status=status)
+    else:
+        item.status = status
+        item.save()
+
+
+def update_items_status_aux(items: List[Item], status: int):
+    for item in items:
+        update_item_status_aux(item, status)

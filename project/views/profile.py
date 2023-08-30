@@ -14,7 +14,7 @@ from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, Ok
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse, \
     ForbiddenResponse
 from shared.utils.model.model_extension import first_or_default
-from shared.utils.model.project_extension import get_project_with_user
+from shared.utils.model.project_extension import get_proj_and_org
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.parameter.value_parser import parse_value
@@ -67,9 +67,9 @@ def get_project_profile(request):
     proj_id = parse_value(params.get('projId'), int)
     if proj_id is None:
         return BadRequestResponse(BadRequestDto("Missing projId"))
-    proj, _ = get_project_with_user(proj_id, user)
-    if proj is None:
-        return NotFoundResponse(NoSuchProjectDto())
+    proj, org, error = get_proj_and_org(proj_id, user)
+    if error is not None:
+        return NotFoundResponse(error)
     if not proj.is_active():
         return ForbiddenResponse(ForbiddenDto("Project not active"))
 

@@ -33,19 +33,34 @@ class ItemProperty:
     def all(cls):
         return [cls.FOLDER, cls.DOCUMENT, cls.PROTOTYPE]
 
+    @classmethod
+    def dirs(cls):
+        return [cls.FOLDER]
+
+    @classmethod
+    def files(cls):
+        return [cls.DOCUMENT, cls.PROTOTYPE]
+
 
 class Item(MP_Node):
     # fields for tree model
 
     # name include name and extension
     name = models.CharField(max_length=127)
+    extension = models.CharField(max_length=31)
+
     type = models.SmallIntegerField()  # ItemType
     prop = models.SmallIntegerField()  # ItemProperty
 
     created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now=True)
 
     status = models.SmallIntegerField(default=Existence.ACTIVE)
+
+    live = models.BooleanField(default=False)
+
+    # last version
+    version = models.IntegerField(default=1)
 
     # extra fields
     proj_id = models.BigIntegerField()
@@ -55,32 +70,18 @@ class Item(MP_Node):
 
     node_order = ['name']
 
+    def is_active(self):
+        return self.status == Existence.ACTIVE
+
+    def is_dir(self):
+        return self.type in ItemType.dirs()
+
+    def get_filename(self):
+        return f"{self.name}{self.extension}"
+
     class Meta:
         db_table = 'artifact_item'
         verbose_name = 'item'
-
-
-class FileItem(models.Model):
-    """
-    A file item should only be obtained through item.
-    """
-    # whether support live share or not
-    live = models.BooleanField(default=False)
-
-    # last version
-    version = models.IntegerField(default=1)
-
-    # created and updated fields are automatically set by Django
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-
-    @classmethod
-    def create(cls, label, live):
-        return cls(label=label, live=live)
-
-    class Meta:
-        db_table = 'artifact_file_item'
-        verbose_name = 'file item'
 
 
 class FileVersion(models.Model):

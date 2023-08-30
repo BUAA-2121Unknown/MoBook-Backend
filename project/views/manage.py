@@ -4,10 +4,10 @@
 # @Author  : Tony Skywalker
 # @File    : management.py
 #
-from asgiref.sync import sync_to_async
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
+from artifact.utils.item_util import init_root_folder
 from notif.dtos.notif_payload import NotifNewProjectPayload
 from notif.utils.notif_manager import dispatch_notification
 from org.dtos.requests.error_dtos import NoSuchOrgDto
@@ -16,7 +16,6 @@ from project.dtos.models.project_dto import ProjectCompleteDto
 from project.dtos.requests.create_project_dto import CreateProjectDto
 from project.dtos.requests.update_project_status_dto import UpdateProjectStatusDto
 from project.models import Project
-from project.utils.assistance import add_users_to_project
 from shared.dtos.OperationResponseData import OperationResponseData, OperationErrorData
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, ForbiddenDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse, \
@@ -24,10 +23,10 @@ from shared.response.json_response import UnauthorizedResponse, BadRequestRespon
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.organization_extension import get_org_with_user, get_users_of_org
-from shared.utils.model.project_extension import get_project_with_user
+from shared.utils.model.project_extension import get_proj_and_org
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
-from user.models import User, UserProjectProfile
+from user.models import User
 
 
 @api_view(['POST'])
@@ -61,12 +60,10 @@ def create_project(request):
     proj = Project.create(org, dto.name, dto.description)
     proj.save()
 
-    # add all users to the project
-    # default leader user first
-    UserProjectProfile.create(user, proj, "Leader").save()
-    target_users = get_users_of_org(org)
-    add_users_to_project(target_users, proj)
+    # create root folder
+    init_root_folder(proj)
 
+    target_users = get_users_of_org(org)
     # send notifications
     for u in target_users:
         u: User
@@ -93,9 +90,9 @@ def update_project_status(request):
 
     data = OperationResponseData().init()
     for proj_id in dto.projects:
-        proj, upp = get_project_with_user(proj_id, user)
-        if proj is None:
-            data.errors.append(OperationErrorData(proj_id, "No such project"))
+        proj, org, error = get_proj_and_org(proj_id, user)
+        if error is not None:
+            data.errors.append(OperationErrorData(proj_id, error))
             continue
         proj.status = dto.status
         proj.save()

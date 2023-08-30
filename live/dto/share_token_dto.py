@@ -4,12 +4,13 @@
 # @Author  : Tony Skywalker
 # @File    : share_token_dto.py
 #
+from artifact.dtos.models.item_dto import FileDto, FolderDto
+from artifact.models import Item
 from live.models import ShareToken
 from org.dtos.models.org_dto import OrganizationDto
 from org.models import Organization
-from project.dtos.models.artifact_dto import ArtifactDto
 from project.dtos.models.project_dto import ProjectDto
-from project.models import Artifact, Project
+from project.models import Project
 from shared.utils.model.model_extension import first_or_default
 
 
@@ -31,7 +32,7 @@ class ShareTokenBaseDto:
 class ShareTokenDto(ShareTokenBaseDto):
     def __init__(self, token: ShareToken):
         super(ShareTokenDto, self).__init__(token)
-        self.artId = token.art_id
+        self.artId = token.item_id
         self.projId = token.proj_id
         self.orgId = token.org_id
 
@@ -39,9 +40,8 @@ class ShareTokenDto(ShareTokenBaseDto):
 class ShareTokenCompleteDto(ShareTokenBaseDto):
     def __init__(self, token: ShareToken):
         super(ShareTokenCompleteDto, self).__init__(token)
-        art = first_or_default(Artifact, id=token.art_id)
-        self.artifact = None if art is None else ArtifactDto(art)
-        proj = first_or_default(Project, id=token.proj_id)
-        self.project = None if proj is None else ProjectDto(proj)
+        item = first_or_default(Item, id=token.item_id)
+        self.item = None if item is None else (FolderDto(item) if item.is_dir() else FileDto(item))
+        self.project = ProjectDto(first_or_default(Project, id=token.proj_id))
         org = first_or_default(Organization, id=token.org_id)
         self.org = None if org is None else OrganizationDto(org)

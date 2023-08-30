@@ -5,7 +5,7 @@
 # @File    : authorize_dto.py
 #
 
-class AuthorizeDto:
+class AuthorizeData:
     def __init__(self, auth: int, msg: str):
         self.auth = auth
         self.message = msg

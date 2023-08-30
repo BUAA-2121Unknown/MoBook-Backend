@@ -8,15 +8,16 @@ class ShareAuth:
     DENIED = 0
     READONLY = 1
     READWRITE = 2
+    FULL = 3
 
     @classmethod
     def all(cls):
-        return [cls.DENIED, cls.READONLY, cls.READWRITE]
+        return [cls.DENIED, cls.READONLY, cls.READWRITE, cls.FULL]
 
     # can only be set to these
     @classmethod
     def valid(cls):
-        return [cls.READONLY, cls.READWRITE]
+        return [cls.READONLY, cls.READWRITE, cls.FULL]
 
 
 class ShareToken(models.Model):

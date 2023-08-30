@@ -7,12 +7,12 @@
 from typing import List
 
 
-class SendArtAtNotifDto:
+class SendFileAtNotif:
     """
     {sender} in {artifact} of {project} send at message to {[ users ]}
     """
 
     def __init__(self):
         self.projId: int = 0
-        self.artId: int = 0
+        self.fileId: int = 0
         self.users: List[int] = [0]
