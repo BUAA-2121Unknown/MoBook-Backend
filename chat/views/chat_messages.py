@@ -1,16 +1,19 @@
+import json
+
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
 from MoBook.settings import BASE_URL
-from chat.models import Chat
+from chat.models import Chat, ChatType, ChatAvatar
 from chat.utils.message_manager import new_to_chat, pull_older, new_to_chat_ver1, pull_newer
 from message.models import Message
 from notif.dtos.notif_payload import NotifAtPayload
 from notif.utils.notif_manager import dispatch_notification
 from org.models import Organization
 from shared.utils.dir_utils import get_avatar_url
+from shared.utils.file.file_handler import parse_filename
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.time_utils import get_date, get_time
@@ -32,7 +35,9 @@ def get_chat_list(request):  # org内的
     if user is None:
         return UnauthorizedResponse(UnauthorizedDto())
     params = parse_param(request)
-    user_chat_relation_list = UserChatRelation.objects.filter(user_id=user.id, org_id=params.get("org_id"))  # 可能数据类型不匹配
+    org_id = params.get("org_id")
+    org = first_or_default(Organization, id=org_id)
+    user_chat_relation_list = UserChatRelation.objects.filter(user_id=user.id, org_id=org_id)  # 可能数据类型不匹配
     # 以上chat中，当前user所在的
     data = {"chat_list": []}
     # 获取群聊列表：基础信息
@@ -43,9 +48,15 @@ def get_chat_list(request):  # org内的
             "roomId": chat.id,
             "roomName": chat.chat_name,
             "unreadCount": user_chat_relation.unread,
-            "avatar": BASE_URL + chat.chat_avatar.url,
-
         }
+        if chat.type == ChatType.ORG:
+            tmp["avatar"] = get_avatar_url("org", org.avatar)
+        elif chat.type == ChatType.PUBLIC:
+            tmp["avatar"] = BASE_URL + ChatAvatar.DEFAULT
+        else:  # 另外一个人的头像
+            for uc in user_chat_relation.objects.filter(chat_id=user_chat_relation.chat_id):
+                if uc.user_id != user.id:
+                    tmp["avatar"] = get_avatar_url("user", first_or_default(User, id=uc.user_id))
 
         # 获取最新at消息
         at_message_id = user_chat_relation.at_message_id
@@ -75,6 +86,7 @@ def get_chat_list(request):  # org内的
                 "username": "",
                 "timestamp": "",
             }})
+
         tmp.update({"users": [],
                     "messages": [],
                     "index": chat.latest_message  # at消息置为很大的值 TODO:
@@ -91,6 +103,8 @@ def get_all_messages(request):
     user: User = get_user_from_request(request)
     if user is None:
         return UnauthorizedResponse(UnauthorizedDto())
+    print(user.id)
+    print(params.get('chat_id'))
     data = new_to_chat_ver1(user, params.get('chat_id'), params.get('org_id'))
     data.update()
     return OkResponse(OkDto(data=data))
@@ -153,8 +167,9 @@ def get_messages_by_type(request):
 
 @api_view(['POST'])
 @csrf_exempt
-def send_file(request):  # form data
+def send_message(request):  # form data
     params = parse_param(request)
+
     user: User = get_user_from_request(request)
     if user is None:
         return UnauthorizedResponse(UnauthorizedDto())
@@ -162,110 +177,70 @@ def send_file(request):  # form data
     if not UserChatRelation.objects.filter(user_id=user.id, chat_id=params.get('chat_id')).exists():
         return UnauthorizedResponse(UnauthorizedDto("Not in chat"))
 
-    params = parse_param(request)
-    category = params.get('category')
-    org_id = params.get('org_id')
-
-    response = {
-        'src_id': user.id,
-        'src_name': first_or_default(UserOrganizationProfile, user_id=user.id,
-                                             org_id=params.get("org_id")).nickname,  # 传过来团队内昵称
-        'src_avatar_url': get_avatar_url("user", user.avatar)
-    }
-
-    message = Message(src_id=user.id, chat_id=params.get('chat_id'))
-
-    if 'file' in request.FILES:
-        file = request.FILES['file']
-        message.file = file  # 组合方式
-        message.category = 2
-        message.text = file.name  # 本名
-        message.save()
-        response['text'] = file.name
-        response['file_url'] = BASE_URL + message.file.url
-        response['category'] = 2
-
-    elif 'image' in request.FILES:
-        image = request.FILES['image']
-        message.image = image
-        message.category = 1
-        message.text = image.name
-        message.save()
-        response['text'] = image.name
-        response['image_url'] = BASE_URL + message.image.url
-        response['category'] = 1
-    else:
-        return BadRequestResponse(BadRequestDto("Missing content"))
-
-    chat = first_or_default(Chat, id=params.get('chat_id'))
-    chat.latest_message = message.id
-    chat.save()
-    for user_chat_relation in first_or_default(UserChatRelation, chat_id=params.get('chat_id')):
-        user_chat_relation.unread += 1
-        user_chat_relation.save()
-    message.save()
-
-    return OkResponse(OkDto(data=response))  # 需要返回文件的本名和url，前端（发送者）收到后进行ws请求
-
-
-@api_view(['POST'])
-@csrf_exempt
-def send_text(request):  # json
-    params = parse_param(request)
-    user: User = get_user_from_request(request)
-    if user is None:
-        return UnauthorizedResponse(UnauthorizedDto())
-    # security check: chat不存在。是否会拖慢速度？
-    if not UserChatRelation.objects.filter(user_id=user.id, chat_id=params.get('chat_id')).exists():
-        return UnauthorizedResponse(UnauthorizedDto("Not in chat"))
-
-    params = parse_param(request)
-    category = params.get('category')  # 尝试get不存在的键不会报错
+    text = params.get('text')
     org_id = params.get('org_id')
     org = first_or_default(Organization, id=org_id)
-    chat = first_or_default(Chat, id=params.get('chat_id'))
+    chat_id = params.get('chat_id')
+    chat = first_or_default(Chat, id=chat_id)
+    extension = params.get("extension")
+    at_list = params.get('at_list')
 
     response = {
         "senderId": user.id,
         "username": first_or_default(UserOrganizationProfile, user_id=user.id).nickname,  # 传过来团队内昵称
-        "avatar": get_avatar_url("user", user.avatar),
+        "avatar": get_avatar_url("user", user.avatar),  # TODO: 可以前端存储
         "saved": True,
         "distributed": True,
         "seen": True,
     }
 
     message = Message(src_id=user.id, chat_id=params.get('chat_id'))
-    if params.get('text') is not None:
-        text = params.get('text')
+    if 'file' in request.FILES:
+        file = request.FILES['file']
+        file.name = file.name + "." + extension
+        message.file = file  # 组合方式
+        message.text = file.name  # 本名
+        message.type = 1  # TODO: 预留
+        message.save()
+        response['content'] = file.name
+        response["files"] = []
+        response['files'].append({
+            "name": file.name,
+            "size": 0,  # TODO: 预留
+            "type": extension,
+            "audio": False,  # TODO: 预留
+            "duration": 0,  # TODO: 预留
+            "url": BASE_URL + message.file.url,
+            # preview
+            # "progress": 100,  # TODO: 预留
+        })
+    if text is not None:
         message.text = text
-
         message.type = 0
         response['content'] = text
-        # response['category'] = 0
-
         message.save()
-        response.update({
-            "_id": message.id,
-            "timestamp": get_time(message.timestamp),
-            "date": get_date(message.timestamp),
-
-        })
-        if category == 3:
-            # response['category'] = 3
+        if at_list is not None:
             message.type = 3
-            at_list = params.get('at_list')  # user_id
             for user_id in at_list:
                 # 更新at消息列表，群聊最新消息
                 user_chat_relation = first_or_default(UserChatRelation, chat_id=params.get('chat_id'))
                 user_chat_relation.at_message_id = message.id
                 user_chat_relation.save()
-                user_chat_jump = UserChatJump(user_id=user_id, chat_id=params.get('chat_id'), message_id=message.id, valid=1)
+                user_chat_jump = UserChatJump(user_id=user_id, chat_id=params.get('chat_id'), message_id=message.id,
+                                              valid=1)
                 user_chat_jump.save()
 
                 notif_at_payload = NotifAtPayload(org, user, chat)
                 dispatch_notification(user_id, org_id, notif_at_payload)
 
-    else:
+                response["at_list"] = at_list
+    response.update({
+        "_id": message.id,
+        "indexId": 0,  # TODO: 预留
+        "timestamp": get_time(message.timestamp),
+        "date": get_date(message.timestamp),
+    })
+    if 'file' not in request.FILES and text is None:
         return BadRequestResponse(BadRequestDto("Missing content"))
 
     # 更新最新消息
@@ -289,4 +264,145 @@ def send_text(request):  # json
 
     return OkResponse(OkDto(data=response))  # 需要返回文件的本名和url，前端（发送者）收到后进行ws请求
 
-
+#
+# @api_view(['POST'])
+# @csrf_exempt
+# def send_file(request):  # form data
+#     params = parse_param(request)
+#     print(params)
+#     user: User = get_user_from_request(request)
+#     if user is None:
+#         return UnauthorizedResponse(UnauthorizedDto())
+#     # security check: chat不存在。是否会拖慢速度？
+#     if not UserChatRelation.objects.filter(user_id=user.id, chat_id=params.get('chat_id')).exists():
+#         return UnauthorizedResponse(UnauthorizedDto("Not in chat"))
+#
+#     params = parse_param(request)
+#     category = params.get('category')
+#     org_id = params.get('org_id')
+#
+#     response = {
+#         'src_id': user.id,
+#         'src_name': first_or_default(UserOrganizationProfile, user_id=user.id,
+#                                      org_id=params.get("org_id")).nickname,  # 传过来团队内昵称
+#         'src_avatar_url': get_avatar_url("user", user.avatar)
+#     }
+#
+#     message = Message(src_id=user.id, chat_id=params.get('chat_id'))
+#
+#     if 'file' in request.FILES:
+#         file = request.FILES['file']
+#         file.name = file.name + "." + params.get("extension")
+#         message.file = file  # 组合方式
+#         message.type = 2
+#         message.text = file.name  # 本名
+#         message.save()
+#         response['text'] = file.name
+#         response['file_url'] = BASE_URL + message.file.url
+#         response['category'] = 2
+#
+#     elif 'image' in request.FILES:
+#         image = request.FILES['image']
+#         image.name += "." + params.get("extension")
+#         message.image = image
+#         message.type = 1
+#         message.text = image.name
+#         message.save()
+#         response['text'] = image.name
+#         response['image_url'] = BASE_URL + message.image.url + "." + params.get("extension")
+#         response['category'] = 1
+#     else:
+#         return BadRequestResponse(BadRequestDto("Missing content"))
+#
+#     chat = first_or_default(Chat, id=params.get('chat_id'))
+#     chat.latest_message = message.id
+#     chat.save()
+#     for user_chat_relation in UserChatRelation.objects.filter(chat_id=params.get('chat_id')):
+#         user_chat_relation.unread += 1
+#         user_chat_relation.save()
+#     message.save()
+#
+#     return OkResponse(OkDto(data=response))  # 需要返回文件的本名和url，前端（发送者）收到后进行ws请求
+#
+#
+# @api_view(['POST'])
+# @csrf_exempt
+# def send_text(request):  # json
+#     params = parse_param(request)
+#     user: User = get_user_from_request(request)
+#     if user is None:
+#         return UnauthorizedResponse(UnauthorizedDto())
+#     # security check: chat不存在。是否会拖慢速度？
+#     if not UserChatRelation.objects.filter(user_id=user.id, chat_id=params.get('chat_id')).exists():
+#         return UnauthorizedResponse(UnauthorizedDto("Not in chat"))
+#
+#     params = parse_param(request)
+#     category = params.get('category')  # 尝试get不存在的键不会报错
+#     org_id = params.get('org_id')
+#     org = first_or_default(Organization, id=org_id)
+#     chat = first_or_default(Chat, id=params.get('chat_id'))
+#
+#     response = {
+#         "senderId": user.id,
+#         "username": first_or_default(UserOrganizationProfile, user_id=user.id).nickname,  # 传过来团队内昵称
+#         "avatar": get_avatar_url("user", user.avatar),
+#         "saved": True,
+#         "distributed": True,
+#         "seen": True,
+#     }
+#
+#     message = Message(src_id=user.id, chat_id=params.get('chat_id'))
+#     if params.get('text') is not None:
+#         text = params.get('text')
+#         message.text = text
+#
+#         message.type = 0
+#         response['content'] = text
+#         # response['category'] = 0
+#
+#         message.save()
+#         response.update({
+#             "_id": message.id,
+#             "timestamp": get_time(message.timestamp),
+#             "date": get_date(message.timestamp),
+#
+#         })
+#         if category == 3:
+#             # response['category'] = 3
+#             message.type = 3
+#             at_list = params.get('at_list')  # user_id
+#             for user_id in at_list:
+#                 # 更新at消息列表，群聊最新消息
+#                 user_chat_relation = first_or_default(UserChatRelation, chat_id=params.get('chat_id'))
+#                 user_chat_relation.at_message_id = message.id
+#                 user_chat_relation.save()
+#                 user_chat_jump = UserChatJump(user_id=user_id, chat_id=params.get('chat_id'), message_id=message.id,
+#                                               valid=1)
+#                 user_chat_jump.save()
+#
+#                 notif_at_payload = NotifAtPayload(org, user, chat)
+#                 dispatch_notification(user_id, org_id, notif_at_payload)
+#
+#     else:
+#         return BadRequestResponse(BadRequestDto("Missing content"))
+#
+#     # 更新最新消息
+#
+#     chat.latest_message = message.id
+#     chat.save()
+#
+#     # 更新未读信息数目
+#
+#     for user_chat_relation in UserChatRelation.objects.filter(chat_id=params.get('chat_id')):
+#         user_chat_relation.unread += 1
+#
+#         user_chat_relation.save()
+#     message.save()
+#
+#     channel_layer = get_channel_layer()
+#     async_to_sync(channel_layer.group_send)(str(chat.id), {
+#         'type': 'chat_message',
+#         'data': response
+#     })
+#
+#     return OkResponse(OkDto(data=response))  # 需要返回文件的本名和url，前端（发送者）收到后进行ws请求

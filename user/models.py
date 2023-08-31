@@ -50,7 +50,7 @@ class UserChatRelation(models.Model):
     chat_id = models.BigIntegerField()
     org_id = models.IntegerField(default=0)
     unread = models.IntegerField(default=0)
-    authority = models.IntegerField(default=0)  # 0 : ordinary, 1 : admin
+    authority = models.IntegerField(default=ChatAuth.NORMAL)  # 0 : ordinary, 1 : admin
     at_message_id = models.IntegerField(default=0)
 
     @classmethod

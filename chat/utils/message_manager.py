@@ -2,6 +2,7 @@ from MoBook.settings import BASE_URL
 from chat.utils.chat_manager import _get_chat_members
 from message.models import Message
 from shared.utils.dir_utils import get_avatar_path, get_avatar_url
+from shared.utils.file.file_handler import parse_filename
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.time_utils import get_time, get_date
 from user.models import UserChatRelation, UserChatJump, UserOrganizationProfile, User
@@ -83,6 +84,7 @@ def pull_message(message_list, org_id):
         tmp = {
             # "message_id": message.id,
             "_id": message.id,
+            "index_id": message.id,
             "content": message.text,
             # "type": message.type,
             "senderId": str(message.src_id),
@@ -94,12 +96,17 @@ def pull_message(message_list, org_id):
             "saved": True,
             "distributed": True,
             "seen": True,
+            "files": []
         }
+        if message.file is not None and message.file.name is not None and message.file.name != "":
 
-        # 图片或者文件url
-        # if message.type == 1:
-        #     tmp.update({"image": BASE_URL + message.image.url})
-        # elif message.type == 2:
-        #     tmp.update({"file": BASE_URL + message.file.url})
+            tmp["files"].append({
+                "name": message.file.name,
+                "size": 0,  # TODO: 预留
+                "type": message.file.name.split('.')[-1],
+                "audio": False,  # TODO: 预留
+                "duration": 0,  # TODO: 预留
+                "url": BASE_URL + message.file.url
+            })
         data["message_list"].append(tmp)
     return data

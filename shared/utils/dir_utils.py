@@ -49,3 +49,6 @@ def get_imagefield_url(filename):
     if filename is None:
         return None
     return BASE_URL + filename.url
+
+
+

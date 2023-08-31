@@ -61,7 +61,7 @@ def remove_users_from_chat(users, chat: Chat):
 
 
 def _remove_users_from_chat(users, chat: Chat, data: OperationResponseData):
-    if chat.type == ChatType.PUBLIC:
+    if chat.type == ChatType.PUBLIC or chat.type == ChatType.ORG:
         for user in users:
             ucr: UserChatRelation = get_chat_relation(user, chat)
             if ucr is None:
@@ -77,7 +77,7 @@ def _remove_users_from_chat(users, chat: Chat, data: OperationResponseData):
 
 
 def init_default_chat(org: Organization, user: User):
-    chat = Chat.create(org.id, org.name, ChatType.PUBLIC)
+    chat = Chat.create(org.id, org.name, ChatType.ORG)
     chat.save()
 
     UserChatRelation.create(user.id, chat.id, org.id, ChatAuth.ADMIN).save()

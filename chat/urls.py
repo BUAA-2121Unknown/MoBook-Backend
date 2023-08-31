@@ -18,7 +18,7 @@ from django.urls import path
 
 from chat.views.chat_manage import create_chat, chat_invite_member, chat_remove_member, dismiss_chat, get_chat_members, \
     leave_chat, upload_chat_avatar
-from chat.views.chat_messages import get_chat_list, get_all_messages, send_text, send_file, view_chat, \
+from chat.views.chat_messages import get_chat_list, get_all_messages, send_message, view_chat, \
     pull_older_messages, pull_newer_messages, get_messages_by_type, search_messages
 
 urlpatterns = [
@@ -40,6 +40,5 @@ urlpatterns = [
     path('search_messages', search_messages, name='search_messages'),
     path('get_messages_by_type', get_messages_by_type, name='get_messages_by_type'),
 
-    path('send_text', send_text, name='send_text'),
-    path('send_file', send_file, name='send_file'),
+    path('send_message', send_message, name='send_message'),
 ]

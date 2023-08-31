@@ -4,9 +4,10 @@ import uuid
 from django.db import models
 
 
-def chat_avatar_path(self, filename):
+def chat_avatar_path(self, filename, ext):
     ext = filename.split('.')[-1]
     filename = '{}.{}'.format(uuid.uuid4().hex[:10], ext)
+
     # return the whole path to the file
     return os.path.join("chat/", self.chat_id, "avatar", filename)
 
@@ -14,12 +15,18 @@ def chat_avatar_path(self, filename):
 class ChatType:
     PRIVATE = 0
     PUBLIC = 1
+    ORG = 2
+
+
+class ChatAvatar:
+    DEFAULT = "url"
 
 
 class Chat(models.Model):
     org_id = models.IntegerField(default=0)
     chat_name = models.CharField(max_length=63)
-    chat_avatar = models.ImageField(upload_to=chat_avatar_path, blank=True, null=True)  # default
+    chat_avatar = models.ImageField(upload_to=chat_avatar_path, blank=True, null=True,
+                                    default=ChatAvatar.DEFAULT)  # default
     latest_message = models.IntegerField(default=0)
     type = models.IntegerField(default=ChatType.PRIVATE)  # 0 : private, 1 : group chat
 
