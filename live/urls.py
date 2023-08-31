@@ -7,11 +7,13 @@
 
 from django.urls import path
 
-from live.views.share import open_share_tooken, revoke_share_token, authorize_share_token, get_share_tokens_of_artifact
+from live.views.share import open_share_token, revoke_share_token, delete_share_token, authorize_share_token, \
+    get_share_token
 
 urlpatterns = [
-    path('token/create', open_share_tooken),
+    path('token/open', open_share_token),
     path('token/revoke', revoke_share_token),
+    path('token/delete', delete_share_token),
     path('token/auth', authorize_share_token),
-    path('token/all', get_share_tokens_of_artifact)
+    path('token/get', get_share_token)
 ]

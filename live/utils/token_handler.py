@@ -35,10 +35,3 @@ def update_or_create_share_token(token, created, expires, auth, org_only):
     update_cached_object(ShareToken, token, share_token)
 
     return share_token
-
-
-def revoke_share_token(token):
-    share_token: ShareToken = first_or_default_by_cache(ShareToken, token)
-    if share_token is not None:
-        share_token.delete()
-        update_cached_object(ShareToken, token, None)
