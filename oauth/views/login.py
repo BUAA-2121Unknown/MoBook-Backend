@@ -7,7 +7,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from oauth.dtos.login_dto import LoginDto, LoginSuccessDto
+from oauth.dtos.login_dto import LoginDto, LoginSuccessDto, LoginSuccessCompleteDto
 from oauth.utils.gererate_jwt_token_pair import generate_jwt_token_pair
 from shared.dtos.ordinary_response_dto import BadRequestDto, ErrorDto, OkDto, InternalServerErrorDto, UnauthorizedDto
 from shared.response.json_response import BadRequestResponse, OkResponse, InternalServerErrorResponse, \
@@ -15,10 +15,11 @@ from shared.response.json_response import BadRequestResponse, OkResponse, Intern
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
+from shared.utils.model.organization_extension import get_last_org_with_uop
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.token.exception import TokenException
 from shared.utils.token.password import verify_password
-from user.models import User
+from user.models import User, UserOrganizationRecord
 
 
 @api_view(['POST'])
@@ -46,9 +47,12 @@ def login(request):
     except TokenException as e:
         return InternalServerErrorResponse(InternalServerErrorDto("Failed to generate JWT token", data=e))
 
-    response = OkResponse(OkDto(data=LoginSuccessDto(user, jwt_token)))
+    record, org, uop = get_last_org_with_uop(user)
+
+    response = OkResponse(OkDto(data=LoginSuccessCompleteDto(user, jwt_token, record, org, uop)))
 
     # set cookies
     response.set_cookie(key="refreshToken", value=refresh_token.token, httponly=True)
+
 
     return response

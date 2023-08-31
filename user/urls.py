@@ -18,10 +18,13 @@ from django.contrib import admin
 from django.urls import path
 
 from user.views.avatar import upload_avatar
+from user.views.org_record import update_last_organization, get_last_organization
 from user.views.profile import update_user_profile, get_user_profile
 
 urlpatterns = [
     path('avatar/upload', upload_avatar),
     path("profile/update", update_user_profile),
-    path("profile", get_user_profile)
+    path("profile", get_user_profile),
+    path('lastorg/update', update_last_organization),
+    path('lastorg/get', get_last_organization),
 ]

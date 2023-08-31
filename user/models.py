@@ -107,3 +107,17 @@ class UserOrganizationProfile(models.Model):
 
     class Meta:
         db_table = 'UserOrganizationProfile'
+
+
+class UserOrganizationRecord(models.Model):
+    user_id = models.BigIntegerField()
+    org_id = models.BigIntegerField(default=0)
+
+    last_accessed = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def create(cls, user_id, org_id):
+        return cls(user_id=user_id, org_id=org_id)
+
+    class Meta:
+        db_table = 'UserOrganizationRecord'
