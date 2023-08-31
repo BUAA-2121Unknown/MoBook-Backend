@@ -67,3 +67,7 @@ def validate_artifact_name(name: str) -> bool:
 
 def validate_artifact_type(typ: str) -> bool:
     return True
+
+
+def validate_item_name(name: str) -> bool:
+    return True

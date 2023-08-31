@@ -10,8 +10,8 @@ from user.models import User
 
 class UserDto:
     def __init__(self, user: User):
-        self.id = user.id
-        self.username = user.username
-        self.name = user.name
-        self.avatarUrl = get_avatar_url('user', user.avatar)
-        self.email = user.email
+        self.id = None if user is None else user.id
+        self.username = None if user is None else user.username
+        self.name = None if user is None else user.name
+        self.avatarUrl = None if user is None else get_avatar_url('user', user.avatar)
+        self.email = None if user is None else user.email

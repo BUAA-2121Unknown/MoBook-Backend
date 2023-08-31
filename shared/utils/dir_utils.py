@@ -7,6 +7,7 @@
 import os
 
 from MoBook.settings import BASE_URL
+from artifact.models import Item, FileVersion
 
 AVATAR_BASE_PATH = {
     "user": "./media/avatar/user",
@@ -51,4 +52,14 @@ def get_imagefield_url(filename):
     return BASE_URL + filename.url
 
 
+def ensure_path(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
 
+
+def ensure_file_parent_path(path):
+    ensure_path(os.path.dirname(path))
+
+
+def get_item_path(item: Item, version: int):
+    return f"./files/artifacts/{item.org_id}/{item.proj_id}/{item.id}/{version}{item.extension}"

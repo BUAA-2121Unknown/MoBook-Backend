@@ -107,25 +107,3 @@ class UserOrganizationProfile(models.Model):
 
     class Meta:
         db_table = 'UserOrganizationProfile'
-
-
-class UserProjectProfile(models.Model):
-    user_id = models.BigIntegerField()
-    proj_id = models.BigIntegerField()
-    role = models.CharField(max_length=63)
-
-    @classmethod
-    def create(cls, user: User, proj: Project, role: str = "Member"):
-        return cls(user_id=user.id, proj_id=proj.id, role=role)
-
-    def get_user(self):
-        return first_or_default(User, id=self.user_id)
-
-    def get_proj(self):
-        return first_or_default(Project, id=self.proj_id)
-
-    def get_org(self):
-        return self.get_proj().get_org()
-
-    class Meta:
-        db_table = 'UserProjectProfile'

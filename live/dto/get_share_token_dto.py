@@ -9,7 +9,7 @@ from live.models import ShareAuth
 
 class GetShareTokenDto:
     def __init__(self):
-        self.artId: int = 0
+        self.itemId: int = 0
         self.expires: int = 0
         self.auth: int = 0
         self.orgOnly: bool = False

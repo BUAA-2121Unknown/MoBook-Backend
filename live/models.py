@@ -8,22 +8,26 @@ class ShareAuth:
     DENIED = 0
     READONLY = 1
     READWRITE = 2
+    FULL = 3
 
     @classmethod
     def all(cls):
-        return [cls.DENIED, cls.READONLY, cls.READWRITE]
+        return [cls.DENIED, cls.READONLY, cls.READWRITE, cls.FULL]
 
     # can only be set to these
     @classmethod
     def valid(cls):
-        return [cls.READONLY, cls.READWRITE]
+        return [cls.READONLY, cls.READWRITE, cls.FULL]
 
 
 class ShareToken(models.Model):
-    art_id = models.BigIntegerField()  # artifact id
+    item_id = models.BigIntegerField()  # item id
+
     proj_id = models.BigIntegerField()  # project id
     org_id = models.BigIntegerField()  # organization id
+
     token = models.CharField(max_length=63)
+
     created = models.DateTimeField()
     expires = models.DateTimeField(default=None, null=True)
     revoked = models.DateTimeField(default=None, null=True)
