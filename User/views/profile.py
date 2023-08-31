@@ -10,6 +10,7 @@ from rest_framework.decorators import api_view
 
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, OkResponse
+from shared.utils.cache.cache_utils import update_cached_object, first_or_default_by_cache
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
@@ -42,6 +43,8 @@ def update_user_profile(request):
         user.name = name
     user.save()
 
+    update_cached_object(User, user.id, user)
+
     return OkResponse(OkDto(data={
         "username": user.username,
         "name": user.name
@@ -56,7 +59,8 @@ def get_user_profile(request):
     uid = parse_value(params.get('id'), int)
     if uid is None:
         return BadRequestResponse(BadRequestDto("Missing id"))
-    user = first_or_default(User, id=uid)
+    _, user = first_or_default_by_cache(User, uid)
+    # user = first_or_default(User, id=uid)
     if user is None:
         return BadRequestResponse(NoSuchUserDto())
 

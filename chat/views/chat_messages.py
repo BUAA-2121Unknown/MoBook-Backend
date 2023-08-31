@@ -1,5 +1,3 @@
-import json
-
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.views.decorators.csrf import csrf_exempt
@@ -13,19 +11,17 @@ from message.models import Message
 from notif.dtos.notif_payload import NotifAtPayload
 from notif.utils.notif_manager import dispatch_notification
 from org.models import Organization
-from shared.utils.dir_utils import get_avatar_url
-from shared.utils.file.file_handler import parse_filename
-from shared.utils.model.model_extension import first_or_default
-from shared.utils.model.user_extension import get_user_from_request
-from shared.utils.time_utils import get_date, get_time
-from user.models import User, UserOrganizationProfile, UserChatRelation, UserChatJump
-from oauth.dtos.login_dto import LoginDto
-from shared.dtos.ordinary_response_dto import BadRequestDto, ErrorDto, OkDto, UnauthorizedDto
 from shared.dtos.ordinary_response_dto import BadRequestDto, OkDto, UnauthorizedDto
 from shared.response.json_response import BadRequestResponse, OkResponse, UnauthorizedResponse
+from shared.utils.cache.cache_utils import first_or_default_by_cache
+from shared.utils.dir_utils import get_avatar_url
+from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
+from shared.utils.parameter.value_parser import parse_value
+from shared.utils.time_utils import get_date, get_time
 from user.models import User, UserChatRelation, UserChatJump
+from user.models import UserOrganizationProfile
 
 
 @api_view(['POST'])
@@ -194,12 +190,10 @@ def send_message(request):  # form data
         return UnauthorizedResponse(UnauthorizedDto("Not in chat"))
 
     text = params.get('text')
-    org_id = params.get('org_id')
-    org = first_or_default(Organization, id=org_id)
-    chat_id = params.get('chat_id')
+    org_id = parse_value(params.get('org_id'), int)
+    org = first_or_default_by_cache(Organization, org_id)
+    chat_id = parse_value(params.get('chat_id'), int)
     chat = first_or_default(Chat, id=chat_id)
-    extension = params.get("extension")
-    at_list = params.get('at_list')
 
     response = {
         "senderId": user.id,

@@ -1,11 +1,12 @@
 from django.db import models
 from django.utils import timezone
 
+from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.model.model_extension import Existence, first_or_default
 
 
 class Organization(models.Model):
-    chat_id = models.IntegerField()
+    chat_id = models.IntegerField(default=0)
     description = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=63)
     avatar = models.CharField(max_length=63, default=None, null=True)
@@ -20,8 +21,8 @@ class Organization(models.Model):
         return cls(chat_id=chat_id, name=name, description=description)
 
     class Meta:
-        managed = True
         db_table = 'Organization'
+        verbose_name = 'organization'
 
 
 class Invitation(models.Model):
@@ -43,7 +44,7 @@ class Invitation(models.Model):
         return self.revoked is None and not self.is_expired()
 
     def get_org(self):
-        return first_or_default(Organization, oid=self.oid)
+        return first_or_default_by_cache(Organization, self.oid)
 
     class Meta:
         verbose_name = 'invitation'
@@ -102,3 +103,6 @@ class PendingRecord(models.Model):
 
     def deletable(self):
         return not self.editable()
+
+    class Meta:
+        verbose_name = 'pending_record'

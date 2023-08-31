@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import datetime
+import json
 import os
 from pathlib import Path
 
@@ -64,6 +65,7 @@ INSTALLED_APPS = [
     "org.apps.OrgConfig",
     "project.apps.ProjectConfig",
     "live.apps.LiveConfig",
+    "artifact.apps.ArtifactConfig",
 ]
 
 MIDDLEWARE = [
@@ -111,8 +113,12 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    "default": SECRETS["database"]
+    "default": SECRETS["DATABASES"]
 }
+
+print("=================== Database =====================")
+print(json.dumps(SECRETS["DATABASES"], indent=4))
+print("==================================================")
 
 ################################################################################
 # Password validation
@@ -228,3 +234,25 @@ CELERY_RESULT_BACKEND = "redis://localhost:6379"
 CELERY_TIMEZONE = 'Asia/Shanghai'
 CELERY_ENABLE_UTC = False
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+################################################################################
+# Redis Cache settings
+#
+CACHES = {
+    "default": {
+        "BACKEND": SECRETS["CACHES"]["BACKEND"],
+        "LOCATION": SECRETS["CACHES"]["LOCATION"],
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PICKLE_VERSION": -1,
+            "SOCKET_CONNECT_TIMEOUT": 5,
+            "SOCKET_TIMEOUT": 5,
+            "COMPRESSOR": "django_redis.compressors.lzma.LzmaCompressor",
+            "IGNORE_EXCEPTIONS": True
+        }
+    }
+}
+DJANGO_REDIS_LOG_IGNORED_EXCEPTIONS = True
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"

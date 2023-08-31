@@ -11,18 +11,19 @@ from project.models import Project
 
 class ProjectBaseDto:
     def __init__(self, proj: Project):
-        self.id = proj.id
-        self.name = proj.name
-        self.description = proj.description
-        self.created = proj.created
-        self.updated = proj.updated
-        self.status = proj.status
+        self.id = None if proj is None else proj.id
+        self.root = None if proj is None else proj.root_id
+        self.name = None if proj is None else proj.name
+        self.description = None if proj is None else proj.description
+        self.created = None if proj is None else proj.created
+        self.updated = None if proj is None else proj.updated
+        self.status = None if proj is None else proj.status
 
 
 class ProjectDto(ProjectBaseDto):
     def __init__(self, proj: Project):
         super().__init__(proj)
-        self.orgId = proj.org_id
+        self.orgId = None if proj is None else proj.org_id
 
 
 class ProjectCompleteDto(ProjectBaseDto):

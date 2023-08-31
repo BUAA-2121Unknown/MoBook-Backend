@@ -18,10 +18,10 @@ from django.contrib import admin
 from django.urls import path
 
 from notif.views.notification import get_notif_in_org, edit_notif
-from notif.views.send import send_art_at_notif
+from notif.views.send import send_file_at_notif
 
 urlpatterns = [
     path('all', get_notif_in_org),
     path('update', edit_notif),
-    path('send/artat', send_art_at_notif),
+    path('send/artat', send_file_at_notif),
 ]

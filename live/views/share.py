@@ -10,19 +10,20 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from live.dto.authorize_dto import AuthorizeDto
+from artifact.models import Item
+from live.dto.authorize_dto import AuthorizeData
 from live.dto.get_share_token_dto import GetShareTokenDto
 from live.dto.share_token_dto import ShareTokenCompleteDto, ShareTokenDto
 from live.models import ShareToken, ShareAuth
-from project.models import Artifact, Project
+from live.utils.authorize import authorize_share_token_aux
+from project.models import Project
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, NotFoundDto, OkDto, ForbiddenDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse, \
     ForbiddenResponse
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
-from shared.utils.model.organization_extension import get_org_with_user
-from shared.utils.model.project_extension import get_project_with_user
+from shared.utils.model.project_extension import get_proj_and_org
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.parameter.value_parser import parse_value
@@ -44,14 +45,16 @@ def create_share_token(request):
     if not dto.is_valid():
         return BadRequestResponse(BadRequestDto("Bad value"))
 
-    artifact: Artifact = first_or_default(Artifact, id=dto.artId)
+    artifact: Item = first_or_default(Item, id=dto.itemId)
     if artifact is None:
         return NotFoundResponse(NotFoundDto())
     if not artifact.is_active():
         return ForbiddenResponse(ForbiddenDto("Artifact not active"))
 
     # only user in project can share the artifact
-    proj, upp = get_project_with_user(artifact.proj_id, user)
+    proj, org, error = get_proj_and_org(artifact.proj_id, user)
+    if error is not None:
+        return NotFoundResponse(error)
     proj: Project
     if proj is None:
         return NotFoundResponse(NotFoundDto("No such project"))
@@ -82,7 +85,7 @@ def revoke_share_token(request):
 
     share_token: ShareToken = first_or_default(ShareToken, token=token)
     if share_token is None:
-        return NotFoundResponse(NotFoundDto(data=AuthorizeDto(ShareAuth.DENIED, "Invalid token")))
+        return NotFoundResponse(NotFoundDto(data=AuthorizeData(ShareAuth.DENIED, "Invalid token")))
 
     # only user in project can revoke share token
     proj, upp = get_project_with_user(share_token.proj_id, user)
@@ -107,24 +110,10 @@ def authorize_share_token(request):
     if token is None:
         return BadRequestResponse(BadRequestDto("Missing token"))
 
-    share_token: ShareToken = first_or_default(ShareToken, token=token)
-    if share_token is None:
-        return OkResponse(OkDto(data=AuthorizeDto(ShareAuth.DENIED, "Invalid token")))
-    if not share_token.is_active():
-        return OkResponse(OkDto(data=AuthorizeDto(ShareAuth.DENIED, "Token expired or revoked")))
-
-    # now, token is active
-    if not share_token.org_only:
-        return OkResponse(OkDto(data=AuthorizeDto(share_token.auth, "Permission granted")))
-
     user = get_user_from_request(request)
-    if user is None:
-        return OkResponse(OkDto(data=AuthorizeDto(ShareAuth.DENIED, "Organization only")))
-    org, uop = get_org_with_user(share_token.org_id, user)
-    if org is None:
-        return OkResponse(OkDto(data=AuthorizeDto(ShareAuth.DENIED, "Organization only")))
+    data = authorize_share_token_aux(token, user)
 
-    return OkResponse(OkDto(data=AuthorizeDto(share_token.auth, "Permission granted")))
+    return OkResponse(OkDto(data=data))
 
 
 @api_view(['GET'])

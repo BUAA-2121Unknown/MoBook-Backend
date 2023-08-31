@@ -29,4 +29,5 @@ urlpatterns = [
                   path('api/proj/', include(('project.urls', 'project'))),
                   path('api/notif/', include(('notif.urls', 'notif'))),
                   path('api/live/', include(('live.urls', 'live'))),
+                  path('api/artifact/', include(('artifact.urls', 'artifact'))),
               ] + static(MEDIA_URL, document_root=MEDIA_ROOT)

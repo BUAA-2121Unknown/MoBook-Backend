@@ -4,13 +4,14 @@
 # @Author  : Tony Skywalker
 # @File    : notif_payload.py
 #
+from artifact.dtos.models.item_dto import FileDto
+from artifact.models import Item
 from chat.dtos.chat_dto import ChatDto
 from chat.models import Chat
 from org.dtos.models.org_dto import OrganizationDto
 from org.models import Organization
-from project.dtos.models.artifact_dto import ArtifactDto
 from project.dtos.models.project_dto import ProjectDto
-from project.models import Project, Artifact
+from project.models import Project
 from user.dtos.user_dto import UserDto
 from user.models import User, UserAuth
 
@@ -91,13 +92,13 @@ class NotifNewProjectPayload(NotifBasePayload):
         self.project: ProjectDto = ProjectDto(project)
 
 
-class NotifArtAtPayload(NotifBasePayload):
+class NotifFileAtPayload(NotifBasePayload):
     """
     {someone} at you in {artifact}
     """
 
-    def __init__(self, org: Organization, target_user: User, proj: Project, art: Artifact):
+    def __init__(self, org: Organization, target_user: User, proj: Project, file: Item):
         super().__init__(NotifType.ARTIFACT_AT, org)
         self.user: UserDto = UserDto(target_user)
         self.project: ProjectDto = ProjectDto(proj)
-        self.artifact: ArtifactDto = ArtifactDto(art)
+        self.artifact: FileDto = FileDto(art)

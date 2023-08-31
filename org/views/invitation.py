@@ -19,6 +19,7 @@ from org.utils.assistance import add_member_into_org
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, NotFoundDto, ForbiddenDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse, \
     ForbiddenResponse
+from shared.utils.cache.cache_utils import update_cached_object, first_or_default_by_cache
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
@@ -89,7 +90,7 @@ def revoke_invitation(request):
     if uop.auth not in UserAuth.authorized():
         return UnauthorizedResponse(UnauthorizedDto("Not admin"))
 
-    invitation: Invitation = first_or_default(Invitation, id=dto.id)
+    invitation: Invitation = first_or_default_by_cache(Invitation, dto.id)
     if invitation is None:
         return NotFoundResponse(NotFoundDto("No such invitation"))
     if invitation.oid != dto.orgId:
@@ -98,6 +99,8 @@ def revoke_invitation(request):
         return OkResponse(OkDto("Already revoked or expired", data=InvitationDto(invitation)))
     invitation.revoked = timezone.now()
     invitation.save()
+
+    update_cached_object(Invitation, invitation.id, invitation)
 
     return OkResponse(OkDto("Invitation revoked", data=InvitationDto(invitation)))
 
@@ -120,7 +123,7 @@ def activate_invitation(request):
     if not invitation.is_active():
         return UnauthorizedResponse(UnauthorizedDto("Invitation expired"))
 
-    org = first_or_default(Organization, id=invitation.oid)
+    org = first_or_default_by_cache(Organization, id=invitation.oid)
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
     uop = get_org_profile_of_user(org, user)
