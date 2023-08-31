@@ -12,6 +12,7 @@ from typing import List
 from artifact.models import Item, ItemType, ItemProperty
 from artifact.utils.file_util import create_version_aux
 from project.models import Project
+from shared.utils.file.exceptions import FileException
 from shared.utils.file.file_handler import parse_filename
 from shared.utils.model.item_extension import get_item_lambda
 from user.models import User
@@ -51,6 +52,9 @@ def create_file_aux(dst: Item, name: str, prop: int, live: bool, file, user: Use
     """
 
     _, ext = parse_filename(name)
+
+    if ext == "":
+        raise FileException("Missing extension")
 
     # first, create a file item
     node = dst.add_child(name=name,

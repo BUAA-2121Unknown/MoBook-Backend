@@ -23,7 +23,7 @@ class CreateItemBaseDto(ItemRequestBaseDto):
         self.filename: str = ""
 
     def is_valid(self):
-        return validate_item_name(self.name)
+        return validate_item_name(self.filename)
 
 
 class CreateFolderDto(CreateItemBaseDto):

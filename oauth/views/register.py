@@ -20,7 +20,7 @@ from shared.utils.parameter.parameter import parse_param
 from shared.utils.token.password import generate_password
 from shared.utils.validator import validate_email, validate_username, validate_password
 from user.dtos.error_dtos import UserAlreadyRegisteredDto
-from user.models import User
+from user.models import User, UserOrganizationRecord
 
 
 @api_view(['POST'])
@@ -66,7 +66,9 @@ def register(request):
     password = generate_password(dto.password)
     # User.create(dto.username, password, dto.email).save()
     # For now, user is activated by default
-    User.create(dto.username, password, dto.email, True).save()
+    user = User.create(dto.username, password, dto.email, True)
+    user.save()
+    UserOrganizationRecord.create(user.id, 0)
 
     return OkResponse(OkDto("Welcome to MoBook, activate later~"))
 

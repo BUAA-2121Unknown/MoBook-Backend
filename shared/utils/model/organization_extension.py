@@ -6,7 +6,7 @@
 #
 from org.models import Organization
 from shared.utils.model.model_extension import first_or_default
-from user.models import User, UserOrganizationProfile, UserAuth
+from user.models import User, UserOrganizationProfile, UserAuth, UserOrganizationRecord
 
 
 def get_org_profile_of_user(org: Organization, user: User):
@@ -58,3 +58,19 @@ def get_uops_of_org(org: Organization):
 
 def get_users_of_org(org: Organization):
     return list(map(lambda uop: uop.get_user(), get_uops_of_org(org)))
+
+
+def get_last_org_record(user: User) -> UserOrganizationRecord:
+    record: UserOrganizationRecord = first_or_default(UserOrganizationRecord, user_id=user.id)
+    if record is None:
+        record = UserOrganizationRecord.create(user.id, 0)
+        record.save()
+    return record
+
+
+def get_last_org_with_uop(user: User):
+    record = get_last_org_record(user)
+    if record.org_id == 0:
+        return record, None, None
+    org, uop = get_org_with_user(record.org_id, user)
+    return record, org, uop
