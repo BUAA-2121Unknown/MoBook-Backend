@@ -19,7 +19,6 @@ from user.dtos.error_dtos import UsernameOccupiedDto, NoSuchUserDto
 from user.models import User
 from user.utils.user_profile_provider import user_profile_provider_full, user_profile_provider_simple
 
-
 @api_view(['POST'])
 @csrf_exempt
 def update_user_profile(request):
