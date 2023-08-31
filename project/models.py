@@ -21,8 +21,8 @@ class Project(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     @classmethod
-    def create(cls, org: Organization, name: str, descr: str):
-        return cls(org_id=org.id, name=name, description=descr)
+    def create(cls, org_id, name: str, descr: str):
+        return cls(org_id=org_id, name=name, description=descr)
 
     def is_active(self):
         return self.status == Existence.ACTIVE

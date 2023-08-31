@@ -11,20 +11,17 @@ from rest_framework.decorators import api_view
 from artifact.dtos.models.item_dto import FolderDto, FileCompleteDto
 from artifact.dtos.models.version_dto import VersionDto
 from artifact.dtos.requests.error_dtos import NoSuchItemDto
-from artifact.dtos.requests.request_dto import GetVersionsDto, GetItemDto
 from artifact.models import Item
 from artifact.utils.version_util import get_versions_of_file
 from project.models import Project
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, ForbiddenDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, ForbiddenResponse, \
     OkResponse
-from shared.utils.json.exceptions import JsonDeserializeException
-from shared.utils.json.serializer import deserialize
-from shared.utils.model.model_extension import first_or_default
+from shared.utils.model.model_extension import first_or_default, Existence
 from shared.utils.model.project_extension import get_proj_and_org
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
-from shared.utils.parameter.value_parser import parse_value
+from shared.utils.parameter.value_parser import parse_value, parse_value_with_check
 
 
 @api_view(['GET'])
@@ -38,6 +35,9 @@ def get_items_of_project(request):
     proj_id = parse_value(params.get('projId'), int)
     if proj_id is None:
         return BadRequestResponse(BadRequestDto("Missing projId"))
+    status = parse_value_with_check(params.get('status'), int, Existence.get_validator())
+    if status is None:
+        return BadRequestResponse(BadRequestDto("status missing or invalid"))
 
     proj, org, error = get_proj_and_org(proj_id, user)
     if error:

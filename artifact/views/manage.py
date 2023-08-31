@@ -11,15 +11,19 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from artifact.dtos.requests.error_dtos import NoSuchItemDto
 from artifact.dtos.models.item_dto import FolderDto, FileDto
-from artifact.dtos.requests.request_dto import CreateFolderDto, CreateFileDto, UpdateItemStatusDto, MoveItemDto
-from artifact.models import Item
-from artifact.utils.item_util import create_folder_aux, create_file_aux, update_item_status_aux, move_item_aux
+from artifact.dtos.requests.error_dtos import NoSuchItemDto
+from artifact.dtos.requests.request_dto import CreateFolderDto, CreateFileDto, MoveItemDto, \
+    DuplicateItemDto, DeleteItemDto
+from artifact.models import Item, ItemType
+from artifact.utils.delete import delete_item_aux
+from artifact.utils.duplicate import duplicate_item_aux
+from artifact.utils.item_util import create_folder_aux, create_file_aux, move_item_aux
 from shared.dtos.OperationResponseData import OperationResponseData
-from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, ForbiddenDto, OkDto
+from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, ForbiddenDto, OkDto, \
+    InternalServerErrorDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, ForbiddenResponse, \
-    OkResponse
+    OkResponse, InternalServerErrorResponse
 from shared.utils.file.exceptions import FileException
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
@@ -58,7 +62,7 @@ def create_folder(request):
     if not item.is_dir():
         return ForbiddenResponse(ForbiddenDto("Not a folder"))
 
-    folder = create_folder_aux(item, dto.name, proj)
+    folder = create_folder_aux(item, dto.filename, proj)
 
     return OkResponse(OkDto(data=FolderDto(folder)))
 
@@ -103,43 +107,6 @@ def create_file(request):
 
 @api_view(['POST'])
 @csrf_exempt
-def update_item_status(request):
-    """
-    Update the status of an item, delete or recover.
-    """
-    user = get_user_from_request(request)
-    if user is None:
-        return UnauthorizedResponse(UnauthorizedDto())
-
-    params = parse_param(request)
-    try:
-        dto: UpdateItemStatusDto = deserialize(params, UpdateItemStatusDto)
-    except JsonDeserializeException as e:
-        return BadRequestResponse(BadRequestDto(data=e))
-    if not dto.is_valid():
-        return BadRequestResponse(BadRequestDto("Bad value"))
-
-    proj, org, error = get_proj_and_org(dto.projId, user)
-    if error:
-        return NotFoundResponse(error)
-
-    data = OperationResponseData().init()
-    for item_id in list(set(dto.items)):
-        item: Item = first_or_default(Item, id=item_id)
-        if item is None:
-            data.add_error(item_id, "No such item")
-            continue
-        if item.proj_id != dto.projId:
-            data.add_error(item_id, "Item is not under this project")
-            continue
-        update_item_status_aux(item, dto.status)
-        data.add_success(item_id)
-
-    return OkResponse(OkDto(data=data))
-
-
-@api_view(['POST'])
-@csrf_exempt
 def move_item(request):
     """
     Move an item to another folder.
@@ -175,5 +142,82 @@ def move_item(request):
             data.add_success(item_id)
         except Exception as e:
             data.add_error(item_id, str(e))
+
+    return OkResponse(OkDto(data=data))
+
+
+@api_view(['POST'])
+@csrf_exempt
+def duplicate_item(request):
+    """
+    Move an item to another folder.
+    """
+    user = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+
+    params = parse_param(request)
+    try:
+        dto: DuplicateItemDto = deserialize(params, DuplicateItemDto)
+    except JsonDeserializeException as e:
+        return BadRequestResponse(BadRequestDto(data=e))
+
+    # get working project
+    proj, org, error = get_proj_and_org(dto.projId, user)
+    if error:
+        return NotFoundResponse(error)
+
+    # check template
+    template: Item = first_or_default(Item, id=dto.itemId)
+    if template is None or not template.is_active():
+        return NotFoundResponse(NoSuchItemDto())
+    if template.type == ItemType.ROOT:
+        return ForbiddenResponse(ForbiddenDto("Cannot duplicate root folder"))
+
+    # duplicate item
+    parent = template.get_parent()
+    new_item: Item = duplicate_item_aux(parent, template)
+    if new_item is None:
+        return InternalServerErrorResponse(InternalServerErrorDto("Field to duplicate item"))
+    new_item.name = template.name + " (Copy)"
+    new_item.save()
+
+    return OkResponse(OkDto(data=FolderDto(new_item) if new_item.is_dir() else FileDto(new_item)))
+
+
+@api_view(['POST'])
+@csrf_exempt
+def delete_item(request):
+    """
+    Move an item to another folder.
+    """
+    user = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+
+    params = parse_param(request)
+    try:
+        dto: DeleteItemDto = deserialize(params, DeleteItemDto)
+    except JsonDeserializeException as e:
+        return BadRequestResponse(BadRequestDto(data=e))
+
+    proj, org, error = get_proj_and_org(dto.projId, user)
+    if error:
+        return NotFoundResponse(error)
+
+    data = OperationResponseData().init()
+    for item_id in list(set(dto.items)):
+        item: Item = first_or_default(Item, id=item_id)
+        if item is None:
+            data.add_error(item_id, "No such item")
+            continue
+        if item.proj_id != dto.projId:
+            data.add_error(item_id, "Item is not under this project")
+            continue
+        if item.type == ItemType.ROOT:
+            data.add_error(item_id, "Cannot delete root folder")
+            continue
+        delete_item_aux(item)
+        data.add_success(item_id)
 
     return OkResponse(OkDto(data=data))

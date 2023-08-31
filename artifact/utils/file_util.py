@@ -11,6 +11,10 @@ from user.models import User
 
 
 def create_version_aux(file, version, item: Item, user: User):
+    create_version_aux_by_user_id(file, version, item, user.id)
+
+
+def create_version_aux_by_user_id(file, version, item: Item, user_id):
     if version > item.version:
         version = item.version + 1
 
@@ -21,7 +25,7 @@ def create_version_aux(file, version, item: Item, user: User):
     FileVersion.objects.filter(file_id=item.id, version__gte=version).delete()
 
     # create new version
-    version = FileVersion.create(version, item.id, user.id)
+    version = FileVersion.create(version, item.id, user_id)
     version.save()
 
     # get internal file storage path
