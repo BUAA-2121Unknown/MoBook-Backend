@@ -23,7 +23,8 @@ def parse_share_token(token):
 
 
 def update_or_create_share_token(token, created, expires, auth, org_only):
-    share_token: ShareToken = first_or_default_by_cache(ShareToken, token)
+    _, share_token = first_or_default_by_cache(ShareToken, token)
+    share_token: ShareToken
     if share_token is None:
         share_token = ShareToken.create(token, created, expires, auth, org_only)
     else:
@@ -31,6 +32,7 @@ def update_or_create_share_token(token, created, expires, auth, org_only):
         share_token.expires = expires
         share_token.auth = auth
         share_token.org_only = org_only
+        share_token.revoked = None
         share_token.save()
     update_cached_object(ShareToken, token, share_token)
 

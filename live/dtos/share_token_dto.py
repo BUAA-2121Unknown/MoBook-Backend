@@ -46,5 +46,5 @@ class ShareTokenCompleteDto(ShareTokenBaseDto):
         _, proj = first_or_default_by_cache(Project, proj_id)
         proj: Project
         self.project = ProjectDto(proj)
-        org = first_or_default_by_cache(Organization, proj.org_id)
+        _, org = first_or_default_by_cache(Organization, proj.org_id)
         self.org = None if org is None else OrganizationDto(org)

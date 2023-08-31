@@ -11,9 +11,9 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
 from artifact.models import Item
-from live.dto.authorize_dto import AuthorizeData
-from live.dto.open_share_token_dto import OpenShareTokenDto
-from live.dto.share_token_dto import ShareTokenCompleteDto, ShareTokenDto
+from live.dtos.authorize_dto import AuthorizeData
+from live.dtos.open_share_token_dto import OpenShareTokenDto
+from live.dtos.share_token_dto import ShareTokenDto
 from live.models import ShareToken, ShareAuth
 from live.utils.authorize import authorize_share_token_aux
 from live.utils.token_handler import generate_share_token, update_or_create_share_token, parse_share_token
@@ -51,7 +51,7 @@ def open_share_token(request):
         item: Item = first_or_default(Item, id=dto.itemId)
 
     # get project
-    proj, org, error = get_proj_and_org(item.proj_id, user)
+    proj, org, error = get_proj_and_org(dto.projId, user)
     if error is not None:
         return NotFoundResponse(error)
 
@@ -60,12 +60,12 @@ def open_share_token(request):
         return BadRequestResponse(BadRequestDto("Item not in project"))
 
     # create or update share token
-    token = generate_share_token(dto.itemId, proj.id)
+    token = generate_share_token(dto.itemId, dto.projId)
     created = timezone.now()
     expires = (created + timedelta(days=dto.expires)) if dto.expires > 0 else None
     share_token = update_or_create_share_token(token, created, expires, dto.auth, dto.orgOnly)
 
-    return OkResponse(OkDto(data=ShareTokenCompleteDto(share_token)))
+    return OkResponse(OkDto(data=ShareTokenDto(share_token)))
 
 
 @api_view(['POST'])
@@ -86,7 +86,7 @@ def revoke_share_token(request):
     if error is not None:
         return NotFoundResponse(error)
 
-    share_token: ShareToken = first_or_default_by_cache(ShareToken, token)
+    _, share_token = first_or_default_by_cache(ShareToken, token)
     if share_token is None:
         return NotFoundResponse(NotFoundDto("Token not found"))
     if not share_token.is_active():
@@ -141,28 +141,3 @@ def authorize_share_token(request):
     data = authorize_share_token_aux(token, user)
 
     return OkResponse(OkDto(data=data))
-
-
-@api_view(['GET'])
-@csrf_exempt
-def get_share_token(request):
-    user = get_user_from_request(request)
-    if user is None:
-        return UnauthorizedResponse(UnauthorizedDto())
-
-    params = parse_param(request)
-    item_id = parse_value(params.get('itemId'), int)
-    proj_id = parse_value(params.get('projId'), int)
-    if item_id is None or proj_id is None:
-        return BadRequestResponse(BadRequestDto("Missing itemId or projId"))
-
-    proj, org, error = get_proj_and_org(proj_id, user)
-    if error is not None:
-        return NotFoundResponse(error)
-
-    token = generate_share_token(item_id, proj_id)
-    share_token: ShareToken = first_or_default_by_cache(ShareToken, token)
-
-    return OkResponse(OkDto(data={
-        "token": None if share_token is None else ShareTokenDto(share_token)
-    }))

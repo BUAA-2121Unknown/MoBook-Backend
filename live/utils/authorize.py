@@ -4,12 +4,10 @@
 # @Author  : Tony Skywalker
 # @File    : authorize.py
 #
-from live.dto.authorize_dto import AuthorizeData
+from live.dtos.authorize_dto import AuthorizeData
 from live.models import ShareToken, ShareAuth
 from live.utils.token_handler import parse_share_token
 from shared.utils.cache.cache_utils import first_or_default_by_cache
-from shared.utils.model.model_extension import first_or_default
-from shared.utils.model.organization_extension import get_org_with_user
 from shared.utils.model.project_extension import get_proj_and_org
 from user.models import User
 
@@ -17,7 +15,8 @@ from user.models import User
 def authorize_share_token_aux(token, user: User):
     if token is None:
         return AuthorizeData(ShareAuth.DENIED, "No token")
-    share_token: ShareToken = first_or_default_by_cache(ShareToken, token)
+    _, share_token = first_or_default_by_cache(ShareToken, token)
+    share_token: ShareToken
     if share_token is None:
         return AuthorizeData(ShareAuth.DENIED, "Invalid token")
     if not share_token.is_active():

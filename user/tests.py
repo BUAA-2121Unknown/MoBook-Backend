@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from shared.utils.json.serializer import serialize, serialize_as_raw_dict
+from shared.utils.token.base64_token import to_base64_token, from_base64_token
 from user.dtos.user_dto import UserDto
 from user.models import User, UserOrganizationRecord
 
@@ -45,3 +46,12 @@ class CacheTestCase(TestCase):
 
     def test_cache(self):
         pass
+
+
+class TokenTestCase(TestCase):
+    def test_token(self):
+        string = "12345678901234567"
+        token = to_base64_token(string)
+        print(token)
+        string = from_base64_token(token)
+        print(string)
