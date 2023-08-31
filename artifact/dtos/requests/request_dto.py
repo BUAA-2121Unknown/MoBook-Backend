@@ -56,11 +56,23 @@ class UpdateItemStatusDto:
         return self.status in Existence.all()
 
 
+class DeleteItemDto:
+    def __init__(self):
+        self.projId: int = 0
+        self.items: List[int] = [0]
+
+
 class MoveItemDto:
     def __init__(self):
         self.projId: int = 0
         self.folderId: int = 0
         self.items: List[int] = [0]
+
+
+class DuplicateItemDto:
+    def __init__(self):
+        self.projId: int = 0
+        self.itemId: int = 0
 
 
 class UploadFileDto(ItemRequestBaseDto):

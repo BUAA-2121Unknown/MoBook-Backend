@@ -7,7 +7,7 @@
 import os
 
 from MoBook.settings import BASE_URL
-from artifact.models import Item, FileVersion
+from artifact.models import Item
 
 AVATAR_BASE_PATH = {
     "user": "./media/avatar/user",
@@ -63,3 +63,7 @@ def ensure_file_parent_path(path):
 
 def get_item_path(item: Item, version: int):
     return f"./files/artifacts/{item.org_id}/{item.proj_id}/{item.id}/{version}{item.extension}"
+
+
+def get_item_folder(item: Item):
+    return f"./files/artifacts/{item.org_id}/{item.proj_id}/{item.id}/"

@@ -57,7 +57,7 @@ def create_project(request):
     if not org.is_active():
         return ForbiddenResponse(ForbiddenDto("Organization not active"))
 
-    proj = Project.create(org, dto.name, dto.description)
+    proj = Project.create(org.id, dto.name, dto.description)
     proj.save()
 
     # create root folder

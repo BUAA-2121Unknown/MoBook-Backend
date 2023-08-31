@@ -76,6 +76,9 @@ class Item(MP_Node):
     def is_dir(self):
         return self.type in ItemType.dirs()
 
+    def is_file(self):
+        return not self.is_dir()
+
     def get_filename(self):
         return f"{self.name}{self.extension}"
 
