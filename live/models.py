@@ -21,12 +21,8 @@ class ShareAuth:
 
 
 class ShareToken(models.Model):
-    item_id = models.BigIntegerField()  # item id
-
-    proj_id = models.BigIntegerField()  # project id
-    org_id = models.BigIntegerField()  # organization id
-
-    token = models.CharField(max_length=63)
+    # token is a base64 encoded string that contains the share info
+    token = models.CharField(max_length=255, primary_key=True)
 
     created = models.DateTimeField()
     expires = models.DateTimeField(default=None, null=True)
@@ -42,11 +38,8 @@ class ShareToken(models.Model):
         return self.revoked is None and not self.is_expired()
 
     @classmethod
-    def create(cls, art_id, proj_id, org_id, token, created, expires, auth, org_only):
-        return cls(art_id=art_id,
-                   proj_id=proj_id,
-                   org_id=org_id,
-                   token=token,
+    def create(cls, token, created, expires, auth, org_only):
+        return cls(token=token,
                    created=created,
                    expires=expires,
                    auth=auth,
