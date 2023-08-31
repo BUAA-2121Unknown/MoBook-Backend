@@ -85,8 +85,12 @@ def update_item_status_aux(item: Item, status: int):
     """
     update given item's status.
     """
-    if item.prop == ItemProperty.FOLDER:
+    if item.type == ItemType.ROOT:
+        #
         item.get_descendants().update(status=status)
+    elif item.prop == ItemProperty.FOLDER:
+        item.get_descendants().update(status=status)
+        item.status = status
     else:
         item.status = status
         item.save()
