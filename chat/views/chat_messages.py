@@ -194,6 +194,8 @@ def send_message(request):  # form data
     org = first_or_default_by_cache(Organization, org_id)
     chat_id = parse_value(params.get('chat_id'), int)
     chat = first_or_default(Chat, id=chat_id)
+    extension = params.get('extension')
+    at_list = params.get('at_list')
 
     response = {
         "senderId": user.id,

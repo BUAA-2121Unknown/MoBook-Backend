@@ -81,6 +81,8 @@ def pull_older(message_id, chat_id, message_num, org_id):
 def pull_message(message_list, org_id):
     data = {"message_list": []}
     for message in message_list:
+        print("hello")
+        print(message.is_record)
         tmp = {
             # "message_id": message.id,
             "_id": message.id,
