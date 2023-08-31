@@ -13,12 +13,12 @@ from rest_framework.decorators import api_view
 
 from artifact.dtos.models.item_dto import FolderDto, FileDto
 from artifact.dtos.requests.error_dtos import NoSuchItemDto
-from artifact.dtos.requests.request_dto import CreateFolderDto, CreateFileDto, UpdateItemStatusDto, MoveItemDto, \
+from artifact.dtos.requests.request_dto import CreateFolderDto, CreateFileDto, MoveItemDto, \
     DuplicateItemDto, DeleteItemDto
 from artifact.models import Item, ItemType
 from artifact.utils.delete import delete_item_aux
 from artifact.utils.duplicate import duplicate_item_aux
-from artifact.utils.item_util import create_folder_aux, create_file_aux, update_item_status_aux, move_item_aux
+from artifact.utils.item_util import create_folder_aux, create_file_aux, move_item_aux
 from shared.dtos.OperationResponseData import OperationResponseData
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, ForbiddenDto, OkDto, \
     InternalServerErrorDto
@@ -103,43 +103,6 @@ def create_file(request):
         return BadRequestResponse(BadRequestDto(data=e))
 
     return OkResponse(OkDto(data=FileDto(file)))
-
-
-@api_view(['POST'])
-@csrf_exempt
-def update_item_status(request):
-    """
-    Update the status of an item, delete or recover.
-    """
-    user = get_user_from_request(request)
-    if user is None:
-        return UnauthorizedResponse(UnauthorizedDto())
-
-    params = parse_param(request)
-    try:
-        dto: UpdateItemStatusDto = deserialize(params, UpdateItemStatusDto)
-    except JsonDeserializeException as e:
-        return BadRequestResponse(BadRequestDto(data=e))
-    if not dto.is_valid():
-        return BadRequestResponse(BadRequestDto("Bad value"))
-
-    proj, org, error = get_proj_and_org(dto.projId, user)
-    if error:
-        return NotFoundResponse(error)
-
-    data = OperationResponseData().init()
-    for item_id in list(set(dto.items)):
-        item: Item = first_or_default(Item, id=item_id)
-        if item is None:
-            data.add_error(item_id, "No such item")
-            continue
-        if item.proj_id != dto.projId:
-            data.add_error(item_id, "Item is not under this project")
-            continue
-        update_item_status_aux(item, dto.status)
-        data.add_success(item_id)
-
-    return OkResponse(OkDto(data=data))
 
 
 @api_view(['POST'])

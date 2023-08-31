@@ -46,6 +46,13 @@ class CreateFileDto(CreateItemBaseDto):
         return self.prop in ItemProperty.files()
 
 
+class UpdateItemInfoDto:
+    def __init__(self):
+        self.projId: int = 0
+        self.itemId: int = 0
+        self.filename: str = ""
+
+
 class UpdateItemStatusDto:
     def __init__(self):
         self.projId: int = 0
