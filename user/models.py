@@ -38,6 +38,7 @@ class UserChatJump(models.Model):
 
     class Meta:
         db_table = 'UserChatJump'
+        verbose_name = 'user_chat_jump'
 
 
 class ChatAuth:
@@ -59,6 +60,7 @@ class UserChatRelation(models.Model):
 
     class Meta:
         db_table = 'UserChatRelation'
+        verbose_name = 'user_chat_relation'
 
 
 class UserAuth:
@@ -107,6 +109,7 @@ class UserOrganizationProfile(models.Model):
 
     class Meta:
         db_table = 'UserOrganizationProfile'
+        verbose_name = 'user_org_profile'
 
 
 class UserOrganizationRecord(models.Model):
@@ -121,3 +124,4 @@ class UserOrganizationRecord(models.Model):
 
     class Meta:
         db_table = 'UserOrganizationRecord'
+        verbose_name = 'user_org_record'

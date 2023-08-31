@@ -20,8 +20,8 @@ class Organization(models.Model):
         return cls(chat_id=chat_id, name=name, description=description)
 
     class Meta:
-        managed = True
         db_table = 'Organization'
+        verbose_name = 'organization'
 
 
 class Invitation(models.Model):
@@ -102,3 +102,6 @@ class PendingRecord(models.Model):
 
     def deletable(self):
         return not self.editable()
+
+    class Meta:
+        verbose_name = 'pending_record'
