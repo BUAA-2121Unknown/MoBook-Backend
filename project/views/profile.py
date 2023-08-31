@@ -13,7 +13,7 @@ from project.models import Project
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, ForbiddenDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse, \
     ForbiddenResponse
-from shared.utils.model.model_extension import first_or_default
+from shared.utils.cache.cache_utils import first_or_default_by_cache, update_cached_object
 from shared.utils.model.project_extension import get_proj_and_org
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
@@ -32,7 +32,7 @@ def update_project_profile(request):
     proj_id = parse_value(params.get('projId'), int)
     if proj_id is None:
         return BadRequestResponse(BadRequestDto("Missing projId"))
-    proj: Project = first_or_default(Project, id=proj_id)
+    proj: Project = first_or_default_by_cache(Project, proj_id)
     if proj is None:
         return NotFoundResponse(NoSuchProjectDto())
     if not proj.is_active():
@@ -49,6 +49,8 @@ def update_project_profile(request):
             return BadRequestResponse(BadRequestDto("Bad description"))
         proj.description = descr
     proj.save()
+
+    update_cached_object(Project, proj.id, proj)
 
     return OkResponse(OkDto(data={
         "name": proj.name,

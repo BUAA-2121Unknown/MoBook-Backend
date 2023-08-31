@@ -17,6 +17,7 @@ from shared.dtos.OperationResponseData import OperationResponseData
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, NotFoundDto, ForbiddenDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, ForbiddenResponse, \
     OkResponse
+from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
@@ -63,7 +64,7 @@ def send_file_at_notif(request):
     data = OperationResponseData().init()
     # remove duplication
     for uid in list(set(dto.users)):
-        target = first_or_default(User, id=uid)
+        target = first_or_default_by_cache(User, uid)
         if target is None:
             data.add_error(uid, "No such user")
             continue

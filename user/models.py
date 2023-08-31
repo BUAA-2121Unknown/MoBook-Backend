@@ -2,6 +2,7 @@ from django.db import models
 
 from org.models import Organization
 from project.models import Project
+from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.model.model_extension import first_or_default
 
 
@@ -38,6 +39,7 @@ class UserChatJump(models.Model):
 
     class Meta:
         db_table = 'UserChatJump'
+        verbose_name = 'user_chat_jump'
 
 
 class ChatAuth:
@@ -59,6 +61,7 @@ class UserChatRelation(models.Model):
 
     class Meta:
         db_table = 'UserChatRelation'
+        verbose_name = 'user_chat_relation'
 
 
 class UserAuth:
@@ -94,10 +97,12 @@ class UserOrganizationProfile(models.Model):
     nickname = models.CharField(max_length=63)
 
     def get_user(self):
-        return first_or_default(User, id=self.user_id)
+        _, user = first_or_default_by_cache(User, self.user_id)
+        return user
 
     def get_org(self):
-        return first_or_default(Organization, id=self.org_id)
+        _, org = first_or_default_by_cache(Organization, self.org_id)
+        return org
 
     @classmethod
     def create(cls, auth, user: User, org: Organization, nickname=None):
@@ -107,6 +112,7 @@ class UserOrganizationProfile(models.Model):
 
     class Meta:
         db_table = 'UserOrganizationProfile'
+        verbose_name = 'user_org_profile'
 
 
 class UserOrganizationRecord(models.Model):
@@ -121,3 +127,4 @@ class UserOrganizationRecord(models.Model):
 
     class Meta:
         db_table = 'UserOrganizationRecord'
+        verbose_name = 'user_org_record'

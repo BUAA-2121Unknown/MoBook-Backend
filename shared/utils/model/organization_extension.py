@@ -5,6 +5,7 @@
 # @File    : organization_extension.py
 #
 from org.models import Organization
+from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.model.model_extension import first_or_default
 from user.models import User, UserOrganizationProfile, UserAuth, UserOrganizationRecord
 
@@ -18,7 +19,7 @@ def _get_org_and_profile_of_user(oid, user: User):
     if oid is None or user is None:
         return None, None
 
-    org = first_or_default(Organization, id=oid)
+    _, org = first_or_default_by_cache(Organization, oid)
     if org is None:
         return None, None
     uop = get_org_profile_of_user(org, user)

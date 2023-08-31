@@ -11,6 +11,7 @@ from org.dtos.models.org_dto import OrganizationDto
 from org.models import Organization
 from project.dtos.models.project_dto import ProjectDto
 from project.models import Project
+from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.model.model_extension import first_or_default
 
 
@@ -42,6 +43,7 @@ class ShareTokenCompleteDto(ShareTokenBaseDto):
         super(ShareTokenCompleteDto, self).__init__(token)
         item = first_or_default(Item, id=token.item_id)
         self.item = None if item is None else (FolderDto(item) if item.is_dir() else FileDto(item))
-        self.project = ProjectDto(first_or_default(Project, id=token.proj_id))
+        _, proj = first_or_default_by_cache(Project, token.proj_id)
+        self.project = ProjectDto(proj)
         org = first_or_default(Organization, id=token.org_id)
         self.org = None if org is None else OrganizationDto(org)

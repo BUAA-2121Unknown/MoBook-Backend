@@ -12,6 +12,7 @@ from message.models import Message
 from notif.dtos.notif_payload import NotifAtPayload
 from notif.utils.notif_manager import dispatch_notification
 from org.models import Organization
+from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.dir_utils import get_avatar_url
 from shared.utils.file.file_handler import parse_filename
 from shared.utils.model.model_extension import first_or_default
@@ -179,11 +180,9 @@ def send_message(request):  # form data
 
     text = params.get('text')
     org_id = params.get('org_id')
-    org = first_or_default(Organization, id=org_id)
-    chat_id = params.get('chat_id')
-    chat = first_or_default(Chat, id=chat_id)
-    extension = params.get("extension")
-    at_list = params.get('at_list')
+    
+    org = first_or_default_by_cache(Organization, org_id)
+    chat = first_or_default(Chat, id=params.get('chat_id'))
 
     response = {
         "senderId": user.id,
