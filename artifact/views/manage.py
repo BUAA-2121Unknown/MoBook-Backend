@@ -20,6 +20,7 @@ from shared.dtos.OperationResponseData import OperationResponseData
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, ForbiddenDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, ForbiddenResponse, \
     OkResponse
+from shared.utils.file.exceptions import FileException
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
@@ -92,7 +93,10 @@ def create_file(request):
     if not item.is_dir():
         return ForbiddenResponse(ForbiddenDto("Not a folder"))
 
-    file, version = create_file_aux(item, dto.filename, dto.prop, dto.live, None, user, proj)
+    try:
+        file, version = create_file_aux(item, dto.filename, dto.prop, dto.live, None, user, proj)
+    except FileException as e:
+        return BadRequestResponse(BadRequestDto(data=e))
 
     return OkResponse(OkDto(data=FileDto(file)))
 
