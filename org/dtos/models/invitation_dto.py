@@ -6,6 +6,7 @@
 #
 from org.dtos.models.org_dto import OrganizationDto
 from org.models import Invitation, Organization
+from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.model.model_extension import first_or_default
 
 
@@ -29,5 +30,5 @@ class InvitationDto(InvitationBaseDto):
 class InvitationCompleteDto(InvitationBaseDto):
     def __init__(self, inv: Invitation):
         super().__init__(inv)
-        org = first_or_default(Organization, id=inv.oid)
+        org = first_or_default_by_cache(Organization, inv.oid)
         self.org = None if org is None else OrganizationDto(org)

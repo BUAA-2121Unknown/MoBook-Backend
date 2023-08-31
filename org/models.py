@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
+from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.model.model_extension import Existence, first_or_default
 
 
@@ -43,7 +44,7 @@ class Invitation(models.Model):
         return self.revoked is None and not self.is_expired()
 
     def get_org(self):
-        return first_or_default(Organization, oid=self.oid)
+        return first_or_default_by_cache(Organization, self.oid)
 
     class Meta:
         verbose_name = 'invitation'

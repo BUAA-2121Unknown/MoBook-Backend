@@ -1,6 +1,7 @@
 from django.db import models
 
 from org.models import Organization
+from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.model.model_extension import first_or_default, Existence
 
 
@@ -27,7 +28,7 @@ class Project(models.Model):
         return self.status == Existence.ACTIVE
 
     def get_org(self) -> Organization:
-        return first_or_default(Organization, id=self.org_id)
+        return first_or_default_by_cache(Organization, self.org_id)
 
     class Meta:
         verbose_name = 'project'

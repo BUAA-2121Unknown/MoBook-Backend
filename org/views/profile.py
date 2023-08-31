@@ -12,6 +12,7 @@ from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.models import Organization
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse
+from shared.utils.cache.cache_utils import update_cached_object
 from shared.utils.model.organization_extension import get_org_with_user
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
@@ -50,6 +51,8 @@ def update_org_profile(request):
             return BadRequestResponse(BadRequestDto("Invalid description"))
         org.description = descr
     org.save()
+
+    update_cached_object(Organization, org.id, org)
 
     return OkResponse(OkDto(data={
         "name": org.name,

@@ -7,6 +7,7 @@
 from chat.models import Chat, ChatType
 from org.models import Organization
 from shared.dtos.OperationResponseData import OperationResponseData
+from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.model.chat_extension import get_chat_relation
 from shared.utils.model.model_extension import first_or_default
 from user.models import User, UserChatRelation, ChatAuth
@@ -16,7 +17,7 @@ def add_users_to_chat_by_id(users, chat: Chat):
     data = OperationResponseData().init()
     user_list = []
     for uid in users:
-        user = first_or_default(User, id=uid)
+        user = first_or_default_by_cache(User, uid)
         if user is None:
             data.add_error(uid, "No such user")
             continue

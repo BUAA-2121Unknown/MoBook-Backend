@@ -12,7 +12,7 @@ from shared.utils.model.model_extension import first_or_default
 
 
 def get_cache_key(model, pk):
-    return model.Meta.verbose_name + ":" + str(pk)
+    return model._meta.verbose_name + ":" + str(pk)
 
 
 def first_or_default_by_cache(model, pk):
@@ -28,7 +28,7 @@ def first_or_default_by_cache(model, pk):
     return key, obj
 
 
-def update_cache(model, pk, obj):
+def update_cached_object(model, pk, obj):
     key = get_cache_key(model, pk)
     cache.set(key, pickle.dumps(obj))
     return key

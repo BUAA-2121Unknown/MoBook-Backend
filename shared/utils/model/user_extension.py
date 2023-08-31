@@ -9,6 +9,7 @@
 #
 from django.core.handlers.wsgi import WSGIRequest
 
+from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.token.exception import TokenException
 from shared.utils.token.jwt_token import verify_jwt_token
@@ -23,8 +24,8 @@ def _get_user_from_jwt(request: WSGIRequest):
         data = verify_jwt_token(token)
     except TokenException as e:
         raise e
-
-    user: User = first_or_default(User, id=data)
+    key, user = first_or_default_by_cache(User, data)
+    user: User
     if user is None or not user.activated:
         return None
     return user
@@ -41,4 +42,4 @@ def get_user_from_request(request: WSGIRequest, raise_exception=False):
 
 
 def get_user_by_id(uid):
-    return first_or_default(User, id=uid)
+    return first_or_default_by_cache(User, uid)

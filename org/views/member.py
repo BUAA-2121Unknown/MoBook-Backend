@@ -16,6 +16,7 @@ from org.utils.assistance import kick_member_from_org
 from shared.dtos.OperationResponseData import OperationResponseData
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, NotFoundResponse, BadRequestResponse, OkResponse
+from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
@@ -54,7 +55,7 @@ def update_org_member_profile(request):
         return BadRequestResponse(BadRequestDto("Missing userId"))
 
     # get working organization
-    org: Organization = first_or_default(Organization, id=org_id)
+    org: Organization = first_or_default_by_cache(Organization, org_id)
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
 
@@ -80,7 +81,7 @@ def update_org_member_profile(request):
             return UnauthorizedResponse(UnauthorizedDto("Not admin"))
 
         # get target user
-        target: User = first_or_default(User, id=user_id)
+        target: User = first_or_default_by_cache(User, user_id)
         if target is None:
             return NotFoundResponse(NoSuchUserDto())
 

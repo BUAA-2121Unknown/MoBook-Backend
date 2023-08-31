@@ -158,10 +158,10 @@ os.environ["TZ"] = TIME_ZONE
 # Static & Media files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-# STATIC_URL = "/static/"
-# STATICFILES_DIRS = [
-#     "static"
-# ]
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [
+    "static"
+]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
