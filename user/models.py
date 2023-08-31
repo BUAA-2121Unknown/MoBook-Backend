@@ -116,7 +116,7 @@ class UserOrganizationProfile(models.Model):
 
 
 class UserOrganizationRecord(models.Model):
-    user_id = models.BigIntegerField()
+    user_id = models.BigIntegerField(primary_key=True)
     org_id = models.BigIntegerField(default=0)
 
     last_accessed = models.DateTimeField(auto_now=True)

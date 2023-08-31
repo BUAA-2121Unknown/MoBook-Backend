@@ -17,8 +17,6 @@ from shared.utils.model.model_extension import first_or_default
 
 class ShareTokenBaseDto:
     def __init__(self, token: ShareToken):
-        self.id = token.id
-
         self.token = token.token
 
         self.created = token.created
