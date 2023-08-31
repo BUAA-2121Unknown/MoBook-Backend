@@ -28,10 +28,11 @@ class ItemProperty:
     FOLDER = 0
     DOCUMENT = 1
     PROTOTYPE = 2
+    TEMPLATE = 3
 
     @classmethod
     def all(cls):
-        return [cls.FOLDER, cls.DOCUMENT, cls.PROTOTYPE]
+        return [cls.FOLDER, cls.DOCUMENT, cls.PROTOTYPE, cls.TEMPLATE]
 
     @classmethod
     def dirs(cls):
@@ -39,7 +40,7 @@ class ItemProperty:
 
     @classmethod
     def files(cls):
-        return [cls.DOCUMENT, cls.PROTOTYPE]
+        return [cls.DOCUMENT, cls.PROTOTYPE, cls.TEMPLATE]
 
 
 class Item(MP_Node):
