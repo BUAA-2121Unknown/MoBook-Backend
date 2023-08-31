@@ -20,6 +20,7 @@ from chat.views.chat_manage import create_chat, chat_invite_member, chat_remove_
     leave_chat, upload_chat_avatar
 from chat.views.chat_messages import get_chat_list, get_all_messages, send_message, view_chat, \
     pull_older_messages, pull_newer_messages, get_messages_by_type, search_messages
+from chat.views.chat_transmit import transmit_separate, transmit_combined
 
 urlpatterns = [
     path('index', get_chat_list, name='get_chat_list'),
@@ -41,4 +42,7 @@ urlpatterns = [
     path('get_messages_by_type', get_messages_by_type, name='get_messages_by_type'),
 
     path('send_message', send_message, name='send_message'),
+
+    path("transmit_separate", transmit_separate, name='transmit_separate'),
+    path("transmit_combined", transmit_combined, name='transmit_combined'),
 ]

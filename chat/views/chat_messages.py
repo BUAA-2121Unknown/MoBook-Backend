@@ -4,10 +4,11 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
+from thefuzz import process, fuzz
 
 from MoBook.settings import BASE_URL
 from chat.models import Chat, ChatType, ChatAvatar
-from chat.utils.message_manager import new_to_chat, pull_older, new_to_chat_ver1, pull_newer
+from chat.utils.message_manager import new_to_chat, pull_older, new_to_chat_ver1, pull_newer, pull_message
 from message.models import Message
 from notif.dtos.notif_payload import NotifAtPayload
 from notif.utils.notif_manager import dispatch_notification
@@ -156,7 +157,22 @@ def pull_newer_messages(request):
 @api_view(['POST'])
 @csrf_exempt
 def search_messages(request):
-    pass
+    user: User = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+    params = parse_param(request)
+    src = params.get('search')
+    num = params.get('num')
+    org_id = params.get('org_id')
+    chat_id = params.get('chat_id')
+    messages = Message.objects.filter(chat_id=chat_id)
+    res = sorted(messages, key=lambda x: -fuzz.partial_token_sort_ratio(src, x.text))[:int(num)]
+    # print(src)
+    # for message in res:
+    #     print(message.text)
+    #     print(fuzz.token_sort_ratio(src, message.text))
+    return OkResponse(OkDto(data=pull_message(res, org_id)))
+
 
 
 @api_view(['POST'])
@@ -187,7 +203,7 @@ def send_message(request):  # form data
 
     response = {
         "senderId": user.id,
-        "username": first_or_default(UserOrganizationProfile, user_id=user.id).nickname,  # 传过来团队内昵称
+        "username": first_or_default(UserOrganizationProfile, user_id=user.id, org_id=org_id).nickname,  # 传过来团队内昵称
         "avatar": get_avatar_url("user", user.avatar),  # TODO: 可以前端存储
         "saved": True,
         "distributed": True,
@@ -195,12 +211,12 @@ def send_message(request):  # form data
     }
 
     message = Message(src_id=user.id, chat_id=params.get('chat_id'))
+
     if 'file' in request.FILES:
         file = request.FILES['file']
         file.name = file.name + "." + extension
         message.file = file  # 组合方式
         message.text = file.name  # 本名
-        message.type = 1  # TODO: 预留
         message.save()
         response['content'] = file.name
         response["files"] = []
@@ -216,11 +232,9 @@ def send_message(request):  # form data
         })
     if text is not None:
         message.text = text
-        message.type = 0
         response['content'] = text
         message.save()
         if at_list is not None:
-            message.type = 3
             for user_id in at_list:
                 # 更新at消息列表，群聊最新消息
                 user_chat_relation = first_or_default(UserChatRelation, chat_id=params.get('chat_id'))
@@ -254,7 +268,6 @@ def send_message(request):  # form data
         user_chat_relation.unread += 1
 
         user_chat_relation.save()
-    message.save()
 
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(str(chat.id), {
@@ -263,6 +276,7 @@ def send_message(request):  # form data
     })
 
     return OkResponse(OkDto(data=response))  # 需要返回文件的本名和url，前端（发送者）收到后进行ws请求
+
 
 #
 # @api_view(['POST'])

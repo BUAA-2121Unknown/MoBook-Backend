@@ -1,6 +1,6 @@
 from MoBook.settings import BASE_URL
 from chat.utils.chat_manager import _get_chat_members
-from message.models import Message
+from message.models import Message, M2M
 from shared.utils.dir_utils import get_avatar_path, get_avatar_url
 from shared.utils.file.file_handler import parse_filename
 from shared.utils.model.model_extension import first_or_default
@@ -86,11 +86,11 @@ def pull_message(message_list, org_id):
             "_id": message.id,
             "index_id": message.id,
             "content": message.text,
-            # "type": message.type,
+            "is_record": message.is_record,
             "senderId": str(message.src_id),
             "avatar": get_avatar_url("user", first_or_default(User, id=message.src_id).avatar),
             "username": first_or_default(UserOrganizationProfile, user_id=message.src_id,
-                                             org_id=org_id).nickname,
+                                         org_id=org_id).nickname,
             "timestamp": get_time(message.timestamp),
             "date": get_date(message.timestamp),
             "saved": True,
@@ -99,7 +99,6 @@ def pull_message(message_list, org_id):
             "files": []
         }
         if message.file is not None and message.file.name is not None and message.file.name != "":
-
             tmp["files"].append({
                 "name": message.file.name,
                 "size": 0,  # TODO: 预留
@@ -108,5 +107,8 @@ def pull_message(message_list, org_id):
                 "duration": 0,  # TODO: 预留
                 "url": BASE_URL + message.file.url
             })
+        if message.is_record == 1:
+            son_list = [m2m.son for m2m in M2M.objects.filter(father=message.id)]
+            tmp["son_list"] = son_list
         data["message_list"].append(tmp)
     return data
