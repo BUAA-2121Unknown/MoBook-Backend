@@ -1,8 +1,7 @@
 from MoBook.settings import BASE_URL
 from chat.utils.chat_manager import _get_chat_members
 from message.models import Message, M2M
-from shared.utils.dir_utils import get_avatar_path, get_avatar_url
-from shared.utils.file.file_handler import parse_filename
+from shared.utils.dir_utils import get_avatar_url
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.time_utils import get_time, get_date
 from user.models import UserChatRelation, UserChatJump, UserOrganizationProfile, User
@@ -81,7 +80,6 @@ def pull_older(message_id, chat_id, message_num, org_id):
 def pull_message(message_list, org_id):
     data = {"message_list": []}
     for message in message_list:
-        print("hello")
         print(message.is_record)
         tmp = {
             # "message_id": message.id,
