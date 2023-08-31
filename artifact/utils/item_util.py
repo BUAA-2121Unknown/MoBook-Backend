@@ -53,8 +53,8 @@ def create_file_aux(dst: Item, name: str, prop: int, live: bool, file, user: Use
 
     _, ext = parse_filename(name)
 
-    if ext == "":
-        raise FileException("Missing extension")
+    # if ext == "":
+    #     raise FileException("Missing extension")
 
     # first, create a file item
     node = dst.add_child(name=name,

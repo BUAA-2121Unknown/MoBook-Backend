@@ -4,10 +4,13 @@
 # @Author  : Tony Skywalker
 # @File    : item_filter.py
 #
+from artifact.models import Item
 
-def get_active_items(items):
+
+def filter_active_items(items: list[dict]):
+    result = {}
     pass
 
 
-def get_recycled_items(items):
+def filter_recycled_items(root: Item):
     pass
