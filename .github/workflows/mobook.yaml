@@ -19,6 +19,8 @@ jobs:
 
       - name: Setup Rsync
         uses: GuillaumeFalourd/setup-rsync@v1.1
+
+      - name: Check Rsync
         run: rsync --version
 
       - name: Setup sshpass
