@@ -7,6 +7,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
+from user.models import User
 from artifact.dtos.models.item_dto import FileDto
 from artifact.dtos.requests.error_dtos import NoSuchItemDto
 from artifact.dtos.requests.request_dto import DownloadFileDto
@@ -27,7 +28,6 @@ from shared.utils.model.project_extension import get_proj_and_org
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.parameter.value_parser import parse_value
-from user.models import User
 
 
 @api_view(['POST'])
@@ -45,9 +45,11 @@ def upload_file(request):
     item_id = parse_value(params.get('itemId'), int)
     filename = parse_value(params.get('filename'), str)
     version = parse_value(params.get('version'), int)
-    if proj_id is None or item_id is None or filename is None or version is None:
+    if proj_id is None or item_id is None or filename is None:
         return BadRequestResponse(BadRequestDto("Missing parameters"))
-
+    if version is None:
+        # assign a large number, which will be adjusted automatically on save
+        version = 2147483647
     proj, org, error = get_proj_and_org(proj_id, user)
     if error:
         return NotFoundResponse(error)
