@@ -18,6 +18,7 @@ class PrototypeConsumer(WebsocketConsumer):
         self.group_token = generate_prototype_consumer_token(proto_id)
 
         # Join room group
+        self.proto_id = "prototype" + str(self.proto_id)
         async_to_sync(self.channel_layer.group_add)(
                 self.group_token,
                 self.channel_name
@@ -60,11 +61,16 @@ class MouseConsumer(WebsocketConsumer):
         super().__init__(args, kwargs)
         self.group_token = None
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+        self.mouse_id = None
+
     def connect(self):
         mouse_id = self.scope['url_route']['kwargs']['mouse_id']
         self.group_token = generate_moues_consumer_token(mouse_id)
 
         # Join room group
+        self.mouse_id = "mouse" + str(self.mouse_id)
         async_to_sync(self.channel_layer.group_add)(
                 self.group_token,
                 self.channel_name
