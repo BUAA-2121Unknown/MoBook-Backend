@@ -62,7 +62,7 @@ def create_folder(request):
     if not item.is_dir():
         return ForbiddenResponse(ForbiddenDto("Not a folder"))
 
-    folder = create_folder_aux(item, dto.filename, proj)
+    folder = create_folder_aux(item, dto.filename, proj, user)
 
     return OkResponse(OkDto(data=FolderDto(folder)))
 

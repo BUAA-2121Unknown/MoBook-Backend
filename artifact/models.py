@@ -67,6 +67,7 @@ class Item(MP_Node):
     # extra fields
     proj_id = models.BigIntegerField()
     org_id = models.BigIntegerField()
+    user_id = models.BigIntegerField()  # creator
 
     file_id = models.SmallIntegerField(default=0)  # only valid when property is not FOLDER
 

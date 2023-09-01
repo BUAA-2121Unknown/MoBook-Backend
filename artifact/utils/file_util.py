@@ -11,10 +11,10 @@ from shared.utils.model.model_extension import first_or_default
 from user.models import User
 
 
-def _get_or_create_file_version(item_id, version):
+def _get_or_create_file_version(item_id, version, user_id):
     ver = first_or_default(FileVersion, file_id=item_id, version=version)
     if ver is None:
-        ver = FileVersion.create(version, item_id)
+        ver = FileVersion.create(version, item_id, user_id)
         ver.save()
     return ver
 
@@ -38,7 +38,7 @@ def create_version_aux_by_user_id(file, version, item: Item, user_id):
     # FileVersion.objects.filter(file_id=item.id, version__gte=version).delete()
 
     # create new version
-    file_version = _get_or_create_file_version(item.id, version)
+    file_version = _get_or_create_file_version(item.id, version, user_id)
 
     # get internal file storage path
     path = get_item_path(item, file_version.version)
@@ -58,6 +58,7 @@ def create_version_aux_by_user_id(file, version, item: Item, user_id):
 def create_version_by_content_aux_by_user_id(content, version, item: Item, user_id):
     if version > item.total_version:
         version = item.total_version + 1
+        item.total_version = version
 
     item.version = version
     item.save()
@@ -66,11 +67,12 @@ def create_version_by_content_aux_by_user_id(content, version, item: Item, user_
     # FileVersion.objects.filter(file_id=item.id, version__gte=version).delete()
 
     # create new version
-    file_version = _get_or_create_file_version(item.id, version)
+    file_version = _get_or_create_file_version(item.id, version, user_id)
 
     # get internal file storage path
     path = get_item_path(item, file_version.version)
     ensure_file_parent_path(path)
+    print(path)
     with open(path, 'w') as f:
         if content is not None:
             f.write(content)
