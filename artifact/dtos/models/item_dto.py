@@ -31,6 +31,7 @@ class FileDto(ItemDto):
     def __init__(self, item: Item):
         super().__init__(item)
         self.version = item.version
+        self.totalVersion = item.total_version
 
 
 class FileCompleteDto(FileDto):
