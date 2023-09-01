@@ -22,7 +22,6 @@ jobs:
       - name: establish connection
         env:
           PROJ_DIR: ${{ env.PROJECT_DIR }}
-          DEPLOY_PORT: ${{ env.PORT }}
         run: >
           sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_IP }}
-          "cd ${ PROJ_DIR }; killall -9 daphne; daphne -b 0.0.0.0 -p ${{ DEPLOY_PORT }} MoBook.asgi:application > daphne.log 2>&1 &"
+          "cd ${ PROJ_DIR }; killall -9 daphne; daphne -b 0.0.0.0 -p ${{ env.PORT }} MoBook.asgi:application > daphne.log 2>&1 &"
