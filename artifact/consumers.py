@@ -17,7 +17,7 @@ class PrototypeConsumer(WebsocketConsumer):
                 self.proto_id,
                 self.channel_name
         )
-
+        print(self.channel_name)
         self.accept()
 
     def disconnect(self, close_code):
@@ -42,6 +42,7 @@ class PrototypeConsumer(WebsocketConsumer):
                 self.proto_id,
                 {
                     "type": "back",
+                    "sender_channel_name": self.channel_name,
                     "data": bytes_data
                 }
         )
@@ -57,11 +58,12 @@ class PrototypeConsumer(WebsocketConsumer):
         data = event["data"]
         # 后端无法得知自己的user_id，需要交给前端判断，不给自己+1未读
         # Send message to WebSocket
-        self.send(bytes_data=data
-            # 'category': category,
-            # 'text': text,
-            # 'file_url': file_url,
-            # 'src_id': src_id,
-            # 'src_name': src_name,
-            # 'src_avatar_url': src_avatar_url
-            )
+        if self.channel_name != event['sender_channel_name']:
+            self.send(bytes_data=data
+                # 'category': category,
+                # 'text': text,
+                # 'file_url': file_url,
+                # 'src_id': src_id,
+                # 'src_name': src_name,
+                # 'src_avatar_url': src_avatar_url
+                )
