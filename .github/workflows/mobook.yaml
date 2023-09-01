@@ -33,7 +33,9 @@ jobs:
       - name: Deploy with Rsync
         env:
           PROJ_DIR: ${{ vars.PROJECT_DIR }}
-        run: sshpass -p ${{ secrets.PASSWORD }} rsync -avz --delete ${{ github.workspace }}/* ${{ secrets.USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}
+        run: |
+          tree ${{ github.workspace }}
+          sshpass -p ${{ secrets.PASSWORD }} rsync -avz --delete ${{ github.workspace }} ${{ secrets.USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}
 
       - name: Establish Connection
         env:
