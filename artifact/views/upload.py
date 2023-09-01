@@ -43,9 +43,9 @@ def upload_file(request):
         return BadRequestResponse(BadRequestDto("Missing file"))
     proj_id = parse_value(params.get('projId'), int)
     item_id = parse_value(params.get('itemId'), int)
-    filename = parse_value(params.get('filename'), str)
+    # filename = parse_value(params.get('filename'), str)
     version = parse_value(params.get('version'), int)
-    if proj_id is None or item_id is None or filename is None:
+    if proj_id is None or item_id is None:
         return BadRequestResponse(BadRequestDto("Missing parameters"))
     if version is None or version == 0:
         # assign a large number, which will be adjusted automatically on save
@@ -109,7 +109,7 @@ def download_file(request):
             filename = item.get_filename()
             response = construct_file_response(file, filename)
     except FileException as e:
-        return InternalServerErrorResponse(InternalServerErrorDto("File does not exist"))
+        return InternalServerErrorResponse(InternalServerErrorDto("File does not exist", data=e))
 
     return response
 
