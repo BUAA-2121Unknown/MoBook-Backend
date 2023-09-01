@@ -32,7 +32,7 @@ def init_root_folder(proj: Project):
     proj.save()
 
 
-def create_folder_aux(dst: Item, name: str, proj: Project):
+def create_folder_aux(dst: Item, name: str, proj: Project, user: User):
     """
     Create a folder under dst item.
     """
@@ -41,7 +41,8 @@ def create_folder_aux(dst: Item, name: str, proj: Project):
                          type=ItemType.DIRECTORY,
                          prop=ItemProperty.FOLDER,
                          proj_id=proj.id,
-                         org_id=proj.org_id)
+                         org_id=proj.org_id,
+                         user_id=user.id)
     return get_item_lambda()(node.pk)
 
 
@@ -62,7 +63,8 @@ def create_file_aux(dst: Item, filename: str, prop: int, live: bool, file, user:
                          prop=prop,
                          live=live,
                          proj_id=proj.id,
-                         org_id=proj.org_id)
+                         org_id=proj.org_id,
+                         user_id=user.id)
     item = get_item_lambda()(node.pk)
 
     # then create a version

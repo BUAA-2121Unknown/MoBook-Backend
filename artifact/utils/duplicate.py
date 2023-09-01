@@ -47,7 +47,8 @@ def _duplicate_folder(parent: Item, template: Item):
                             type=template.type,
                             prop=template.prop,
                             proj_id=template.proj_id,
-                            org_id=template.org_id)
+                            org_id=template.org_id,
+                            user_id=template.user_id)
     folder = get_item_lambda()(node.pk)
     for item in template.get_children():
         duplicate_item_aux(folder, item)
@@ -67,7 +68,8 @@ def _duplicate_file(parent: Item, template: Item):
                             type=template.type,
                             prop=template.prop,
                             proj_id=template.proj_id,
-                            org_id=template.org_id)
+                            org_id=template.org_id,
+                            user_id=template.user_id)
     file = get_item_lambda()(node.pk)
     template_version: FileVersion = first_or_default(FileVersion, file_id=template.id, version=template.version)
     if template_version is None:
