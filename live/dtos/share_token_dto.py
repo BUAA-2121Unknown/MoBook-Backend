@@ -7,6 +7,7 @@
 from artifact.dtos.models.item_dto import FileDto, FolderDto
 from artifact.models import Item
 from live.models import ShareToken
+from live.utils.token_handler import parse_share_token
 from org.dtos.models.org_dto import OrganizationDto
 from org.models import Organization
 from project.dtos.models.project_dto import ProjectDto
@@ -17,8 +18,6 @@ from shared.utils.model.model_extension import first_or_default
 
 class ShareTokenBaseDto:
     def __init__(self, token: ShareToken):
-        self.id = token.id
-
         self.token = token.token
 
         self.created = token.created
@@ -33,17 +32,19 @@ class ShareTokenBaseDto:
 class ShareTokenDto(ShareTokenBaseDto):
     def __init__(self, token: ShareToken):
         super(ShareTokenDto, self).__init__(token)
-        self.artId = token.item_id
-        self.projId = token.proj_id
-        self.orgId = token.org_id
+        item_id, proj_id = parse_share_token(token.token)
+        self.itemId = item_id
+        self.projId = proj_id
 
 
 class ShareTokenCompleteDto(ShareTokenBaseDto):
     def __init__(self, token: ShareToken):
         super(ShareTokenCompleteDto, self).__init__(token)
-        item = first_or_default(Item, id=token.item_id)
+        item_id, proj_id = parse_share_token(token.token)
+        item = first_or_default(Item, id=item_id)
         self.item = None if item is None else (FolderDto(item) if item.is_dir() else FileDto(item))
-        _, proj = first_or_default_by_cache(Project, token.proj_id)
+        _, proj = first_or_default_by_cache(Project, proj_id)
+        proj: Project
         self.project = ProjectDto(proj)
-        org = first_or_default(Organization, id=token.org_id)
+        _, org = first_or_default_by_cache(Organization, proj.org_id)
         self.org = None if org is None else OrganizationDto(org)

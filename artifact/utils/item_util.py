@@ -53,8 +53,8 @@ def create_file_aux(dst: Item, name: str, prop: int, live: bool, file, user: Use
 
     _, ext = parse_filename(name)
 
-    if ext == "":
-        raise FileException("Missing extension")
+    # if ext == "":
+    #     raise FileException("Missing extension")
 
     # first, create a file item
     node = dst.add_child(name=name,
@@ -85,8 +85,13 @@ def update_item_status_aux(item: Item, status: int):
     """
     update given item's status.
     """
-    if item.prop == ItemProperty.FOLDER:
+    if item.type == ItemType.ROOT:
+        # root status should not be changed
         item.get_descendants().update(status=status)
+    elif item.prop == ItemProperty.FOLDER:
+        item.get_descendants().update(status=status)
+        item.status = status
+        item.save()
     else:
         item.status = status
         item.save()

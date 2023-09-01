@@ -29,11 +29,11 @@ def _send_email(title, template_name, email, dto: dict):
 
     msg = EmailMessage(title, content, EMAIL_FROM, [email])
     msg.content_subtype = 'html'
+
     try:
         send_status = msg.send()
         if not send_status:
             raise EmailException(send_status['errmsg'])
-        print(send_status)
     except EmailException as e:
         raise e
     except Exception as e:

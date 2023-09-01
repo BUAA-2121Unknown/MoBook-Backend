@@ -10,15 +10,15 @@
 import base64
 
 
-def to_base64_token(plain_ascii: str) -> str:
-    plain_bytes = plain_ascii.encode("ascii")
+def to_base64_token(plain_utf8: str) -> str:
+    plain_bytes = plain_utf8.encode("utf-8")
     base64_bytes = base64.b64encode(plain_bytes)
-    base64_ascii = base64_bytes.decode("ascii")
+    base64_ascii = base64_bytes.decode("utf-8")
     return base64_ascii
 
 
-def from_base64_token(base64_ascii: str) -> str:
-    base64_bytes = base64_ascii.encode("ascii")
+def from_base64_token(base64_utf8: str) -> str:
+    base64_bytes = base64_utf8.encode("utf-8")
     plain_bytes = base64.b64decode(base64_bytes)
-    plain_ascii = plain_bytes.decode("ascii")
-    return plain_ascii
+    plain_utf8 = plain_bytes.decode("utf-8")
+    return plain_utf8

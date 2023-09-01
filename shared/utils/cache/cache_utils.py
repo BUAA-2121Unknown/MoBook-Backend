@@ -32,3 +32,8 @@ def update_cached_object(model, pk, obj):
     key = get_cache_key(model, pk)
     cache.set(key, pickle.dumps(obj))
     return key
+
+
+def delete_cached_object(model, pk):
+    key = get_cache_key(model, pk)
+    cache.delete(key)

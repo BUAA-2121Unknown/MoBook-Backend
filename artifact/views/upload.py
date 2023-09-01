@@ -12,7 +12,7 @@ from artifact.dtos.requests.error_dtos import NoSuchItemDto
 from artifact.dtos.requests.request_dto import DownloadFileDto
 from artifact.models import Item
 from artifact.utils.file_util import create_version_aux
-from live.dto.authorize_dto import AuthorizeData
+from live.dtos.authorize_dto import AuthorizeData
 from live.models import ShareAuth
 from live.utils.authorize import authorize_share_token_aux
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, ForbiddenDto, InternalServerErrorDto, \
