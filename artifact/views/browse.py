@@ -12,6 +12,7 @@ from artifact.dtos.models.item_dto import FolderDto, FileCompleteDto
 from artifact.dtos.models.version_dto import VersionDto
 from artifact.dtos.requests.error_dtos import NoSuchItemDto
 from artifact.models import Item
+from artifact.utils.item_filter import filter_active_items, filter_recycled_items
 from artifact.utils.version_util import get_versions_of_file
 from project.models import Project
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, ForbiddenDto, OkDto
@@ -47,7 +48,17 @@ def get_items_of_project(request):
     if root is None or not root.is_active():
         return NotFoundResponse(NoSuchItemDto())
 
-    data = Item.dump_bulk(root)
+    raw_data = Item.dump_bulk(root)
+
+    if status == Existence.ACTIVE:
+        data = filter_active_items(raw_data)
+        if len(data) == 0:
+            data = None
+        else:
+            data = data[0]
+    else:
+        data = filter_recycled_items(raw_data)
+
     return OkResponse(OkDto(data=data))
 
 
