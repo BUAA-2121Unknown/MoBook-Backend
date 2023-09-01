@@ -17,7 +17,7 @@ def add_users_to_chat_by_id(users, chat: Chat):
     data = OperationResponseData().init()
     user_list = []
     for uid in users:
-        user = first_or_default_by_cache(User, uid)
+        _, user = first_or_default_by_cache(User, uid)
         if user is None:
             data.add_error(uid, "No such user")
             continue

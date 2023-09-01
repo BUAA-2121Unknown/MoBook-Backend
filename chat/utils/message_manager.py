@@ -22,6 +22,7 @@ def new_to_chat_ver1(user, chat_id, org_id):
     user_chat_relation.unread = 0
     user_chat_relation.save()
     data.update(_get_chat_members(chat_id, org_id))
+    data.update(get_at_list(user, chat_id))
     # 返回所有未读at消息，然后把它们valid置零
 
     # 返回该群聊所有消息
@@ -30,7 +31,7 @@ def new_to_chat_ver1(user, chat_id, org_id):
 
 
 def get_at_list(user, chat_id):
-    data = {"at_message_list": []}
+    data = {"at_list": []}
 
     # # 获取最新未读at消息，并且置零，重新加载解锁查看静态的最新消息，unread置零
     # user_chat_relation = first_or_default(UserChatRelation, user_id=user.id, chat_id=chat_id)
@@ -43,8 +44,8 @@ def get_at_list(user, chat_id):
     # 返回所有未读at消息，然后把它们valid置零
     user_chat_jump_list = UserChatJump.objects.filter(user_id=user.id, chat_id=chat_id, valid=1)  # 顺序
     for user_chat_jump in user_chat_jump_list:
-        at_message_id = user_chat_jump.at_message_id
-        data["at_message_list"].append(at_message_id)
+        at_message_id = user_chat_jump.message_id
+        data["at_list"].append(at_message_id)
         user_chat_jump.valid = 0
         user_chat_jump.save()
     return data
@@ -81,8 +82,6 @@ def pull_older(message_id, chat_id, message_num, org_id):
 def pull_message(message_list, org_id):
     data = {"message_list": []}
     for message in message_list:
-        print("hello")
-        print(message.is_record)
         tmp = {
             # "message_id": message.id,
             "_id": message.id,

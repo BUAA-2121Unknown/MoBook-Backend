@@ -37,3 +37,4 @@ class Chat(models.Model):
     class Meta:
         managed = True
         db_table = 'Chat'
+        verbose_name = 'Chat'

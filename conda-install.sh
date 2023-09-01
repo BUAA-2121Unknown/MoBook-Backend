@@ -13,3 +13,4 @@ conda install daphne
 conda install pillow
 pip install -U cos-python-sdk-v5
 conda install thefuzz
+conda install django-redis

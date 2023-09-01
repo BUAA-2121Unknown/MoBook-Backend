@@ -100,8 +100,6 @@ def get_all_messages(request):
     user: User = get_user_from_request(request)
     if user is None:
         return UnauthorizedResponse(UnauthorizedDto())
-    print(user.id)
-    print(params.get('chat_id'))
     data = new_to_chat_ver1(user, params.get('chat_id'), params.get('org_id'))
     data.update()
     return OkResponse(OkDto(data=data))
@@ -191,7 +189,7 @@ def send_message(request):  # form data
 
     text = params.get('text')
     org_id = parse_value(params.get('org_id'), int)
-    org = first_or_default_by_cache(Organization, org_id)
+    org = first_or_default(Organization, id=org_id)
     chat_id = parse_value(params.get('chat_id'), int)
     chat = first_or_default(Chat, id=chat_id)
     extension = params.get('extension')

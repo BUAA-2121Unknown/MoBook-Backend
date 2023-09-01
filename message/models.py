@@ -15,7 +15,7 @@ class Message(models.Model):
     image = models.FileField(upload_to=message_file_path, blank=True, null=True)
     file = models.FileField(upload_to=message_file_path, blank=True, null=True)
 
-    is_record = models.IntegerField(default=0, db_column='is_record')  # 0 : text, 1 : image, 2 : file, 3 : at
+    is_record = models.IntegerField(default=0)
     src_id = models.IntegerField(default=0)
     dst_id = models.IntegerField(blank=True, null=True)  # 不用传
     chat_id = models.IntegerField(default=0)
@@ -28,6 +28,7 @@ class Message(models.Model):
     class Meta:
         managed = True
         db_table = 'Message'
+        verbose_name = 'Message'
 
 
 class M2M(models.Model):
@@ -37,3 +38,4 @@ class M2M(models.Model):
     class Meta:
         managed = True
         db_table = 'M2M'
+        verbose_name = 'M2M'

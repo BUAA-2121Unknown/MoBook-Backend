@@ -5,6 +5,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 
+import artifact.routing
 import notif.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_chat_room.settings')
@@ -20,7 +21,8 @@ application = ProtocolTypeRouter({
             AuthMiddlewareStack(
                     URLRouter(
                             chat.routing.websocket_urlpatterns +
-                            notif.routing.websocket_urlpatterns
+                            notif.routing.websocket_urlpatterns +
+                            artifact.routing.websocket_urlpatterns
                     )
             )
     ),
