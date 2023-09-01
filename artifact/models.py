@@ -47,8 +47,8 @@ class Item(MP_Node):
     # fields for tree model
 
     # name include name and extension
-    name = models.CharField(max_length=127)
-    extension = models.CharField(max_length=31)
+    name = models.CharField(max_length=127, default="")
+    extension = models.CharField(max_length=31, default="")
 
     type = models.SmallIntegerField()  # ItemType
     prop = models.SmallIntegerField()  # ItemProperty

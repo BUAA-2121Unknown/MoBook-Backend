@@ -98,14 +98,14 @@ def pull_message(message_list, org_id):
             "seen": True,
             "files": []
         }
-        if message.file is not None and message.file.name is not None and message.file.name != "":
+        if message.content is not None and message.content.name is not None and message.content.name != "":
             tmp["files"].append({
-                "name": message.file.name,
+                "name": message.content.name,
                 "size": 0,  # TODO: 预留
-                "type": message.file.name.split('.')[-1],
+                "type": message.content.name.split('.')[-1],
                 "audio": False,  # TODO: 预留
                 "duration": 0,  # TODO: 预留
-                "url": BASE_URL + message.file.url
+                "url": BASE_URL + message.content.url
             })
         if message.is_record == 1:
             son_list = [m2m.son for m2m in M2M.objects.filter(father=message.id)]

@@ -10,7 +10,6 @@
 from django.core.handlers.wsgi import WSGIRequest
 
 from shared.utils.cache.cache_utils import first_or_default_by_cache
-from shared.utils.model.model_extension import first_or_default
 from shared.utils.token.exception import TokenException
 from shared.utils.token.jwt_token import verify_jwt_token
 from user.models import User
@@ -42,4 +41,5 @@ def get_user_from_request(request: WSGIRequest, raise_exception=False):
 
 
 def get_user_by_id(uid):
-    return first_or_default_by_cache(User, uid)
+    _, user = first_or_default_by_cache(User, uid)
+    return user

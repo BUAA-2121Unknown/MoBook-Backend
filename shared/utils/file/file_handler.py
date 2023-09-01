@@ -33,11 +33,20 @@ def save_file(old_path, new_path, file):
         raise FileException("Failed to write file") from e
 
 
-def load_file(file_path):
+def load_binary_file(file_path):
     if not os.path.exists(file_path):
         raise FileException("File does not exist")
     try:
         return open(file_path, "rb")
+    except Exception as e:
+        raise FileException("Failed to open file") from e
+
+
+def load_text_file(file_path):
+    if not os.path.exists(file_path):
+        raise FileException("File does not exist")
+    try:
+        return open(file_path, "r")
     except Exception as e:
         raise FileException("Failed to open file") from e
 
