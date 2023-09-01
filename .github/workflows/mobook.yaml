@@ -21,13 +21,13 @@ jobs:
           PROJ_DIR: ${{ vars.PROJECT_DIR }}
           GIT_REPO: ${{ vars.GIT_REPOSITORY }}
         run: >
-          sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_IP }}
-          "rm -rf ${PROJ_DIR}; gh repo clone git@github.com:BUAA-2121Unknown/MoBook-Backend.git ${PROJ_DIR}"
+          sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_HOST }}
+          "rm -rf ${PROJ_DIR}; git clone git@github.com:BUAA-2121Unknown/MoBook-Backend.git ${PROJ_DIR}"
 
       - name: establish connection
         env:
           PROJ_DIR: ${{ vars.PROJECT_DIR }}
           PORT: ${{ vars.PRODUCTION_PORT }}
         run: >
-          sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_IP }}
+          sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_HOST }}
           "cd ${PROJ_DIR}; killall -9 daphne; daphne -b 0.0.0.0 -p ${PORT} MoBook.asgi:application > daphne.log 2>&1 &"
