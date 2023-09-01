@@ -39,6 +39,7 @@ class CreateFileDto(CreateItemBaseDto):
         super().__init__()
         self.prop: int = 0
         self.live: bool = False
+        self.sibling: bool = False
 
     def is_valid(self):
         if not super().is_valid():

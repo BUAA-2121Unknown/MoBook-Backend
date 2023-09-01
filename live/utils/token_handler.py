@@ -18,8 +18,11 @@ def generate_share_token(item_id, proj_id):
 
 
 def parse_share_token(token):
-    token = json.loads(from_base64_token(token))
-    return parse_value(token.get("item"), int, 0), parse_value(token.get("proj"), int, 0)
+    try:
+        token = json.loads(from_base64_token(token))
+        return parse_value(token.get("item"), int), parse_value(token.get("proj"), int)
+    except Exception as e:
+        return None, None
 
 
 def update_or_create_share_token(token, created, expires, auth, org_only):

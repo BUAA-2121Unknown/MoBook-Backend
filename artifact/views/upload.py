@@ -15,6 +15,7 @@ from artifact.utils.file_util import create_version_aux
 from live.dtos.authorize_dto import AuthorizeData
 from live.models import ShareAuth
 from live.utils.authorize import authorize_share_token_aux
+from live.utils.token_handler import parse_share_token
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, ForbiddenDto, InternalServerErrorDto, \
     OkDto, NotFoundDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, ForbiddenResponse, \
@@ -80,7 +81,11 @@ def download_file(request):
     item_id = parse_value(params.get('itemId'), int)
     token = parse_value(params.get('token'), str)
     version = parse_value(params.get('version'), int)
-    if proj_id is None or item_id is None or token is None or version is None:
+    if token is not None and len(token) > 0:
+        item_id, proj_id = parse_share_token(token)
+        if item_id is None or proj_id is None:
+            return BadRequestResponse(BadRequestDto("Invalid token"))
+    if proj_id is None or item_id is None:
         return BadRequestResponse(BadRequestDto("Missing parameters"))
 
     dto = DownloadFileDto().init(proj_id, item_id, token, version)
@@ -99,7 +104,9 @@ def download_file(request):
     if item.is_dir():
         return ForbiddenResponse(ForbiddenDto("Item is a directory"))
 
-    if dto.version > item.version:
+    if dto.version is None:
+        dto.version = item.version
+    if dto.version > item.total_version or dto.version <= 0:
         return NotFoundResponse(NotFoundDto("Version does not exist"))
 
     path = get_item_path(item, dto.version)

@@ -131,3 +131,40 @@ def get_all_versions(request):
         "versions": version_list,
         "total": len(version_list)
     }))
+
+
+@api_view
+@csrf_exempt
+def get_prototypes_of_project(request):
+    user = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+
+    params = parse_param(request)
+    proj_id = parse_value(params.get('projId'), int)
+    if proj_id is None:
+        return BadRequestResponse(BadRequestDto("Missing projId"))
+    status = parse_value_with_check(params.get('status'), int, Existence.get_validator())
+    if status is None:
+        return BadRequestResponse(BadRequestDto("status missing or invalid"))
+
+    proj, org, error = get_proj_and_org(proj_id, user)
+    if error:
+        return NotFoundResponse(error)
+    proj: Project
+    root: Item = first_or_default(Item, id=proj.root_id)
+    if root is None or not root.is_active():
+        return NotFoundResponse(NoSuchItemDto())
+
+    raw_data = Item.dump_bulk(root)
+
+    if status == Existence.ACTIVE:
+        data = filter_active_items(raw_data)
+        if len(data) == 0:
+            data = None
+        else:
+            data = data[0]
+    else:
+        data = filter_recycled_items(raw_data)
+
+    return OkResponse(OkDto(data=data))
