@@ -13,12 +13,9 @@ from artifact.dtos.requests.request_dto import UploadFileDto
 from artifact.models import Item
 from artifact.utils.file_util import create_version_aux, create_version_by_content_aux
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, ForbiddenDto, InternalServerErrorDto, \
-    OkDto, NotFoundDto
+    OkDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, ForbiddenResponse, \
     InternalServerErrorResponse, OkResponse
-from shared.utils.dir_utils import get_item_path
-from shared.utils.file.exceptions import FileException
-from shared.utils.file.file_handler import construct_file_response, load_text_file, load_binary_file
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
@@ -99,78 +96,3 @@ def upload_file_content(request):
         return InternalServerErrorResponse(InternalServerErrorDto("Failed to upload file", data=e))
 
     return OkResponse(OkDto(data=FileDto(item)))
-
-
-@api_view(['GET'])
-@csrf_exempt
-def download_file(request):
-    user = get_user_from_request(request)
-    params = parse_param(request)
-
-    proj_id = parse_value(params.get('projId'), int)
-    item_id = parse_value(params.get('itemId'), int)
-    version = parse_value(params.get('version'), int)
-    if proj_id is None or item_id is None:
-        return BadRequestResponse(BadRequestDto("Missing parameters"))
-    item: Item = first_or_default(Item, id=item_id)
-    if item is None or not item.is_active():
-        return NotFoundResponse(NoSuchItemDto())
-    if item.proj_id != proj_id:
-        return BadRequestResponse(BadRequestDto("Item is not under this project"))
-    if item.is_dir():
-        return ForbiddenResponse(ForbiddenDto("Item is a directory"))
-
-    if version is None:
-        version = item.version
-    if version > item.total_version or version <= 0:
-        return NotFoundResponse(NotFoundDto("Version does not exist"))
-
-    path = get_item_path(item, version)
-    filename = item.get_filename()
-
-    try:
-        with load_binary_file(path) as file:
-            response = construct_file_response(file, filename)
-    except FileException as e:
-        return InternalServerErrorResponse(InternalServerErrorDto("File does not exist", data=e))
-
-    return response
-
-
-@api_view(['GET'])
-@csrf_exempt
-def download_file_content(request):
-    user = get_user_from_request(request)
-    params = parse_param(request)
-
-    proj_id = parse_value(params.get('projId'), int)
-    item_id = parse_value(params.get('itemId'), int)
-    version = parse_value(params.get('version'), int)
-    if proj_id is None or item_id is None:
-        return BadRequestResponse(BadRequestDto("Missing parameters"))
-    item: Item = first_or_default(Item, id=item_id)
-    if item is None or not item.is_active():
-        return NotFoundResponse(NoSuchItemDto())
-    if item.proj_id != proj_id:
-        return BadRequestResponse(BadRequestDto("Item is not under this project"))
-    if item.is_dir():
-        return ForbiddenResponse(ForbiddenDto("Item is a directory"))
-
-    if version is None:
-        version = item.version
-    if version > item.total_version or version <= 0:
-        return NotFoundResponse(NotFoundDto("Version does not exist"))
-
-    path = get_item_path(item, version)
-    filename = item.get_filename()
-
-    try:
-        with load_text_file(path) as file:
-            content = file.read()
-    except FileException as e:
-        return InternalServerErrorResponse(InternalServerErrorDto("File does not exist", data=e))
-
-    return OkResponse(OkDto(data={
-        "filename": filename,
-        "content": content
-    }))
