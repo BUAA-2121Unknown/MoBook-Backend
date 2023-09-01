@@ -42,6 +42,7 @@ jobs:
         env:
           PROJ_DIR: ${{ vars.PROJECT_DIR }}
           PORT: ${{ vars.PRODUCTION_PORT }}
+          DAPHNE_CMD: ${{ secrets.DAPHNE_CMD }}
         run: >
           sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_HOST }}
-          "cd ${PROJ_DIR}; killall -9 daphne; conda activate mobook; daphne -b 0.0.0.0 -p ${PORT} MoBook.asgi:application > daphne.log 2>&1 &"
+          "cd ${PROJ_DIR}; killall -9 daphne; ${DAPHNE_CMD} > daphne.log 2>&1 &"
