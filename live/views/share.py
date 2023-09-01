@@ -17,8 +17,9 @@ from live.dtos.share_token_dto import ShareTokenDto
 from live.models import ShareToken, ShareAuth
 from live.utils.authorize import authorize_share_token_aux
 from live.utils.token_handler import generate_share_token, update_or_create_share_token, parse_share_token
-from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, NotFoundDto, OkDto
-from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse
+from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, NotFoundDto, OkDto, ForbiddenDto
+from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse, \
+    ForbiddenResponse
 from shared.utils.cache.cache_utils import first_or_default_by_cache, delete_cached_object, update_cached_object
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
@@ -49,6 +50,8 @@ def open_share_token(request):
         item = None
     else:
         item: Item = first_or_default(Item, id=dto.itemId)
+        if item.is_dir():
+            return ForbiddenResponse(ForbiddenDto("Sharing file is not supported yet"))
 
     # get project
     proj, org, error = get_proj_and_org(dto.projId, user)
