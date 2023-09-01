@@ -8,8 +8,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      PROJ_DIR: ${{ env.PROJECT_DIR }}
-      PRODUCTION_PORT: ${{ env.PORT }}
+      PROJ_DIR: ${{ PROJECT_DIR }}
+      PRODUCTION_PORT: ${{ PORT }}
     steps:
       - name: setup SSH
         run: sudo apt install sshpass
