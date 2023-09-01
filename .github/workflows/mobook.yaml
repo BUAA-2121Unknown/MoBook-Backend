@@ -36,13 +36,4 @@ jobs:
       - name: Deploy with Rsync
         env:
           PROJ_DIR: ${{ vars.PROJECT_DIR }}
-        run: sshpass -p ${{ secrets.PASSWORD }} rsync -avz "./" "${{ secrets.USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}/" --exclude "./.git"
-
-      - name: Establish Connection
-        env:
-          PROJ_DIR: ${{ vars.PROJECT_DIR }}
-          PORT: ${{ vars.PRODUCTION_PORT }}
-          DAPHNE_CMD: ${{ secrets.DAPHNE_CMD }}
-        run: >
-          sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_HOST }}
-          "cd ${PROJ_DIR}; killall -9 daphne; ${DAPHNE_CMD} > daphne.log 2>&1 &"
+        run: sshpass -p ${{ secrets.PASSWORD }} rsync -avz --exclude "./.git" "./"  "${{ secrets.USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}/"

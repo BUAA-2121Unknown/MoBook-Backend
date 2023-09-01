@@ -1,0 +1,5 @@
+[Service]
+ExecStart=/root/daphneboot.sh
+
+[Install]
+WantedBy=default.target
