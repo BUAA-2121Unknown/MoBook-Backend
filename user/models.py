@@ -128,3 +128,8 @@ class UserOrganizationRecord(models.Model):
     class Meta:
         db_table = 'UserOrganizationRecord'
         verbose_name = 'user_org_record'
+
+
+# class U2U(models.Model):
+#     user1_id = models.BigIntegerField()
+#     user2_id =

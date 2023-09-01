@@ -24,7 +24,7 @@ class ChatAvatar:
 
 class Chat(models.Model):
     org_id = models.IntegerField(default=0)
-    chat_name = models.CharField(max_length=63)
+    chat_name = models.CharField(max_length=63, default="群聊")
     chat_avatar = models.ImageField(upload_to=chat_avatar_path, blank=True, null=True,
                                     default=ChatAvatar.DEFAULT)  # default
     latest_message = models.IntegerField(default=0)
