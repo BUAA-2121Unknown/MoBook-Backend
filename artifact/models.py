@@ -62,6 +62,7 @@ class Item(MP_Node):
 
     # last version
     version = models.IntegerField(default=1)
+    total_version = models.IntegerField(default=1)
 
     # extra fields
     proj_id = models.BigIntegerField()

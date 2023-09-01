@@ -5,6 +5,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 
+import artifact.routing
 import chat.routing
 import notif.routing
 
