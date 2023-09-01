@@ -21,10 +21,13 @@ jobs:
         uses: GuillaumeFalourd/setup-rsync@v1.1
 
       - name: Check Rsync
-        run: rsync ./
+        run: rsync --version
 
       - name: Setup sshpass
         run: sudo apt install sshpass
+
+      - name: Tree
+        run: tree ./
 
       - name: Deploy with rsync
         env:
