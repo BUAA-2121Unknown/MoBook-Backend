@@ -13,6 +13,7 @@ class PrototypeConsumer(WebsocketConsumer):
     def connect(self):
         self.proto_id = self.scope['url_route']['kwargs']['proto_id']
         # Join room group
+        self.proto_id = "prototype" + str(self.proto_id)
         async_to_sync(self.channel_layer.group_add)(
                 self.proto_id,
                 self.channel_name
@@ -47,9 +48,14 @@ class PrototypeConsumer(WebsocketConsumer):
 
 class MouseConsumer(WebsocketConsumer):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+        self.mouse_id = None
+
     def connect(self):
         self.mouse_id = self.scope['url_route']['kwargs']['mouse_id']
         # Join room group
+        self.mouse_id = "mouse" + str(self.mouse_id)
         async_to_sync(self.channel_layer.group_add)(
                 self.mouse_id,
                 self.channel_name
@@ -66,13 +72,13 @@ class MouseConsumer(WebsocketConsumer):
     # 前端需要发送文件的本名和url
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        text_data_json["type"] = "back"
+        text_data_json["type"] = "mouse_back"
         async_to_sync(self.channel_layer.group_send)(  # 按照接口需求
                 self.mouse_id,
                 text_data_json
         )
 
     # Receive message from room group
-    def back(self, event):
+    def mouse_back(self, event):
         # if self.channel_name != event['sender_channel_name']:
         self.send(text_data=json.dumps(event))
