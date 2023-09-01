@@ -21,7 +21,7 @@ jobs:
         uses: GuillaumeFalourd/setup-rsync@v1.1
 
       - name: Check Rsync
-        run: rsync --version
+        run: rsync ./
 
       - name: Setup sshpass
         run: sudo apt install sshpass
@@ -29,7 +29,9 @@ jobs:
       - name: Deploy with rsync
         env:
           PROJ_DIR: ${{ vars.PROJECT_DIR }}
-        run: rsync -avz --delete ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}
+        run: >
+          sshpass -p ${{ secrets.PASSWORD }}
+          "mkdir -p ${PROJ_DIR}; rsync -avz --delete ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}"
 
       - name: establish connection
         env:
