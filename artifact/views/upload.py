@@ -45,9 +45,11 @@ def upload_file(request):
     item_id = parse_value(params.get('itemId'), int)
     filename = parse_value(params.get('filename'), str)
     version = parse_value(params.get('version'), int)
-    if proj_id is None or item_id is None or filename is None or version is None:
+    if proj_id is None or item_id is None or filename is None:
         return BadRequestResponse(BadRequestDto("Missing parameters"))
-
+    if version is None or version == 0:
+        # assign a large number, which will be adjusted automatically on save
+        version = 2147483647
     proj, org, error = get_proj_and_org(proj_id, user)
     if error:
         return NotFoundResponse(error)
@@ -83,11 +85,11 @@ def download_file(request):
 
     dto = DownloadFileDto().init(proj_id, item_id, token, version)
     if len(dto.token) > 0:
-        response = _authorize_with_token(dto, user)
+        auth_response = _authorize_with_token(dto, user)
     else:
-        response = _authorize_without_token(dto, user)
-    if response is not None:
-        return response
+        auth_response = _authorize_without_token(dto, user)
+    if auth_response is not None:
+        return auth_response
 
     item: Item = first_or_default(Item, id=dto.itemId)
     if item is None or not item.is_active():
@@ -101,13 +103,15 @@ def download_file(request):
         return NotFoundResponse(NotFoundDto("Version does not exist"))
 
     path = get_item_path(item, dto.version)
+
     try:
-        file = load_file(path)
-        filename = item.get_filename()
+        with load_file(path) as file:
+            filename = item.get_filename()
+            response = construct_file_response(file, filename)
     except FileException as e:
         return InternalServerErrorResponse(InternalServerErrorDto("File does not exist"))
 
-    return construct_file_response(file, filename)
+    return response
 
 
 def _authorize_with_token(dto: DownloadFileDto, user: User):

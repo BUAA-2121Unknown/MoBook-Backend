@@ -75,8 +75,8 @@ def _duplicate_file(parent: Item, template: Item):
 
     template_path = get_item_path(template, template.version)
     try:
-        f = load_file(template_path)
-        create_version_aux_by_user_id(f, 1, file, template_version.user_id)
+        with load_file(template_path) as f:
+            create_version_aux_by_user_id(f, 1, file, template_version.user_id)
     except FileException as e:
         print(e)
         return None
