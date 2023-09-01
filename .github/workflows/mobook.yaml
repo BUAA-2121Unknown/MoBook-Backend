@@ -26,15 +26,17 @@ jobs:
       - name: Setup sshpass
         run: sudo apt install sshpass
 
-      - name: Tree
-        run: tree ./
-
-      - name: Deploy with rsync
+      - name: Ensure Target Directory
         env:
           PROJ_DIR: ${{ vars.PROJECT_DIR }}
         run: >
-          sshpass -p ${{ secrets.PASSWORD }}
-          "mkdir -p ${PROJ_DIR}; rsync -avz --delete ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}"
+          sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_HOST }}
+          "mkdir -p ${PROJ_DIR}"
+
+      - name: Deploy with Rsync
+        env:
+          PROJ_DIR: ${{ vars.PROJECT_DIR }}
+        run: rsync -avz --delete ${{ github.workspace }}/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}
 
       - name: establish connection
         env:
