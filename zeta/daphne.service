@@ -1,0 +1,13 @@
+[Unit]
+Description=WebSocket Daphne Service
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/workspace/MoBookRelease/
+ExecStart=/home/ubuntu/opt/miniconda3/envs/mobook/bin/python3 /home/ubuntu/opt/miniconda3/envs/mobook/bin/daphne -b 0.0.0.0 -p 5050 MoBook.asgi:application
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
