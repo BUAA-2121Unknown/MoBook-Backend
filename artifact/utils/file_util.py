@@ -23,6 +23,10 @@ def create_version_aux(file, version, item: Item, user: User):
     create_version_aux_by_user_id(file, version, item, user.id)
 
 
+def create_version_by_content_aux(content, version, item: Item, user: User):
+    create_version_by_content_aux_by_user_id(content, version, item, user.id)
+
+
 def create_version_aux_by_user_id(file, version, item: Item, user_id):
     if version > item.total_version:
         version = item.total_version + 1
@@ -47,5 +51,28 @@ def create_version_aux_by_user_id(file, version, item: Item, user_id):
         ensure_file_parent_path(path)
         fp = open(path, 'wb')
         fp.close()
+
+    return file_version
+
+
+def create_version_by_content_aux_by_user_id(content, version, item: Item, user_id):
+    if version > item.total_version:
+        version = item.total_version + 1
+
+    item.version = version
+    item.save()
+
+    # delete version on other branches
+    # FileVersion.objects.filter(file_id=item.id, version__gte=version).delete()
+
+    # create new version
+    file_version = _get_or_create_file_version(item.id, version)
+
+    # get internal file storage path
+    path = get_item_path(item, file_version.version)
+    ensure_file_parent_path(path)
+    with open(path, 'w') as f:
+        if content is not None:
+            f.write(content)
 
     return file_version

@@ -86,20 +86,18 @@ class DuplicateItemDto:
 class UploadFileDto(ItemRequestBaseDto):
     def __init__(self):
         super().__init__()
-        self.filename: str = ""
         self.version: int = 0
+        self.content: str = ""
 
 
 class DownloadFileDto(ItemRequestBaseDto):
     def __init__(self):
         super().__init__()
-        self.token: str = ""
         self.version: int = 0
 
-    def init(self, proj_id, item_id, token, version):
+    def init(self, proj_id, item_id, version):
         self.projId = proj_id
         self.itemId = item_id
-        self.token = token
         self.version = version
         return self
 

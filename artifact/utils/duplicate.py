@@ -9,7 +9,7 @@ from artifact.utils.file_util import create_version_aux_by_user_id
 from project.models import Project
 from shared.utils.dir_utils import get_item_path
 from shared.utils.file.exceptions import FileException
-from shared.utils.file.file_handler import load_file
+from shared.utils.file.file_handler import load_binary_file
 from shared.utils.model.item_extension import get_item_lambda
 from shared.utils.model.model_extension import first_or_default
 
@@ -75,7 +75,7 @@ def _duplicate_file(parent: Item, template: Item):
 
     template_path = get_item_path(template, template.version)
     try:
-        with load_file(template_path) as f:
+        with load_binary_file(template_path) as f:
             create_version_aux_by_user_id(f, 1, file, template_version.user_id)
     except FileException as e:
         print(e)
