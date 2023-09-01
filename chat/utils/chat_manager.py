@@ -38,7 +38,7 @@ def _get_chat_members(chat_id, org_id):
     for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id):
         user = first_or_default(User, id=user_chat_relation.user_id)
         data["users"].append({
-            "_id": user.id,
+            "_id": str(user.id),
             "username": first_or_default(UserOrganizationProfile, user_id=user.id,
                                              org_id=org_id).nickname,
             "avatar": get_avatar_url("user", user.avatar),

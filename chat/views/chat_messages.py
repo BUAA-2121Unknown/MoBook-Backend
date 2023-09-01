@@ -89,7 +89,15 @@ def get_chat_list(request):  # org内的
                     "index": chat.latest_message  # at消息置为很大的值 TODO:
                     })
         data["chat_list"].append(tmp)
-
+    data["all_users"] = []
+    for user_org_relation in UserOrganizationProfile.objects.filter(org_id=org_id):
+        user = first_or_default(User, id=user_org_relation.user_id)
+        data["all_users"].append({
+            "_id": str(user.id),
+            "username": first_or_default(UserOrganizationProfile, user_id=user.id,
+                                             org_id=org_id).nickname,
+            "avatar": get_avatar_url("user", user.avatar),
+        })
     return OkResponse(OkDto(data=data))
 
 

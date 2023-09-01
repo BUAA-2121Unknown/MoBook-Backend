@@ -1,14 +1,14 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from chat.models import Chat
+from chat.models import Chat, ChatType
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, OkResponse
 from shared.utils.dir_utils import get_avatar_url
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
-from user.models import User, UserChatRelation
+from user.models import User, UserChatRelation, UserOrganizationProfile
 
 
 @api_view(['POST'])
@@ -20,10 +20,16 @@ def create_chat(request):
 
     params = parse_param(request)
     # 建群
-    type = params.get('type')
     org_id = params.get('org_id')
-    chat_name = params.get('chat_name')
-
+    invite_list = params.get('invite_list')
+    if len(invite_list) == 1:
+        # 判断存在
+        type = ChatType.PRIVATE
+        chat_name = first_or_default(UserOrganizationProfile, user_id=invite_list[0],
+                                     org_id=org_id, ).nickname
+    else:
+        type = ChatType.PUBLIC
+        chat_name = "群聊"
     chat = Chat(org_id=org_id, type=type, chat_name=chat_name)
     chat.save()
 
@@ -32,9 +38,8 @@ def create_chat(request):
     user_chat_relation.save()
 
     # 拉n人
-    invite_list = params.get('invite_list')
     for user_id in invite_list:
-        user_chat_relation = UserChatRelation(user_id=user_id, chat_id=chat.id, org_id=org_id)
+        user_chat_relation = UserChatRelation(user_id=user_id["_id"], chat_id=chat.id, org_id=org_id)
         user_chat_relation.save()
 
     return OkResponse(OkDto())
