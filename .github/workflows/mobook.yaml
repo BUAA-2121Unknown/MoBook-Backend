@@ -17,7 +17,7 @@ jobs:
           PROJ_DIR: ${{ env.PROJECT_DIR }}
         run: >
           sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_IP }}
-          "mkdir -p ${ PROJ_DIR }; cd ${ PROJ_DIR }; git config --global http.postBuffer 1048576000; git pull"
+          "mkdir -p ${{ PROJ_DIR }}; cd ${{ PROJ_DIR }}; git config --global http.postBuffer 1048576000; git pull"
 
       - name: establish connection
         env:
