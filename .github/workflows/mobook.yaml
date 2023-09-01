@@ -36,7 +36,7 @@ jobs:
       - name: Deploy with Rsync
         env:
           PROJ_DIR: ${{ vars.PROJECT_DIR }}
-        run: sshpass -p ${{ secrets.PASSWORD }} rsync -avz "${{ github.workspace }}/" "${{ secrets.USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}/" --exclude "${{ github.workspace }}/.git"
+        run: sshpass -p ${{ secrets.PASSWORD }} rsync -avz "./" "${{ secrets.USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}/" --exclude "./.git"
 
       - name: Establish Connection
         env:
@@ -44,4 +44,4 @@ jobs:
           PORT: ${{ vars.PRODUCTION_PORT }}
         run: >
           sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_HOST }}
-          "cd ${PROJ_DIR}; killall -9 daphne; daphne -b 0.0.0.0 -p ${PORT} MoBook.asgi:application > daphne.log 2>&1 &"
+          "cd ${PROJ_DIR}; killall -9 daphne; conda activate mobook; daphne -b 0.0.0.0 -p ${PORT} MoBook.asgi:application > daphne.log 2>&1 &"
