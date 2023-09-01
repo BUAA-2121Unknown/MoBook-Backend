@@ -8,11 +8,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: acquire permissions
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-
       - name: setup SSH
         run: sudo apt install sshpass
 
@@ -22,7 +17,7 @@ jobs:
           GIT_REPO: ${{ vars.GIT_REPOSITORY }}
         run: >
           sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_IP }}
-          "rm -rf ${PROJ_DIR}; git clone git@github.com:BUAA-2121Unknown/MoBook-Backend.git ${PROJ_DIR}"
+          "rm -rf ${PROJ_DIR}; gh repo clone git@github.com:BUAA-2121Unknown/MoBook-Backend.git ${PROJ_DIR}"
 
       - name: establish connection
         env:
