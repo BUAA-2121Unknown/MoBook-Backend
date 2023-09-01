@@ -16,7 +16,6 @@ def filter_active_items(items: List[dict]):
 
     result = []
     for item in items:
-        print(item)
         data = item.get('data', None)
         _id = item.get('id', None)
         if data is None or _id is None:
