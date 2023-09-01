@@ -11,6 +11,9 @@ jobs:
       - name: setup SSH
         run: sudo apt install sshpass
 
+      - name: check login status
+        run: gh auth status
+
       - name: init project
         env:
           PROJ_DIR: ${{ vars.PROJECT_DIR }}
