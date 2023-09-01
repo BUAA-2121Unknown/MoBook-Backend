@@ -3,11 +3,9 @@ import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
-from shared.utils.token.base64_token import to_base64_token
-
 
 def generate_prototype_consumer_token(proto_id) -> str:
-    return to_base64_token(f"proto-{proto_id}")
+    return f"proto-{proto_id}"
 
 
 class PrototypeConsumer(WebsocketConsumer):
@@ -54,7 +52,7 @@ class PrototypeConsumer(WebsocketConsumer):
 
 
 def generate_moues_consumer_token(mouse_id) -> str:
-    return to_base64_token(f"mouse-{mouse_id}")
+    return f"mouse-{mouse_id}"
 
 
 class MouseConsumer(WebsocketConsumer):
