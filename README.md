@@ -15,7 +15,7 @@ daphne -b 0.0.0.0 -p 5050 MoBook.asgi:application
 Step 1.
 
 ```bash
-sudo cp zeta/daphne.service  /etc/systemd/system/daphne.service
+sudo cp zeta/daphne.service /etc/systemd/system/daphne.service
 
 systemctl daemon-reload
 systemctl start daphne.service
