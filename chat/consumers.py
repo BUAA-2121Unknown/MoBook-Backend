@@ -5,16 +5,18 @@ from celery.bin.base import JSON
 from channels.generic.websocket import WebsocketConsumer
 from channels.layers import channel_layers
 
+from user.models import UserChatRelation
+
 
 class ChatMessageConsumer(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
         self.chat_id = None
-
+        self.group_name = None
     def connect(self):
-        self.chat_id = self.scope['url_route']['kwargs']['chat_id']
+        self.group_name = "chat" + str(self.scope['url_route']['kwargs']['chat_id'])
         async_to_sync(self.channel_layer.group_add)(
-                self.chat_id,
+                self.group_name,
                 self.channel_name
         )
 
@@ -22,7 +24,7 @@ class ChatMessageConsumer(WebsocketConsumer):
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(
-                self.chat_id,
+                self.group_name,
                 self.channel_name
         )
 
@@ -30,13 +32,16 @@ class ChatMessageConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
         text_data_json["type"] = "chat_message"
         async_to_sync(self.channel_layer.group_send)(  # 按照接口需求
-                self.chat_id,
+                self.group_name,
                 text_data_json
         )
-        chats_channel_layer = channel_layers[ChatsConsumer.channel_layer_alias]
-        async_to_sync(chats_channel_layer.group_send)(
+        # 获得聊天室里面的人
+        # 哪个组织
+        for user_chat_relation in UserChatRelation.objects.filter(chat_id=self.chat_id):
+            chats_channel_layer = channel_layers[ChatsConsumer.channel_layer_alias]
+            async_to_sync(chats_channel_layer.group_send)(
 
-        )
+            )
 
     def chat_message(self, event):
         self.send(text_data=json.dumps(
@@ -50,12 +55,14 @@ class ChatsConsumer(WebsocketConsumer):
         super().__init__(args, kwargs)
         self.org_id = None
         self.user_id = None
+        self.group_name = None
 
     def connect(self):
         self.user_id = self.scope['url_route']['kwargs']['user_id']
         self.org_id = self.scope['url_route']['kwargs']['org_id']
+        self.group_name = "chats" + str(self.user_id) + str(self.org_id)
         async_to_sync(self.channel_layer.group_add)(
-                str(self.user_id) + str(self.org_id),
+                self.group_name,
                 self.channel_name
         )
 
@@ -63,7 +70,7 @@ class ChatsConsumer(WebsocketConsumer):
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(
-                str(self.user_id) + str(self.org_id),
+                self.group_name,
                 self.channel_name
         )
 
@@ -71,7 +78,7 @@ class ChatsConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
         text_data_json["type"] = "chat_message"
         async_to_sync(self.channel_layer.group_send)(  # 按照接口需求
-                str(self.user_id) + str(self.org_id),
+                self.group_name,
                 text_data_json
         )
 
