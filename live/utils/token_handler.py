@@ -33,7 +33,7 @@ def update_or_create_share_token(token, created, expires, auth, org_only):
         share_token.auth = auth
         share_token.org_only = org_only
         share_token.revoked = None
-        share_token.save()
+    share_token.save()
     update_cached_object(ShareToken, token, share_token)
 
     return share_token
