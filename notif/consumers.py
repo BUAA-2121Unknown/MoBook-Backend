@@ -7,8 +7,6 @@
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
-from shared.utils.token.base64_token import to_base64_token
-
 
 def generate_notification_consumer_token(uid, oid) -> str:
     # return to_base64_token(f'{uid}-{"default" if oid is None else oid}')
