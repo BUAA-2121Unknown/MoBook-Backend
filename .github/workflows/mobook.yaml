@@ -8,11 +8,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Give GitHub Actions access to Michael-F-Bryan/my-secret-repo
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
       - name: setup SSH
         run: sudo apt install sshpass
-
-      - name: check login status
-        run: gh auth status
 
       - name: init project
         env:
