@@ -35,7 +35,7 @@ jobs:
           PROJ_DIR: ${{ vars.PROJECT_DIR }}
         run: |
           tree ${{ github.workspace }}
-          sshpass -p ${{ secrets.PASSWORD }} rsync -avz --delete "${{ github.workspace }}/" ${{ secrets.USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}/
+          sshpass -p ${{ secrets.PASSWORD }} rsync -avz "${{ github.workspace }}/" ${{ secrets.USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}/
 
       - name: Establish Connection
         env:
