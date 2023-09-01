@@ -25,6 +25,9 @@ function usage() {
   echo ' django mig [-a]'
   echo '   -a: python manage.py makemigrations'
   echo '   python manage.py migrate'
+  echo ''
+  echo ' django sync'
+  ehco '   python manage.py migrate --run-syncdb'
 }
 
 if [ -z "$1" ]; then
@@ -50,6 +53,8 @@ elif [ "$1" == "serv" ]; then
   port=${port:-'5000'}
   python manage.py migrate
   python manage.py runserver "${ip}:${port}"
+elif [ "$1" == "sync" ]; then
+  python manage.py migrate --run-syncdb
 else
   usage
   exit 1
