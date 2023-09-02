@@ -2,12 +2,15 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
 from chat.models import Chat, ChatType
+from chat.utils.chat_manager import add_to_chat
+from chat.utils.message_manager import _send_message
+from org.models import Organization
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, OkResponse
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
-from user.models import User, UserChatRelation, UserOrganizationProfile
+from user.models import User, UserChatRelation, UserOrganizationProfile, U2U
 
 
 @api_view(['POST'])
@@ -24,8 +27,13 @@ def create_chat(request):
     if len(invite_list) == 1:
         # 判断存在
         type = ChatType.PRIVATE
-        chat_name = first_or_default(UserOrganizationProfile, user_id=invite_list[0],
-                                     org_id=org_id, ).nickname
+        chat_name = ""
+        if U2U.objects.filter(org_id=org_id, user1_id=src.id, user2_id=invite_list[0]["_id"]).exists():
+            OkResponse(OkDto())
+        if U2U.objects.filter(org_id=org_id, user2_id=src.id, user1_id=invite_list[0]["_id"]).exists():
+            OkResponse(OkDto())
+        u2u = U2U(org_id=org_id, user1_id=src.id, user2_id=invite_list[0]["_id"])
+        u2u.save()
     else:
         type = ChatType.PUBLIC
         chat_name = "群聊"
@@ -33,13 +41,17 @@ def create_chat(request):
     chat.save()
 
     # 拉创始人
-    user_chat_relation = UserChatRelation(user_id=src.id, chat_id=chat.id, authority=1, org_id=org_id)
-    user_chat_relation.save()
+    add_to_chat(org_id=org_id, chat_id=chat.id, user_id=src.id, authority=1)
+
+    # 拉所有人
+    # add_to_chat(org_id=org_id, chat_id=chat.id, user_id=0, authority=0)
 
     # 拉n人
     for user_id in invite_list:
-        user_chat_relation = UserChatRelation(user_id=user_id["_id"], chat_id=chat.id, org_id=org_id)
-        user_chat_relation.save()
+        print(user_id)
+        add_to_chat(org_id=org_id, chat_id=chat.id, user_id=user_id["_id"], authority=0)  #
+
+    _send_message(src.id, "聊天创建成功", org_id, first_or_default(Organization, id=org_id), chat.id, chat, None, "系统", "", "", 1)
 
     return OkResponse(OkDto())
 
@@ -64,8 +76,6 @@ def dismiss_chat(request):
     src: User = get_user_from_request(request)
     if src is None:
         return UnauthorizedResponse(UnauthorizedDto())
-    if not UserChatRelation.objects.filter(user_id=src.id, chat_id=params.get('chat_id'), authority=1).exists():
-        return UnauthorizedResponse(UnauthorizedDto())
 
     chat = Chat(id=params.get('chat_id'))
     chat.delete()
@@ -83,10 +93,14 @@ def chat_invite_member(request):
         return UnauthorizedResponse(UnauthorizedDto())
 
     params = parse_param(request)
-    user = params.get('user')
-    user_chat_relation = UserChatRelation(user_id=user.id, chat_id=params.get('chat_id'), org_id=params.get('org_id'))
-    user_chat_relation.save()
-
+    user_id = params.get('user_id')
+    org_id = params.get('org_id')
+    chat_id = params.get('chat_id')
+    add_to_chat(org_id=org_id, chat_id=chat_id, user_id=user_id, authority=0)
+    chat = first_or_default(Chat, id=chat_id)
+    _send_message(src.id, "欢迎新人入群", org_id, first_or_default(Organization, id=org_id), chat_id, chat, None,
+                  "系统", "", "", 1)
+    #  TODO: 和前端对接
     return OkResponse(OkDto())
 
 
@@ -109,11 +123,9 @@ def chat_remove_member(request):
     src: User = get_user_from_request(request)
     if src is None:
         return UnauthorizedResponse(UnauthorizedDto())
-    if not UserChatRelation.objects.filter(user_id=src.id, chat_id=params.get('chat_id'), authority=1).exists():
-        return UnauthorizedResponse(UnauthorizedDto())
 
-    user = params.get('user')
-    user_chat_relation = first_or_default(UserChatRelation, user_id=user.id, chat_id=params.get('chat_id'))
+    user_id = params.get('user_id')
+    user_chat_relation = first_or_default(UserChatRelation, user_id=user_id, chat_id=params.get('chat_id'), org_id=params.get('org_id'))
     user_chat_relation.delete()
 
     return OkResponse(OkDto())

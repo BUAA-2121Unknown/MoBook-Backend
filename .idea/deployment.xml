@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="On explicit save action" serverName="ubuntu@81.70.161.76:22 main" autoUploadExternalChanges="true">
+  <component name="PublishConfigData" autoUpload="On explicit save action" serverName="82.156.25.78" autoUploadExternalChanges="true">
     <serverData>
-      <paths name="ubuntu@81.70.161.76:22 main">
+      <paths name="82.156.25.78">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/ubuntu/workspace/MoBook" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/home/ubuntu/MoBook-backend" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="ubuntu@81.70.161.76:22 pre">
+      <paths name="ubuntu@82.156.25.78:22 password">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="ubuntu@82.156.25.78:22 password (1)">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />

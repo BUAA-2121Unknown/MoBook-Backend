@@ -9,11 +9,12 @@ def generate_prototype_consumer_token(proto_id) -> str:
 class PrototypeConsumer(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
+        self.proto_id = None
         self.group_token = None
 
     def connect(self):
-        proto_id = self.scope['url_route']['kwargs']['proto_id']
-        self.group_token = generate_prototype_consumer_token(proto_id)
+        self.proto_id = self.scope['url_route']['kwargs']['proto_id']
+        self.group_token = generate_prototype_consumer_token(self.proto_id)
 
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
