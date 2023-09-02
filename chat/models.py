@@ -9,7 +9,7 @@ def chat_avatar_path(self, filename, ext):
     filename = '{}.{}'.format(uuid.uuid4().hex[:10], ext)
 
     # return the whole path to the file
-    return os.path.join("chat/", self.chat_id, "avatar", filename)
+    return os.path.join("chat/", str(self.chat_id), "avatar", filename)
 
 
 class ChatType:

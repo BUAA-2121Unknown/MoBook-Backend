@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 
 from MoBook.settings import BASE_URL
 from chat.models import Chat, ChatType
+from chat.utils.message_manager import pull_message
 from message.models import Message, M2M
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, OkDto
 from shared.response.json_response import UnauthorizedResponse, OkResponse
@@ -83,7 +84,6 @@ def transmit_separate(request):
                 user_chat_relation.unread += 1
                 user_chat_relation.save()
 
-
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(str(chat.id), {
                 'type': 'chat_message',
@@ -129,7 +129,6 @@ def transmit_combined(request):
             message.text = chat.chat_name + "的聊天记录"
         message.save()
 
-
         for son in message_list:
             m2m = M2M(father=message, son=son)
             m2m.save()
@@ -150,3 +149,19 @@ def transmit_combined(request):
         })
 
     return OkResponse(OkDto())
+
+@api_view(['POST'])
+@csrf_exempt
+def get_record_content(request):
+    user: User = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+    params = parse_param(request)
+    target_list = params.get('tar_list')
+    message_id_list = params.get('message_list')
+    org_id = params.get('org_id')
+    message_list = []
+    for message_id in message_id_list:
+        message_list.append(first_or_default(Message, id=message_id))
+    data = pull_message(message_list, org_id)
+    return OkResponse(OkDto(data=data))

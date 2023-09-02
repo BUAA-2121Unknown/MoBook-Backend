@@ -14,10 +14,9 @@ def create_chat(org_id, chat_name, user_id):
     return chat
 
 
-def add_to_chat(org_id, chat_id, user_list):
-    for user in user_list:
-        user_chat_relation = UserChatRelation(user_id=user.id, chat_id=chat_id, authority=1, org_id=org_id)
-        user_chat_relation.save()
+def add_to_chat(org_id, chat_id, user_id, authority):
+    user_chat_relation = UserChatRelation(user_id=user_id, chat_id=chat_id, authority=authority, org_id=org_id)
+    user_chat_relation.save()
 
 
 def remove_from_chat(chat_id, user_list):
@@ -36,6 +35,7 @@ def remove_from_chat(chat_id, user_list):
 def _get_chat_members(chat_id, org_id):
     data = {"users": []}
     for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id):
+        print(user_chat_relation.user_id)
         user = first_or_default(User, id=user_chat_relation.user_id)
         data["users"].append({
             "_id": str(user.id),
