@@ -1,5 +1,3 @@
-import json
-
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
@@ -18,7 +16,6 @@ class PrototypeConsumer(WebsocketConsumer):
         self.group_token = generate_prototype_consumer_token(proto_id)
 
         # Join room group
-        self.proto_id = "prototype" + str(self.proto_id)
         async_to_sync(self.channel_layer.group_add)(
                 self.group_token,
                 self.channel_name
@@ -86,11 +83,9 @@ class MouseConsumer(WebsocketConsumer):
 
     # 前端需要发送文件的本名和url
     def receive(self, text_data=None, bytes_data=None):
-        text_data_json = json.loads(text_data)
-        text_data_json["type"] = "back"
         async_to_sync(self.channel_layer.group_send)(self.group_token, {
             "type": "back",
-            "text": text_data_json
+            "text": text_data
         })
 
         # Receive message from room group
