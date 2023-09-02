@@ -61,7 +61,7 @@ def create_project(request):
     proj.save()
 
     # create root folder
-    init_root_folder(proj)
+    init_root_folder(proj, user)
 
     target_users = get_users_of_org(org)
     # send notifications

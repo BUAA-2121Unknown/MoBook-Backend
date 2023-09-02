@@ -17,7 +17,7 @@ from shared.utils.model.item_extension import get_item_lambda
 from user.models import User
 
 
-def init_root_folder(proj: Project):
+def init_root_folder(proj: Project, user: User):
     """
     Initialize root folder for the given project.
     """
@@ -25,7 +25,8 @@ def init_root_folder(proj: Project):
                          type=ItemType.ROOT,
                          prop=ItemProperty.FOLDER,
                          proj_id=proj.id,
-                         org_id=proj.org_id)
+                         org_id=proj.org_id,
+                         user_id=user.id)
     root = get_item_lambda()(node.pk)
 
     proj.root_id = root.pk
@@ -73,7 +74,8 @@ def create_file_aux(dst: Item, filename: str, prop: int, live: bool, file, user:
     return item, version
 
 
-def create_file_by_content_aux(dst: Item, filename: str, prop: int, live: bool, content: str, user: User, proj: Project):
+def create_file_by_content_aux(dst: Item, filename: str, prop: int, live: bool, content: str, user: User,
+                               proj: Project):
     """
     Create a file under dst item.
     """
