@@ -28,7 +28,7 @@ class Chat(models.Model):
     chat_avatar = models.ImageField(upload_to=chat_avatar_path, blank=True, null=True,
                                     default=ChatAvatar.DEFAULT)  # default
     latest_message = models.IntegerField(default=0)
-    type = models.IntegerField(default=ChatType.PRIVATE)  # 0 : private, 1 : group chat
+    type = models.IntegerField(default=ChatType.PUBLIC)  # 0 : private, 1 : group chat
 
     @classmethod
     def create(cls, org_id, name, type):

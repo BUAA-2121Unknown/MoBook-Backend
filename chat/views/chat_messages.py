@@ -64,10 +64,11 @@ def get_chat_list(request):  # org内的
 
         # 判断是否覆盖：如果at_message_id是0表示已经失效
         if chat.latest_message != 0:
-            if at_message_id != 0:
-                message = first_or_default(Message, id=at_message_id)
-            else:
-                message = first_or_default(Message, id=chat.latest_message)
+            # if at_message_id != 0:
+            #     message = first_or_default(Message, id=at_message_id)
+            # else:
+            #     message = first_or_default(Message, id=chat.latest_message)
+            message = first_or_default(Message, id=chat.latest_message)
             user_organization_profile = first_or_default(UserOrganizationProfile, user_id=message.src_id,
                                                          org_id=params.get("org_id"))
             if user_organization_profile is not None:
@@ -212,10 +213,11 @@ def send_message(request):  # form data
     extension = params.get('extension')
     at_list = params.get('at_list')
     pattern = r"<usertag>(\d+)</usertag>"
-    matches = re.findall(pattern, text)
-
+    if text is not None:
+        matches = re.findall(pattern, text)
+        at_list = [int(match) for match in matches]
     # 将匹配到的数字转换为整数，并存储在数组中
-    at_list = [int(match) for match in matches]
+
     nickname = first_or_default(UserOrganizationProfile, user_id=user.id, org_id=org_id).nickname
     if 'file' in request.FILES:
         file = request.FILES['file']

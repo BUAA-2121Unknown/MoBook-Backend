@@ -11,7 +11,7 @@ from shared.utils.dir_utils import get_avatar_url
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
-from user.models import User, UserChatRelation, UserOrganizationProfile
+from user.models import User, UserChatRelation, UserOrganizationProfile, U2U
 
 
 @api_view(['POST'])
@@ -29,6 +29,12 @@ def create_chat(request):
         # 判断存在
         type = ChatType.PRIVATE
         chat_name = ""
+        if U2U.objects.filter(org_id=org_id, user1_id=src.id, user2_id=invite_list[0]["_id"]).exists():
+            OkResponse(OkDto())
+        if U2U.objects.filter(org_id=org_id, user2_id=src.id, user1_id=invite_list[0]["_id"]).exists():
+            OkResponse(OkDto())
+        u2u = U2U(org_id=org_id, user1_id=src.id, user2_id=invite_list[0]["_id"])
+        u2u.save()
     else:
         type = ChatType.PUBLIC
         chat_name = "群聊"

@@ -121,10 +121,10 @@ def pull_message(message_list, org_id):
             tmp["files"].append({
                 "name": message.text,
                 "size": 0,  # TODO: 预留
-                "type": message.content.name.split('.')[-1],
+                "type": message.file.name.split('.')[-1],
                 "audio": False,  # TODO: 预留
                 "duration": 0,  # TODO: 预留
-                "url": BASE_URL + message.content.url
+                "url": BASE_URL + message.file.url
             })
         if message.is_record == 1:
             son_list = [m2m.son for m2m in M2M.objects.filter(father=message.id)]
@@ -151,7 +151,7 @@ def _send_message(user_id, text, org_id, org, chat_id, chat, at_list, nickname, 
         response["senderId"] = ""
     message = Message(src_id=user.id, chat_id=chat_id)
     message.is_system = sys
-    if text is not None:
+    if text is not None and text != "":
         message.text = text
         response['content'] = text
         message.type = MessageType.TEXT
@@ -170,7 +170,7 @@ def _send_message(user_id, text, org_id, org, chat_id, chat, at_list, nickname, 
                 dispatch_notification(user_id, org_id, notif_at_payload)
 
                 response["at_list"] = at_list
-    elif file != "":
+    if file is not None and file != "" and file.name != "":
         file.name = file.name + "." + extension
         message.file = file  # 组合方式
         message.text = file.name  # 本名
