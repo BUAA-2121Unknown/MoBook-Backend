@@ -18,7 +18,7 @@ from artifact.dtos.requests.request_dto import CreateFolderDto, CreateFileDto, M
 from artifact.models import Item, ItemType
 from artifact.utils.delete import delete_item_aux
 from artifact.utils.duplicate import duplicate_item_aux
-from artifact.utils.item_util import create_folder_aux, create_file_aux, move_item_aux
+from artifact.utils.item_util import create_folder_aux, move_item_aux, create_file_by_content_aux
 from shared.dtos.OperationResponseData import OperationResponseData
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, ForbiddenDto, OkDto, \
     InternalServerErrorDto
@@ -102,7 +102,7 @@ def create_file(request):
         item = item.get_parent()
 
     try:
-        file, version = create_file_aux(item, dto.filename, dto.prop, dto.live, None, user, proj)
+        file, version = create_file_by_content_aux(item, dto.filename, dto.prop, dto.live, dto.content, user, proj)
     except FileException as e:
         return BadRequestResponse(BadRequestDto(data=e))
 

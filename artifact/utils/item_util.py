@@ -10,7 +10,7 @@
 from typing import List
 
 from artifact.models import Item, ItemType, ItemProperty
-from artifact.utils.file_util import create_version_aux
+from artifact.utils.file_util import create_version_aux, create_version_by_content_aux
 from project.models import Project
 from shared.utils.file.file_handler import parse_filename
 from shared.utils.model.item_extension import get_item_lambda
@@ -69,6 +69,33 @@ def create_file_aux(dst: Item, filename: str, prop: int, live: bool, file, user:
 
     # then create a version
     version = create_version_aux(file, 1, item, user)
+
+    return item, version
+
+
+def create_file_by_content_aux(dst: Item, filename: str, prop: int, live: bool, content: str, user: User, proj: Project):
+    """
+    Create a file under dst item.
+    """
+
+    name, ext = parse_filename(filename)
+
+    # if ext == "":
+    #     raise FileException("Missing extension")
+
+    # first, create a file item
+    node = dst.add_child(name=name,
+                         extension=ext,
+                         type=ItemType.FILE,
+                         prop=prop,
+                         live=live,
+                         proj_id=proj.id,
+                         org_id=proj.org_id,
+                         user_id=user.id)
+    item = get_item_lambda()(node.pk)
+
+    # then create a version
+    version = create_version_by_content_aux(content, 1, item, user)
 
     return item, version
 
