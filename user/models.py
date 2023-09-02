@@ -128,6 +128,24 @@ class UserOrganizationRecord(models.Model):
         db_table = 'UserOrganizationRecord'
         verbose_name = 'user_org_record'
 
+
 # class U2U(models.Model):
 #     user1_id = models.BigIntegerField()
 #     user2_id =
+
+
+class UserGuideType:
+    HOME = 0
+    FILE = 1
+    PROTO = 2
+
+
+class UserGuideRecord(models.Model):
+    user_id = models.BigIntegerField(primary_key=True)
+    home = models.BooleanField(default=False)
+    file = models.BooleanField(default=False)
+    proto = models.BooleanField(default=False)
+
+    @classmethod
+    def create(cls, user_id):
+        return cls(user_id=user_id)

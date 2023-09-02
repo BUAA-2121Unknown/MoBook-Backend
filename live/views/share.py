@@ -51,6 +51,8 @@ def open_share_token(request):
         item = None
     else:
         item: Item = first_or_default(Item, id=dto.itemId)
+        if item is None:
+            return NotFoundResponse(NotFoundDto("Item not found"))
         if item.is_dir():
             return ForbiddenResponse(ForbiddenDto("Sharing file is not supported yet"))
 
