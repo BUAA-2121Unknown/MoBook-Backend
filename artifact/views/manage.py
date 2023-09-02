@@ -94,12 +94,17 @@ def create_file(request):
         return NotFoundResponse(NoSuchItemDto())
     if item.proj_id != dto.projId:
         return BadRequestResponse(BadRequestDto("Item is not under this project"))
-    if not item.is_dir():
-        return ForbiddenResponse(ForbiddenDto("Not a folder"))
+
     if dto.sibling:
+        # if is sibling, item cannot be root
         if item.is_root():
             return ForbiddenResponse(ForbiddenDto("Can't create sibling file under root folder"))
+        # auto convert item to parent folder
         item = item.get_parent()
+    else:
+        # if is not sibling, item cannot be folder
+        if not item.is_dir():
+            return ForbiddenResponse(ForbiddenDto("Not a folder"))
 
     try:
         file, version = create_file_by_content_aux(item, dto.filename, dto.prop, dto.live, dto.content, user, proj)
