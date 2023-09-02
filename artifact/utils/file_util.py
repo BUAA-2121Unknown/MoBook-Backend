@@ -10,6 +10,9 @@ from shared.utils.file.file_handler import save_file
 from shared.utils.model.model_extension import first_or_default
 from user.models import User
 
+EMPTY_DOC_CONTENT = '{"type":"doc","content":[{"type":"title","attrs":{"level":1}}]}'
+EMPTY_PROTO_CONTENT = ''
+
 
 def _get_or_create_file_version(item_id, version, user_id):
     ver = first_or_default(FileVersion, file_id=item_id, version=version)
@@ -59,9 +62,11 @@ def create_version_by_content_aux_by_user_id(content, version, item: Item, user_
     if version > item.total_version:
         version = item.total_version + 1
         item.total_version = version
-
-    item.version = version
-    item.save()
+    elif version <= 0:
+        version = item.version
+    else:
+        item.version = version
+        item.save()
 
     # delete version on other branches
     # FileVersion.objects.filter(file_id=item.id, version__gte=version).delete()
@@ -72,8 +77,16 @@ def create_version_by_content_aux_by_user_id(content, version, item: Item, user_
     # get internal file storage path
     path = get_item_path(item, file_version.version)
     ensure_file_parent_path(path)
+
+    if content is None or len(content) == 0:
+        if item.is_doc():
+            content = EMPTY_DOC_CONTENT
+        elif item.is_prototype():
+            content = EMPTY_PROTO_CONTENT
+        else:
+            content = ""
+
     with open(path, 'w') as f:
-        if content is not None:
-            f.write(content)
+        f.write(content)
 
     return file_version

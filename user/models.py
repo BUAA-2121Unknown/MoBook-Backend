@@ -43,6 +43,7 @@ class UserChatJump(models.Model):
 class ChatAuth:
     NORMAL = 0
     ADMIN = 1
+    EVERYONE = 2
 
 
 class UserChatRelation(models.Model):

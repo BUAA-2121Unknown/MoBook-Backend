@@ -82,5 +82,6 @@ def init_default_chat(org: Organization, user: User):
     chat.save()
 
     UserChatRelation.create(user.id, chat.id, org.id, ChatAuth.ADMIN).save()
+    # UserChatRelation.create(0, chat.id, org.id, ChatAuth.EVERYONE).save()
 
     return chat

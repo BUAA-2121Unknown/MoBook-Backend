@@ -12,10 +12,11 @@ from notif.dtos.notif_payload import NotifNewProjectPayload
 from notif.utils.notif_manager import dispatch_notification
 from org.dtos.requests.error_dtos import NoSuchOrgDto
 from org.models import Organization
-from project.dtos.models.project_dto import ProjectCompleteDto
+from project.dtos.models.project_dto import ProjectCompleteDto, ProjectDto
 from project.dtos.requests.create_project_dto import CreateProjectDto
 from project.dtos.requests.update_project_status_dto import UpdateProjectStatusDto
 from project.models import Project
+from project.utils.duplicate import duplicate_project_aux
 from shared.dtos.OperationResponseData import OperationResponseData, OperationErrorData
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, ForbiddenDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, NotFoundResponse, OkResponse, \
@@ -26,6 +27,7 @@ from shared.utils.model.organization_extension import get_org_with_user, get_use
 from shared.utils.model.project_extension import get_proj_and_org
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
+from shared.utils.parameter.value_parser import parse_value
 from user.models import User
 
 
@@ -99,3 +101,24 @@ def update_project_status(request):
         data.success.append(proj_id)
 
     return OkResponse(OkDto(data=data))
+
+
+@api_view(['POST'])
+@csrf_exempt
+def duplicate_project(request):
+    user = get_user_from_request(request)
+    if user is None:
+        return UnauthorizedResponse(UnauthorizedDto())
+    params = parse_param(request)
+
+    proj_id = parse_value(params.get('projId'), int)
+    if proj_id is None:
+        return BadRequestResponse(BadRequestDto("Missing projId"))
+
+    proj, org, error = get_proj_and_org(proj_id, user)
+    if error is not None:
+        return BadRequestResponse(BadRequestDto(error))
+
+    proj = duplicate_project_aux(proj)
+
+    return OkResponse(OkDto(data=ProjectDto(proj)))

@@ -25,49 +25,60 @@ def duplicate_files(src_proj: Project, dst_proj: Project):
         return
 
     for item in src_root.get_children():
-        duplicate_item_aux(dst_root, item)
+        duplicate_item_aux(dst_root, item, dst_proj.id)
 
 
-def duplicate_item_aux(parent: Item, template: Item):
+def duplicate_item_aux(parent, template: Item, proj_id=None):
     if template.is_dir():
-        return _duplicate_folder(parent, template)
+        return _duplicate_folder(parent, template, proj_id)
     else:
-        return _duplicate_file(parent, template)
+        return _duplicate_file(parent, template, proj_id)
 
 
-def _duplicate_folder(parent: Item, template: Item):
+def _duplicate_folder(parent: Item, template: Item, proj_id=None):
     """
     duplicate folder and its descendents under parent
     """
     if not template.is_dir():
         return None
 
-    node = parent.add_child(name=template.name,
-                            extension=template.extension,
-                            type=template.type,
-                            prop=template.prop,
-                            proj_id=template.proj_id,
-                            org_id=template.org_id,
-                            user_id=template.user_id)
+    if parent is None:
+        node = Item.add_root(name=template.name,
+                             extension=template.extension,
+                             type=template.type,
+                             prop=template.prop,
+                             proj_id=template.proj_id if proj_id is None else proj_id,
+                             org_id=template.org_id,
+                             user_id=template.user_id)
+    else:
+        node = parent.add_child(name=template.name,
+                                extension=template.extension,
+                                type=template.type,
+                                prop=template.prop,
+                                proj_id=template.proj_id if proj_id is None else proj_id,
+                                org_id=template.org_id,
+                                user_id=template.user_id)
     folder = get_item_lambda()(node.pk)
     for item in template.get_children():
-        duplicate_item_aux(folder, item)
+        duplicate_item_aux(folder, item, proj_id)
 
     return folder
 
 
-def _duplicate_file(parent: Item, template: Item):
+def _duplicate_file(parent: Item, template: Item, proj_id):
     """
     duplicate a single file under parent
     """
     if not template.is_file():
+        return None
+    if parent is None:
         return None
 
     node = parent.add_child(name=template.name,
                             extension=template.extension,
                             type=template.type,
                             prop=template.prop,
-                            proj_id=template.proj_id,
+                            proj_id=template.proj_id if proj_id is None else proj_id,
                             org_id=template.org_id,
                             user_id=template.user_id)
     file = get_item_lambda()(node.pk)

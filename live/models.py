@@ -29,7 +29,7 @@ class ShareToken(models.Model):
     revoked = models.DateTimeField(default=None, null=True)
 
     auth = models.SmallIntegerField()
-    org_only = models.BooleanField()
+    org_only = models.BooleanField(default=False)
 
     def is_expired(self):
         return self.expires is not None and timezone.now() > self.expires
@@ -38,12 +38,11 @@ class ShareToken(models.Model):
         return self.revoked is None and not self.is_expired()
 
     @classmethod
-    def create(cls, token, created, expires, auth, org_only):
+    def create(cls, token, created, expires, auth):
         return cls(token=token,
                    created=created,
                    expires=expires,
-                   auth=auth,
-                   org_only=org_only)
+                   auth=auth)
 
     class Meta:
         verbose_name = 'share_token'

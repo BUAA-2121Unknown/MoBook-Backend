@@ -46,6 +46,10 @@ class ItemProperty:
     def prototypes(cls):
         return [cls.PROTOTYPE, cls.PROTO_TEMPLATE]
 
+    @classmethod
+    def docs(cls):
+        return [cls.DOCUMENT]
+
 
 class Item(MP_Node):
     # fields for tree model
@@ -85,6 +89,12 @@ class Item(MP_Node):
 
     def is_file(self):
         return not self.is_dir()
+
+    def is_doc(self):
+        return self.prop in ItemProperty.docs()
+
+    def is_prototype(self):
+        return self.prop in ItemProperty.prototypes()
 
     def get_filename(self):
         return f"{self.name}{self.extension}"
