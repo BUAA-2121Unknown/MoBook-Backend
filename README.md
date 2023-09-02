@@ -2,7 +2,7 @@
 
 ## Deployment
 
-### Manual
+### Daphne
 
 Use daphne only. Simple, it is. Just run the following command in project root directory.
 
@@ -10,35 +10,28 @@ Use daphne only. Simple, it is. Just run the following command in project root d
 daphne -b 0.0.0.0 -p 5050 MoBook.asgi:application
 ```
 
-### Auto
-
-Step 1.
+### Nginx
 
 ```bash
-sudo cp zeta/daphne.service /etc/systemd/system/daphne.service
-
-systemctl daemon-reload
-systemctl start daphne.service
-systemctl status daphne.service
+sudo vim /etc/nginx/conf.d/default.conf
 ```
 
-Step 2.
+And write configurations like this.
 
-```bash
-sudo cp zeta/daphneservice.service /etc/systemd/system/daphneservice.service
-
-systemctl daemon-reload
-sudo systemctl start daphneservice
-sudo systemctl enable daphneservice
-ufw allow 5050
+```
+server {
+        listen 80;
+        server_name 81.70.161.76;
+        
+        location /media {
+                alias /home/ubuntu/workspace//media/;
+                autoindex on;
+        }
+}
 ```
 
-Step 3.
+Finally, reload configurations.
 
 ```bash
-sudo shutdown -r now
-
-systemctl status daphneservice.service
-systemctl status daphne.service
-
+sudo nginx -s reload
 ```
