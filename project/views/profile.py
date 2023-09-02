@@ -34,7 +34,7 @@ def update_project_profile(request):
     proj_id = parse_value(params.get('projId'), int)
     if proj_id is None:
         return BadRequestResponse(BadRequestDto("Missing projId"))
-    proj: Project = first_or_default_by_cache(Project, proj_id)
+    _, proj = first_or_default_by_cache(Project, proj_id)
     if proj is None:
         return NotFoundResponse(NoSuchProjectDto())
     if not proj.is_active():
