@@ -28,6 +28,7 @@ from shared.utils.model.project_extension import get_proj_and_org
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.parameter.value_parser import parse_value
+from shared.utils.token.exception import TokenException
 
 
 @api_view(['POST'])
@@ -116,12 +117,15 @@ def delete_share_token(request):
         return BadRequestResponse(BadRequestDto("Missing token"))
 
     # verify share token
-    item_id, proj_id = parse_share_token(token)
+    try:
+        item_id, proj_id = parse_share_token(token)
+    except TokenException as e:
+        return BadRequestResponse(BadRequestDto("Invalid token", data=e))
     proj, org, error = get_proj_and_org(proj_id, user)
     if error is not None:
         return NotFoundResponse(error)
 
-    share_token: ShareToken = first_or_default_by_cache(ShareToken, token)
+    _, share_token = first_or_default_by_cache(ShareToken, token)
     if share_token is None:
         return NotFoundResponse(NotFoundDto(data=AuthorizeData(ShareAuth.DENIED, "Invalid token")))
 

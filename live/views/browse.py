@@ -6,7 +6,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from live.dtos.share_token_dto import ShareTokenDto
+from live.dtos.share_token_dto import ShareTokenDto, ShareTokenCompleteDto
 from live.models import ShareToken
 from live.utils.token_handler import generate_share_token
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, NotFoundDto
@@ -43,7 +43,7 @@ def get_share_token(request):
     }))
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 @csrf_exempt
 def preview_share_token(request):
     user = get_user_from_request(request)
@@ -51,19 +51,12 @@ def preview_share_token(request):
         return UnauthorizedResponse(UnauthorizedDto())
 
     params = parse_param(request)
-    item_id = parse_value(params.get('itemId'), int)
-    proj_id = parse_value(params.get('projId'), int)
-    if item_id is None or proj_id is None:
-        return BadRequestResponse(BadRequestDto("Missing itemId or projId"))
-
-    proj, org, error = get_proj_and_org(proj_id, user)
-    if error is not None:
-        return NotFoundResponse(error)
-
-    token = generate_share_token(item_id, proj_id)
-    share_token: ShareToken = first_or_default_by_cache(ShareToken, token)
+    token = parse_value(params.get('token'), str)
+    if token is None:
+        return BadRequestResponse(BadRequestDto("Missing token"))
+    _, share_token = first_or_default_by_cache(ShareToken, token)
 
     if share_token is None or not share_token.is_active():
         return NotFoundResponse(NotFoundDto("No such share token"))
 
-    return OkResponse(OkDto(data=ShareTokenDto(share_token)))
+    return OkResponse(OkDto(data=ShareTokenCompleteDto(share_token)))

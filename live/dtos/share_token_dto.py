@@ -26,7 +26,7 @@ class ShareTokenBaseDto:
         self.active = token.is_active()
 
         self.auth = token.auth
-        self.orgOnly = token.org_only
+        # self.orgOnly = token.org_only
 
 
 class ShareTokenDto(ShareTokenBaseDto):
