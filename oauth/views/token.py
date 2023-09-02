@@ -10,6 +10,7 @@ from oauth.utils.gererate_jwt_token_pair import generate_jwt_token_pair
 from shared.dtos.ordinary_response_dto import BadRequestDto, UnauthorizedDto, InternalServerErrorDto, OkDto
 from shared.response.json_response import BadRequestResponse, UnauthorizedResponse, InternalServerErrorResponse, \
     OkResponse, NotFoundResponse
+from shared.utils.cache.cache_utils import update_cached_object, first_or_default_by_cache
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
 from shared.utils.model.model_extension import first_or_default
@@ -68,13 +69,15 @@ def refresh_jwt_token(request):
     if cookie is None:
         return UnauthorizedResponse(UnauthorizedDto("Missing cookies: refreshToken"))
 
-    refresh_token = first_or_default(RefreshToken, token=cookie)
+    refresh_token: RefreshToken = first_or_default_by_cache(RefreshToken, cookie)
     if refresh_token is None:
         return UnauthorizedResponse(UnauthorizedDto("Invalid refresh token"))
     if not refresh_token.is_active():
         return UnauthorizedResponse(UnauthorizedDto("Token not active"))
     refresh_token.revoked = timezone.now()
     refresh_token.save()
+
+    update_cached_object(RefreshToken, refresh_token.token, refresh_token)
 
     uid = refresh_token.uid
 
@@ -109,6 +112,8 @@ def revoke_jwt_token(request):
         return UnauthorizedResponse(UnauthorizedDto("Token not active"))
     refresh_token.revoked = timezone.now()
     refresh_token.save()
+
+    update_cached_object(RefreshToken, refresh_token.token, refresh_token)
 
     response = OkResponse(OkDto("Token revoked"))
     response.delete_cookie("refreshToken")

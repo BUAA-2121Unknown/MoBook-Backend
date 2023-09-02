@@ -28,10 +28,11 @@ class ItemProperty:
     FOLDER = 0
     DOCUMENT = 1
     PROTOTYPE = 2
+    TEMPLATE = 3
 
     @classmethod
     def all(cls):
-        return [cls.FOLDER, cls.DOCUMENT, cls.PROTOTYPE]
+        return [cls.FOLDER, cls.DOCUMENT, cls.PROTOTYPE, cls.TEMPLATE]
 
     @classmethod
     def dirs(cls):
@@ -39,15 +40,15 @@ class ItemProperty:
 
     @classmethod
     def files(cls):
-        return [cls.DOCUMENT, cls.PROTOTYPE]
+        return [cls.DOCUMENT, cls.PROTOTYPE, cls.TEMPLATE]
 
 
 class Item(MP_Node):
     # fields for tree model
 
     # name include name and extension
-    name = models.CharField(max_length=127)
-    extension = models.CharField(max_length=31)
+    name = models.CharField(max_length=127, default="")
+    extension = models.CharField(max_length=31, default="")
 
     type = models.SmallIntegerField()  # ItemType
     prop = models.SmallIntegerField()  # ItemProperty
@@ -61,10 +62,12 @@ class Item(MP_Node):
 
     # last version
     version = models.IntegerField(default=1)
+    total_version = models.IntegerField(default=1)
 
     # extra fields
     proj_id = models.BigIntegerField()
     org_id = models.BigIntegerField()
+    user_id = models.BigIntegerField()  # creator
 
     file_id = models.SmallIntegerField(default=0)  # only valid when property is not FOLDER
 
@@ -75,6 +78,9 @@ class Item(MP_Node):
 
     def is_dir(self):
         return self.type in ItemType.dirs()
+
+    def is_file(self):
+        return not self.is_dir()
 
     def get_filename(self):
         return f"{self.name}{self.extension}"

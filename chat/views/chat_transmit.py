@@ -45,8 +45,8 @@ def transmit_separate(request):
 
             copy = Message(src_id=user.id, chat_id=chat_id)
             copy.is_record = message.is_record
-            if message.file is not None and message.file.name is not None and message.file.name != "":
-                copy.file = message.file  # 组合方式
+            if message.content is not None and message.content.name is not None and message.content.name != "":
+                copy.file = message.content  # 组合方式
                 copy.text = copy.file.name  # 本名
                 copy.type = 1  # TODO: 预留，只作为区分
                 copy.save()

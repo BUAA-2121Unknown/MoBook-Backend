@@ -39,11 +39,19 @@ class CreateFileDto(CreateItemBaseDto):
         super().__init__()
         self.prop: int = 0
         self.live: bool = False
+        self.sibling: bool = False
 
     def is_valid(self):
         if not super().is_valid():
             return False
         return self.prop in ItemProperty.files()
+
+
+class UpdateItemInfoDto:
+    def __init__(self):
+        self.projId: int = 0
+        self.itemId: int = 0
+        self.filename: str = ""
 
 
 class UpdateItemStatusDto:
@@ -56,6 +64,12 @@ class UpdateItemStatusDto:
         return self.status in Existence.all()
 
 
+class DeleteItemDto:
+    def __init__(self):
+        self.projId: int = 0
+        self.items: List[int] = [0]
+
+
 class MoveItemDto:
     def __init__(self):
         self.projId: int = 0
@@ -63,23 +77,27 @@ class MoveItemDto:
         self.items: List[int] = [0]
 
 
+class DuplicateItemDto:
+    def __init__(self):
+        self.projId: int = 0
+        self.itemId: int = 0
+
+
 class UploadFileDto(ItemRequestBaseDto):
     def __init__(self):
         super().__init__()
-        self.filename: str = ""
         self.version: int = 0
+        self.content: str = ""
 
 
 class DownloadFileDto(ItemRequestBaseDto):
     def __init__(self):
         super().__init__()
-        self.token: str = ""
         self.version: int = 0
 
-    def init(self, proj_id, item_id, token, version):
+    def init(self, proj_id, item_id, version):
         self.projId = proj_id
         self.itemId = item_id
-        self.token = token
         self.version = version
         return self
 

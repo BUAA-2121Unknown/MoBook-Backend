@@ -12,7 +12,6 @@ from typing import List
 from artifact.models import Item, ItemType, ItemProperty
 from artifact.utils.file_util import create_version_aux
 from project.models import Project
-from shared.utils.file.exceptions import FileException
 from shared.utils.file.file_handler import parse_filename
 from shared.utils.model.item_extension import get_item_lambda
 from user.models import User
@@ -33,7 +32,7 @@ def init_root_folder(proj: Project):
     proj.save()
 
 
-def create_folder_aux(dst: Item, name: str, proj: Project):
+def create_folder_aux(dst: Item, name: str, proj: Project, user: User):
     """
     Create a folder under dst item.
     """
@@ -42,19 +41,20 @@ def create_folder_aux(dst: Item, name: str, proj: Project):
                          type=ItemType.DIRECTORY,
                          prop=ItemProperty.FOLDER,
                          proj_id=proj.id,
-                         org_id=proj.org_id)
+                         org_id=proj.org_id,
+                         user_id=user.id)
     return get_item_lambda()(node.pk)
 
 
-def create_file_aux(dst: Item, name: str, prop: int, live: bool, file, user: User, proj: Project):
+def create_file_aux(dst: Item, filename: str, prop: int, live: bool, file, user: User, proj: Project):
     """
     Create a file under dst item.
     """
 
-    _, ext = parse_filename(name)
+    name, ext = parse_filename(filename)
 
-    if ext == "":
-        raise FileException("Missing extension")
+    # if ext == "":
+    #     raise FileException("Missing extension")
 
     # first, create a file item
     node = dst.add_child(name=name,
@@ -63,7 +63,8 @@ def create_file_aux(dst: Item, name: str, prop: int, live: bool, file, user: Use
                          prop=prop,
                          live=live,
                          proj_id=proj.id,
-                         org_id=proj.org_id)
+                         org_id=proj.org_id,
+                         user_id=user.id)
     item = get_item_lambda()(node.pk)
 
     # then create a version
@@ -85,8 +86,13 @@ def update_item_status_aux(item: Item, status: int):
     """
     update given item's status.
     """
-    if item.prop == ItemProperty.FOLDER:
+    if item.type == ItemType.ROOT:
+        # root status should not be changed
         item.get_descendants().update(status=status)
+    elif item.prop == ItemProperty.FOLDER:
+        item.get_descendants().update(status=status)
+        item.status = status
+        item.save()
     else:
         item.status = status
         item.save()

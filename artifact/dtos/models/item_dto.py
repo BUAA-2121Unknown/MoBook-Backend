@@ -7,6 +7,9 @@
 from artifact.dtos.models.version_dto import VersionDto
 from artifact.models import Item
 from artifact.utils.version_util import get_versions_of_file
+from shared.utils.cache.cache_utils import first_or_default_by_cache
+from user.dtos.user_dto import UserDto
+from user.models import User
 
 
 class ItemDto:
@@ -21,6 +24,9 @@ class ItemDto:
         self.created = item.created
         self.updated = item.updated
 
+        _, creator = first_or_default_by_cache(User, item.user_id)
+        self.creator = None if creator is None else UserDto(creator)
+
 
 class FolderDto(ItemDto):
     def __init__(self, item: Item):
@@ -31,6 +37,7 @@ class FileDto(ItemDto):
     def __init__(self, item: Item):
         super().__init__(item)
         self.version = item.version
+        self.totalVersion = item.total_version
 
 
 class FileCompleteDto(FileDto):

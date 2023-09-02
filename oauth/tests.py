@@ -28,6 +28,6 @@ class TokenTestCase(TestCase):
 class EmailTestCase(TestCase):
     def test_email(self):
         try:
-            send_activation_email("badge-board@foxmail.com", "www.example.com")
+            send_activation_email("tony-turmoil@qq.com", "www.example.com")
         except EmailException as e:
             print(e)

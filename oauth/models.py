@@ -6,7 +6,7 @@ from django.utils import timezone
 
 class RefreshToken(models.Model):
     uid = models.BigIntegerField()  # corresponding user id
-    token = models.CharField(max_length=63)
+    token = models.CharField(max_length=63, primary_key=True)
     created = models.DateTimeField()
     expires = models.DateTimeField()
     revoked = models.DateTimeField(default=None, null=True)

@@ -121,10 +121,10 @@ def pull_message(message_list, org_id):
             tmp["files"].append({
                 "name": message.text,
                 "size": 0,  # TODO: 预留
-                "type": message.file.name.split('.')[-1],
+                "type": message.content.name.split('.')[-1],
                 "audio": False,  # TODO: 预留
                 "duration": 0,  # TODO: 预留
-                "url": BASE_URL + message.file.url
+                "url": BASE_URL + message.content.url
             })
         if message.is_record == 1:
             son_list = [m2m.son for m2m in M2M.objects.filter(father=message.id)]
