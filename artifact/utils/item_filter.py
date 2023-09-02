@@ -9,8 +9,16 @@ from typing import List
 from artifact.models import ItemProperty
 from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.model.model_extension import Existence
-from user.dtos.user_dto import UserDto
+from user.dtos.user_dto import UserWithNicknameDto
 from user.models import User
+
+
+def _re_construct_item_data(data):
+    user_id = data.get('user_id', None)
+    org_id = data.get('org_id', None)
+    data.pop('user_id', None)
+    _, creator = first_or_default_by_cache(User, user_id)
+    data['creator'] = None if creator is None else UserWithNicknameDto(creator, org_id)
 
 
 def filter_active_items(items: List[dict]):
@@ -28,12 +36,7 @@ def filter_active_items(items: List[dict]):
         prop = data.get('prop', None)
         if prop is None:
             continue
-        user_id = data.get('user_id', None)
-        if user_id is None:
-            continue
-        data.pop('user_id', None)
-        _, creator = first_or_default_by_cache(User, user_id)
-        data['creator'] = None if creator is None else UserDto(creator)
+        _re_construct_item_data(data)
         if prop in ItemProperty.dirs():
             children = filter_active_items(item.get('children', None))
             result.append({
@@ -62,12 +65,7 @@ def filter_recycled_items(items: List[dict]):
             continue
         if data.get('status', -1) == 1:
             # add recycled item and stop recursion
-            user_id = data.get('user_id', None)
-            if user_id is None:
-                continue
-            data.pop('user_id', None)
-            _, creator = first_or_default_by_cache(User, user_id)
-            data['creator'] = None if creator is None else UserDto(creator)
+            _re_construct_item_data(data)
             result.append({"data": data, "id": _id})
         else:
             # find deeper recycled items
@@ -95,12 +93,7 @@ def filter_prototypes(items: List[dict], status: int):
         else:
             if prop in ItemProperty.prototypes() and stat == status:
                 # find a prototype
-                user_id = data.get('user_id', None)
-                if user_id is None:
-                    continue
-                data.pop('user_id', None)
-                _, creator = first_or_default_by_cache(User, user_id)
-                data['creator'] = None if creator is None else UserDto(creator)
+                _re_construct_item_data(data)
                 result.append({"data": data, "id": _id})
 
     return result
