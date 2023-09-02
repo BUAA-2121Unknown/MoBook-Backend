@@ -10,7 +10,6 @@ from org.models import Organization
 from shared.utils.model.chat_extension import get_chats_of_organization
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.organization_extension import get_org_profile_of_user
-from shared.utils.model.project_extension import get_projects_of_organization
 from user.models import User, UserOrganizationProfile, UserAuth
 
 

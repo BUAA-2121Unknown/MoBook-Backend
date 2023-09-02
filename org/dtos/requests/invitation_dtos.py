@@ -34,6 +34,7 @@ class ActivateInvSuccessData:
     """
     If review is true, then the user is not yet in the org.
     """
+
     def __init__(self, review: bool, profile, prev_in):
         self.review: bool = review
         self.profile = profile

@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from shared.utils.cache.cache_utils import first_or_default_by_cache
-from shared.utils.model.model_extension import Existence, first_or_default
+from shared.utils.model.model_extension import Existence
 
 
 class Organization(models.Model):

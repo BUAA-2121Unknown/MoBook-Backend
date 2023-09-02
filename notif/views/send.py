@@ -4,7 +4,6 @@
 # @Author  : Tony Skywalker
 # @File    : send.py
 #
-from asgiref.sync import sync_to_async
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 

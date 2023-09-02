@@ -15,7 +15,6 @@ class Message(models.Model):
     image = models.FileField(upload_to=message_file_path, blank=True, null=True)
     file = models.FileField(upload_to=message_file_path, blank=True, null=True)
 
-
     is_record = models.IntegerField(default=0)
     src_id = models.IntegerField(default=0)
     dst_id = models.IntegerField(blank=True, null=True)  # 不用传

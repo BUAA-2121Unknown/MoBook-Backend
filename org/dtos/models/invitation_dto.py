@@ -7,7 +7,6 @@
 from org.dtos.models.org_dto import OrganizationDto
 from org.models import Invitation, Organization
 from shared.utils.cache.cache_utils import first_or_default_by_cache
-from shared.utils.model.model_extension import first_or_default
 
 
 class InvitationBaseDto:

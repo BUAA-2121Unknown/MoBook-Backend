@@ -7,7 +7,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from oauth.dtos.login_dto import LoginDto, LoginSuccessDto, LoginSuccessCompleteDto
+from oauth.dtos.login_dto import LoginDto, LoginSuccessCompleteDto
 from oauth.utils.gererate_jwt_token_pair import generate_jwt_token_pair
 from shared.dtos.ordinary_response_dto import BadRequestDto, ErrorDto, OkDto, InternalServerErrorDto, UnauthorizedDto
 from shared.response.json_response import BadRequestResponse, OkResponse, InternalServerErrorResponse, \
@@ -19,7 +19,7 @@ from shared.utils.model.organization_extension import get_last_org_with_uop
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.token.exception import TokenException
 from shared.utils.token.password import verify_password
-from user.models import User, UserOrganizationRecord
+from user.models import User
 
 
 @api_view(['POST'])
@@ -53,6 +53,5 @@ def login(request):
 
     # set cookies
     response.set_cookie(key="refreshToken", value=refresh_token.token, httponly=True)
-
 
     return response

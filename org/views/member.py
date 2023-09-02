@@ -19,7 +19,6 @@ from shared.response.json_response import UnauthorizedResponse, NotFoundResponse
 from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.json.exceptions import JsonDeserializeException
 from shared.utils.json.serializer import deserialize
-from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.organization_extension import get_org_profile_of_user, get_org_with_user, get_uops_of_org
 from shared.utils.model.user_extension import get_user_from_request, get_user_by_id
 from shared.utils.parameter.parameter import parse_param

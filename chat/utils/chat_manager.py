@@ -21,9 +21,8 @@ def add_to_chat(org_id, chat_id, user_list):
 
 
 def remove_from_chat(chat_id, user_list):
-
     chat = first_or_default(Chat, id=chat_id)
-    #if chat is None
+    # if chat is None
     if chat.type == 0:
         UserChatRelation.objects.filter(chat_id=chat_id).delete()
         chat.delete()
@@ -40,7 +39,7 @@ def _get_chat_members(chat_id, org_id):
         data["users"].append({
             "_id": str(user.id),
             "username": first_or_default(UserOrganizationProfile, user_id=user.id,
-                                             org_id=org_id).nickname,
+                                         org_id=org_id).nickname,
             "avatar": get_avatar_url("user", user.avatar),
         })
     return data

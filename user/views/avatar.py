@@ -17,7 +17,6 @@ from shared.utils.dir_utils import get_avatar_path, get_avatar_url
 from shared.utils.file.avatar_util import save_avatar
 from shared.utils.file.file_handler import parse_filename
 from shared.utils.model.user_extension import get_user_from_request
-from shared.utils.validator import validate_image_name
 from user.models import User
 
 

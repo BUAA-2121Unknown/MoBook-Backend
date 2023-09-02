@@ -83,7 +83,6 @@ def transmit_separate(request):
                 user_chat_relation.unread += 1
                 user_chat_relation.save()
 
-
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(str(chat.id), {
                 'type': 'chat_message',
@@ -128,7 +127,6 @@ def transmit_combined(request):
         else:
             message.text = chat.chat_name + "的聊天记录"
         message.save()
-
 
         for son in message_list:
             m2m = M2M(father=message, son=son)
