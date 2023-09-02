@@ -51,8 +51,7 @@ def download_file(request):
     filename = item.get_filename()
 
     try:
-        with load_binary_file(path) as file:
-            response = construct_file_response(file, filename)
+        response = construct_file_response(load_binary_file(path), filename)
     except FileException as e:
         return InternalServerErrorResponse(InternalServerErrorDto("File does not exist", data=e))
 
