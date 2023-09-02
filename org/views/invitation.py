@@ -123,7 +123,7 @@ def activate_invitation(request):
     if not invitation.is_active():
         return UnauthorizedResponse(UnauthorizedDto("Invitation expired"))
 
-    org = first_or_default_by_cache(Organization, id=invitation.oid)
+    _, org = first_or_default_by_cache(Organization, invitation.oid)
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
     uop = get_org_profile_of_user(org, user)
