@@ -101,4 +101,4 @@ class NotifFileAtPayload(NotifBasePayload):
         super().__init__(NotifType.ARTIFACT_AT, org)
         self.user: UserDto = UserDto(target_user)
         self.project: ProjectDto = ProjectDto(proj)
-        self.artifact: FileDto = FileDto(art)
+        self.artifact: FileDto = FileDto(file)
