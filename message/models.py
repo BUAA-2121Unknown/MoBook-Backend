@@ -15,6 +15,7 @@ class MessageType:
     IMAGE = 1
     VIDEO = 2
     FILE = 3
+    RECORD = 4
 
 
 class Message(models.Model):

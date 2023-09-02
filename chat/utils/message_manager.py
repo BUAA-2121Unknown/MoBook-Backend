@@ -28,7 +28,7 @@ def new_to_chat_ver1(user, chat_id, org_id):
     user_chat_relation.at_message_id = 0
     user_chat_relation.unread = 0
     user_chat_relation.save()
-    data.update(_get_chat_members(chat_id, org_id))
+    data.update(_get_chat_members(chat_id, org_id, user.id))
     data.update(get_at_list(user, chat_id))
     # 返回所有未读at消息，然后把它们valid置零
 
@@ -109,15 +109,16 @@ def pull_message(message_list, org_id):
             "username": nickname,
             "timestamp": get_time(message.timestamp),
             "date": get_date(message.timestamp),
-            "saved": True,
-            "distributed": True,
-            "seen": True,
-            "files": []
+            "saved": False,
+            "distributed": False,
+            "seen": False,
+            "files": [],
         }
         if message.is_system == 1:
             tmp["username"] = ""
             tmp["senderId"] = ""
-        if message.file is not None and message.file.name is not None and message.file.name != "":
+        if message.file is not None and message.file.name is not None and message.file.name != "" and message.is_record == 0:
+            tmp["content"] = ""
             tmp["files"].append({
                 "name": message.text,
                 "size": 0,  # TODO: 预留
@@ -128,7 +129,16 @@ def pull_message(message_list, org_id):
             })
         if message.is_record == 1:
             son_list = [m2m.son for m2m in M2M.objects.filter(father=message.id)]
-            tmp["son_list"] = son_list
+            tmp["content"] = ""
+            tmp["files"].append({
+                "name": "聊天记录",
+                "size": 0,  # TODO: 预留
+                "type": "docx",
+                "audio": False,  # TODO: 预留
+                "duration": 0,  # TODO: 预留
+                "son_list": son_list,
+                "url": ""
+            })
         data["message_list"].append(tmp)
     return data
 
@@ -141,9 +151,9 @@ def _send_message(user_id, text, org_id, org, chat_id, chat, at_list, nickname, 
         "senderId": user.id,
         "username": nickname,  # 传过来团队内昵称
         "avatar": get_avatar_url("user", user.avatar),  # TODO: 可以前端存储
-        "saved": True,
-        "distributed": True,
-        "seen": True,
+        "saved": False,
+        "distributed": False,
+        "seen": False,
         "system": bool(sys)
     }
     if sys == 1:
@@ -156,7 +166,7 @@ def _send_message(user_id, text, org_id, org, chat_id, chat, at_list, nickname, 
         response['content'] = text
         message.type = MessageType.TEXT
         message.save()
-        if at_list is not None:
+        if at_list is not None and len(at_list) != 0:
             for user_id in at_list:
                 # 更新at消息列表，群聊最新消息
                 user_chat_relation = first_or_default(UserChatRelation, chat_id=chat_id)
@@ -174,8 +184,8 @@ def _send_message(user_id, text, org_id, org, chat_id, chat, at_list, nickname, 
         file.name = file.name + "." + extension
         message.file = file  # 组合方式
         message.text = file.name  # 本名
-        image_extensions = ['jpg', 'jpeg', 'png', 'gif']
-        video_extensions = ['mp4', 'avi', 'mov', 'mkv']
+        image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'tiff']
+        video_extensions = ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv']
         if extension in image_extensions:
             message.type = MessageType.IMAGE
         elif extension in video_extensions:
@@ -183,7 +193,7 @@ def _send_message(user_id, text, org_id, org, chat_id, chat, at_list, nickname, 
         else:
             message.type = MessageType.FILE
         message.save()
-        response['content'] = file.name
+        response['content'] = ""
         response["files"] = []
         response['files'].append({
             "name": file.name,
@@ -224,6 +234,7 @@ def _send_message(user_id, text, org_id, org, chat_id, chat, at_list, nickname, 
     for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id, org_id=org_id):
         tmp = {
             "roomId": chat.id,
+
             "roomName": chat.chat_name,
             "unreadCount": user_chat_relation.unread,
         }
@@ -235,7 +246,8 @@ def _send_message(user_id, text, org_id, org, chat_id, chat, at_list, nickname, 
             for uc in UserChatRelation.objects.filter(chat_id=chat_id):
                 if uc.user_id != user.id:
                     tmp["avatar"] = get_avatar_url("user", first_or_default(User, id=uc.user_id).avatar)
-
+                    tmp["roomName"] = first_or_default(UserOrganizationProfile, user_id=uc.user_id,
+                                                       org_id=org_id).nickname
         tmp.update({"lastMessage": {
             "content": message.text,
             "senderId": str(message.src_id),  # ?
@@ -243,9 +255,9 @@ def _send_message(user_id, text, org_id, org, chat_id, chat, at_list, nickname, 
             "timestamp": get_time(message.timestamp),
             "date": get_date(message.timestamp),
 
-            "saved": True,
-            "distributed": True,
-            "seen": True,
+            "saved": False,
+            "distributed": False,
+            "seen": False,
         }})
 
         tmp.update({"users": [],

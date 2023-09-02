@@ -9,6 +9,7 @@ from thefuzz import process, fuzz
 from MoBook.settings import BASE_URL
 from chat.consumers import ChatsConsumer, ChatMessageConsumer
 from chat.models import Chat, ChatType, ChatAvatar
+from chat.utils.chat_manager import _get_chat_members
 from chat.utils.message_manager import new_to_chat, pull_older, new_to_chat_ver1, pull_newer, pull_message, \
     _send_message
 from message.models import Message
@@ -24,7 +25,7 @@ from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.parameter.value_parser import parse_value
 from shared.utils.time_utils import get_date, get_time
-from user.models import User, UserChatRelation, UserChatJump
+from user.models import User, UserChatRelation, UserChatJump, UserAuth
 from user.models import UserOrganizationProfile
 
 
@@ -49,6 +50,7 @@ def get_chat_list(request):  # org内的
             "roomId": chat.id,
             "roomName": chat.chat_name,
             "unreadCount": user_chat_relation.unread,
+            "room_type": chat.type
         }
         if chat.type == ChatType.ORG:
             tmp["avatar"] = get_avatar_url("org", org.avatar)
@@ -56,8 +58,12 @@ def get_chat_list(request):  # org内的
             tmp["avatar"] = BASE_URL + ChatAvatar.DEFAULT
         else:  # 另外一个人的头像
             for uc in UserChatRelation.objects.filter(chat_id=chat.id):
+
                 if uc.user_id != user.id:
+
                     tmp["avatar"] = get_avatar_url("user", first_or_default(User, id=uc.user_id).avatar)
+                    tmp["roomName"] = first_or_default(UserOrganizationProfile, user_id=uc.user_id,
+                                                       org_id=org_id).nickname
 
         # 获取最新at消息
         at_message_id = user_chat_relation.at_message_id
@@ -82,9 +88,9 @@ def get_chat_list(request):  # org内的
                 "timestamp": get_time(message.timestamp),
                 "date": get_date(message.timestamp),
 
-                "saved": True,
-                "distributed": True,
-                "seen": True,
+                "saved": False,
+                "distributed": False,
+                "seen": False,
                 "system": bool(message.is_system)
             }})  # 返回最新消息的数据：用户在组内昵称和消息文本
             if message.is_system == 1:
@@ -98,20 +104,28 @@ def get_chat_list(request):  # org内的
                 "timestamp": "",
             }})
 
-        tmp.update({"users": [],  # TODO：要返回
+        tmp.update({"users": [],
                     "messages": [],
-                    "index": chat.latest_message  # at消息置为很大的值 TODO:
+                    "index": chat.latest_message
                     })
+        tmp.update(_get_chat_members(chat.id, org_id, user.id))
         data["chat_list"].append(tmp)
     data["all_users"] = []
     for user_org_relation in UserOrganizationProfile.objects.filter(org_id=org_id):
         user = first_or_default(User, id=user_org_relation.user_id)
-        data["all_users"].append({
+        data["all_users"].append({  # at渲染是根据这个吗？
             "_id": str(user.id),
             "username": first_or_default(UserOrganizationProfile, user_id=user.id,
                                          org_id=org_id).nickname,
             "avatar": get_avatar_url("user", user.avatar),
         })
+    user_org_relation = first_or_default(UserOrganizationProfile, org_id=org_id, user_id=user.id)
+    data["all_users"].append({
+        "_id": str(0),
+        "username": "所有人",
+        "avatar": "",
+    })
+    # ?
     return OkResponse(OkDto(data=data))
 
 
@@ -216,6 +230,8 @@ def send_message(request):  # form data
     if text is not None:
         matches = re.findall(pattern, text)
         at_list = [int(match) for match in matches]
+        if len(at_list) != 0 and at_list[0] == 0:
+            at_list = [x.user_id for x in UserChatRelation.objects.filter(org_id=org_id, chat_id=chat_id)]
     # 将匹配到的数字转换为整数，并存储在数组中
 
     nickname = first_or_default(UserOrganizationProfile, user_id=user.id, org_id=org_id).nickname

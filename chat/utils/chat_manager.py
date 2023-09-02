@@ -1,7 +1,7 @@
-from chat.models import Chat
+from chat.models import Chat, ChatType
 from shared.utils.dir_utils import get_avatar_url
 from shared.utils.model.model_extension import first_or_default
-from user.models import UserChatRelation, User, UserOrganizationProfile
+from user.models import UserChatRelation, User, UserOrganizationProfile, ChatAuth
 
 
 def create_chat(org_id, chat_name, user_id):
@@ -32,15 +32,44 @@ def remove_from_chat(chat_id, user_list):
             user_chat_relation.delete()
 
 
-def _get_chat_members(chat_id, org_id):
+def _get_chat_members(chat_id, org_id, user_id):
     data = {"users": []}
-    for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id):
-        print(user_chat_relation.user_id)
+    chat = first_or_default(Chat, id=chat_id)
+    tmp = []
+    for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id, org_id=org_id):
+
         user = first_or_default(User, id=user_chat_relation.user_id)
-        data["users"].append({
-            "_id": str(user.id),
-            "username": first_or_default(UserOrganizationProfile, user_id=user.id,
+        if chat.type == ChatType.ORG:
+            if first_or_default(UserOrganizationProfile, user_id=user.id,
+                                             org_id=org_id).auth == 2:
+                auth = 0
+            else:
+                auth = 1
+            tmp.append({
+                "_id": str(user.id),
+                "username": first_or_default(UserOrganizationProfile, user_id=user.id,
                                              org_id=org_id).nickname,
-            "avatar": get_avatar_url("user", user.avatar),
+                "avatar": get_avatar_url("user", user.avatar),
+                "auth": auth
+            })
+        else:
+            tmp.append({
+                "_id": str(user.id),
+                "username": first_or_default(UserOrganizationProfile, user_id=user.id,
+                                             org_id=org_id).nickname,
+                "avatar": get_avatar_url("user", user.avatar),
+                "auth": user_chat_relation.authority
+            })
+    if first_or_default(UserChatRelation, user_id=user_id, org_id=org_id, chat_id=chat_id).authority == ChatAuth.ADMIN:
+        tmp.append({
+            "_id": str(0),
+            "username": "所有人",
+            "avatar": "",
         })
+
+    tmp = sorted(tmp, key=lambda x: int(x["_id"]))
+    data["users"] = tmp
+
+
+
     return data

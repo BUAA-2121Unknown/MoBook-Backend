@@ -77,8 +77,6 @@ def dismiss_chat(request):
     src: User = get_user_from_request(request)
     if src is None:
         return UnauthorizedResponse(UnauthorizedDto())
-    if not UserChatRelation.objects.filter(user_id=src.id, chat_id=params.get('chat_id'), authority=1).exists():
-        return UnauthorizedResponse(UnauthorizedDto())
 
     chat = Chat(id=params.get('chat_id'))
     chat.delete()
@@ -96,11 +94,13 @@ def chat_invite_member(request):
         return UnauthorizedResponse(UnauthorizedDto())
 
     params = parse_param(request)
-    invite_list = params.get('invite_list')
+    user_id = params.get('user_id')
     org_id = params.get('org_id')
     chat_id = params.get('chat_id')
-    for user_id in invite_list:
-        add_to_chat(org_id=org_id, chat_id=chat_id, user_id=user_id["_id"], authority=0)
+    add_to_chat(org_id=org_id, chat_id=chat_id, user_id=user_id, authority=0)
+    chat = first_or_default(Chat, id=chat_id)
+    _send_message(src.id, "欢迎新人入群", org_id, first_or_default(Organization, id=org_id), chat_id, chat, None,
+                  "系统", "", "", 1)
     #  TODO: 和前端对接
     return OkResponse(OkDto())
 
@@ -124,11 +124,9 @@ def chat_remove_member(request):
     src: User = get_user_from_request(request)
     if src is None:
         return UnauthorizedResponse(UnauthorizedDto())
-    if not UserChatRelation.objects.filter(user_id=src.id, chat_id=params.get('chat_id'), authority=1).exists():
-        return UnauthorizedResponse(UnauthorizedDto())
 
-    user = params.get('user')
-    user_chat_relation = first_or_default(UserChatRelation, user_id=user.id, chat_id=params.get('chat_id'))
+    user_id = params.get('user_id')
+    user_chat_relation = first_or_default(UserChatRelation, user_id=user_id, chat_id=params.get('chat_id'), org_id=params.get('org_id'))
     user_chat_relation.delete()
 
     return OkResponse(OkDto())
