@@ -33,15 +33,21 @@ jobs:
           sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_HOST }}
           "mkdir -p ${PROJ_DIR}"
 
-      - name: Deploy with Rsync
+      - name: Sync Files with Rsync
         env:
           PROJ_DIR: ${{ vars.PROJECT_DIR }}
-        run: sshpass -p ${{ secrets.PASSWORD }} rsync -avz --exclude "./.git" "./"  "${{ secrets.USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}/"
+        run: sshpass -p ${{ secrets.PASSWORD }} rsync -avz --exclude '.git' --delete "./"  "${{ secrets.USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}/"
 
-      - name: Update Configurations
-        env:
-          PROJ_DIR: ${{ vars.PROJECT_DIR }}
-        run: >
-          sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SSH_HOST }}
-          "sudo cp zeta/daphne.service /etc/systemd/system/daphne.service; sudo cp zeta/daphneservice.service /etc/systemd/system/daphneservice.service; sudo systemctl start daphneservice"
-          
+      - name: Start Server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            killall -9 daphne
+            cd ${{ vars.PROJECT_DIR }}
+            cp ../secrets_debug.yaml -t ./
+            cp ../secrets.yaml -t ./
+            conda activate mobook
+            ${{ vars.DAPHNE_COMMAND }}

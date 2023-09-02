@@ -146,3 +146,5 @@ secrets_debug.yaml
 static/
 media/
 files/
+.idea/deployment.xml
+.idea/webServers.xml

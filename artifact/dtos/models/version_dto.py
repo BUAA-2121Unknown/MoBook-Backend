@@ -6,7 +6,6 @@
 #
 from artifact.models import FileVersion
 from shared.utils.cache.cache_utils import first_or_default_by_cache
-from shared.utils.model.model_extension import first_or_default
 from user.dtos.user_dto import UserDto
 from user.models import User
 

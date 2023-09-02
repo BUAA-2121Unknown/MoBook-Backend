@@ -2,7 +2,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
-from thefuzz import process, fuzz
+from thefuzz import fuzz
 
 from MoBook.settings import BASE_URL
 from chat.models import Chat, ChatType, ChatAvatar
@@ -13,7 +13,6 @@ from notif.utils.notif_manager import dispatch_notification
 from org.models import Organization
 from shared.dtos.ordinary_response_dto import BadRequestDto, OkDto, UnauthorizedDto
 from shared.response.json_response import BadRequestResponse, OkResponse, UnauthorizedResponse
-from shared.utils.cache.cache_utils import first_or_default_by_cache
 from shared.utils.dir_utils import get_avatar_url
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
@@ -95,7 +94,7 @@ def get_chat_list(request):  # org内的
         data["all_users"].append({
             "_id": str(user.id),
             "username": first_or_default(UserOrganizationProfile, user_id=user.id,
-                                             org_id=org_id).nickname,
+                                         org_id=org_id).nickname,
             "avatar": get_avatar_url("user", user.avatar),
         })
     return OkResponse(OkDto(data=data))
@@ -174,7 +173,6 @@ def search_messages(request):
     #     print(message.text)
     #     print(fuzz.token_sort_ratio(src, message.text))
     return OkResponse(OkDto(data=pull_message(res, org_id)))
-
 
 
 @api_view(['POST'])
@@ -278,7 +276,6 @@ def send_message(request):  # form data
     })
 
     return OkResponse(OkDto(data=response))  # 需要返回文件的本名和url，前端（发送者）收到后进行ws请求
-
 
 #
 # @api_view(['POST'])

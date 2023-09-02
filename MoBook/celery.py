@@ -10,7 +10,6 @@ https://realpython.com/asynchronous-tasks-with-django-and-celery/#why-use-celery
 import os
 
 from celery import Celery
-from celery.schedules import crontab
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "MoBook.settings")
 app = Celery("django_celery")

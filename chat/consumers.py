@@ -1,7 +1,6 @@
 import json
 
 from asgiref.sync import async_to_sync
-from celery.bin.base import JSON
 from channels.generic.websocket import WebsocketConsumer
 from channels.layers import channel_layers
 
@@ -13,6 +12,7 @@ class ChatMessageConsumer(WebsocketConsumer):
         super().__init__(args, kwargs)
         self.chat_id = None
         self.group_name = None
+
     def connect(self):
         self.group_name = "chat" + str(self.scope['url_route']['kwargs']['chat_id'])
         async_to_sync(self.channel_layer.group_add)(
@@ -45,7 +45,7 @@ class ChatMessageConsumer(WebsocketConsumer):
 
     def chat_message(self, event):
         self.send(text_data=json.dumps(
-            event
+                event
         ))
 
 
@@ -84,5 +84,5 @@ class ChatsConsumer(WebsocketConsumer):
 
     def chat_message(self, event):
         self.send(text_data=json.dumps(
-            event
+                event
         ))
