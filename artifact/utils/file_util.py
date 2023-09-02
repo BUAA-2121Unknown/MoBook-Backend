@@ -11,7 +11,7 @@ from shared.utils.model.model_extension import first_or_default
 from user.models import User
 
 EMPTY_DOC_CONTENT = '{"type":"doc","content":[{"type":"title","attrs":{"level":1}}]}'
-EMPTY_PROTO_CONTENT = ''
+EMPTY_PROTO_CONTENT = '{"canvasData":{"array":[]},"canvasStyle":{"width":1200,"height":740,"scale":100,"color":"#000","opacity":1,"background":"#fff","fontSize":14}}'
 
 
 def _get_or_create_file_version(item_id, version, user_id):
@@ -62,11 +62,12 @@ def create_version_by_content_aux_by_user_id(content, version, item: Item, user_
     if version > item.total_version:
         version = item.total_version + 1
         item.total_version = version
+        item.version = item.total_version
     elif version <= 0:
         version = item.version
     else:
         item.version = version
-        item.save()
+    item.save()
 
     # delete version on other branches
     # FileVersion.objects.filter(file_id=item.id, version__gte=version).delete()
