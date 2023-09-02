@@ -63,7 +63,7 @@ def send_file_at_notif(request):
     data = OperationResponseData().init()
     # remove duplication
     for uid in list(set(dto.users)):
-        target = first_or_default_by_cache(User, uid)
+        _, target = first_or_default_by_cache(User, uid)
         if target is None:
             data.add_error(uid, "No such user")
             continue

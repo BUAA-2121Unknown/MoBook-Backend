@@ -42,7 +42,7 @@ def download_file(request):
     if item.is_dir():
         return ForbiddenResponse(ForbiddenDto("Item is a directory"))
 
-    if version is None:
+    if version is None or version == 0:
         version = item.version
     if version > item.total_version or version <= 0:
         return NotFoundResponse(NotFoundDto("Version does not exist"))

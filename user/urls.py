@@ -17,6 +17,7 @@ Including another URLconf
 from django.urls import path
 
 from user.views.avatar import upload_avatar
+from user.views.guide import get_user_guide
 from user.views.org_record import update_last_organization, get_last_organization
 from user.views.profile import update_user_profile, get_user_profile
 
@@ -26,4 +27,5 @@ urlpatterns = [
     path("profile", get_user_profile),
     path('lastorg/update', update_last_organization),
     path('lastorg/get', get_last_organization),
+    path('guide', get_user_guide),
 ]
