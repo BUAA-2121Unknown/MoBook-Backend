@@ -88,7 +88,11 @@ def parse_filename(filename: str) -> (str, str):
 
 
 def construct_file_response(file, filename):
+    return construct_file_response_raw(file, filename, 'application/octet-stream')
+
+
+def construct_file_response_raw(file, filename, content_type):
     response = FileResponse(file)
-    response['Content-Type'] = 'application/octet-stream'
+    response['Content-Type'] = content_type
     response['Content-Disposition'] = 'attachment;filename={}'.format(filename)
     return response

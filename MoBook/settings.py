@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "project.apps.ProjectConfig",
     "live.apps.LiveConfig",
     "artifact.apps.ArtifactConfig",
+    "tool.apps.ToolConfig",
 ]
 
 MIDDLEWARE = [
