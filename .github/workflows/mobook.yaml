@@ -36,7 +36,7 @@ jobs:
       - name: Sync Files with Rsync
         env:
           PROJ_DIR: ${{ vars.PROJECT_DIR }}
-        run: sshpass -p ${{ secrets.PASSWORD }} rsync -avz --exclude "./.git" "./"  "${{ secrets.USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}/"
+        run: sshpass -p ${{ secrets.PASSWORD }} rsync -avz --exclude '.git' --delete "./"  "${{ secrets.USER }}@${{ secrets.SSH_HOST }}:${PROJ_DIR}/"
 
       - name: Start Server
         uses: appleboy/ssh-action@v1.0.0
@@ -47,4 +47,7 @@ jobs:
           script: |
             killall -9 daphne
             cd ${{ vars.PROJECT_DIR }}
-            daphne -b 0.0.0.0 -p 5050 MoBook.asgi:application
+            cp ../secrets_debug.yaml -t ./
+            cp ../secrets.yaml -t ./
+            conda activate mobook
+            ${{ vars.DAPHNE_COMMAND }}
