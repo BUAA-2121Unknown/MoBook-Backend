@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view
 from artifact.dtos.requests.download_dto import DownloadContentWithTokenData, GetAllProtosWithTokenData
 from artifact.dtos.requests.error_dtos import NoSuchItemDto
 from artifact.models import Item
+from artifact.utils.file_util import refine_content
 from artifact.utils.item_filter import filter_prototypes
 from live.models import ShareToken, ShareAuth
 from live.utils.token_handler import parse_share_token
@@ -74,6 +75,8 @@ def download_file_content_with_token(request):
             content = f.read()
     except Exception as e:
         return NotFoundResponse(NotFoundDto("Shared item deleted"))
+
+    content = refine_content(item, content)
 
     _, proj = first_or_default_by_cache(Project, proj_id)
     return OkResponse(OkDto(data=DownloadContentWithTokenData(

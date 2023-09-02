@@ -78,15 +78,20 @@ def create_version_by_content_aux_by_user_id(content, version, item: Item, user_
     path = get_item_path(item, file_version.version)
     ensure_file_parent_path(path)
 
-    if content is None or len(content) == 0:
-        if item.is_doc():
-            content = EMPTY_DOC_CONTENT
-        elif item.is_prototype():
-            content = EMPTY_PROTO_CONTENT
-        else:
-            content = ""
+    content = refine_content(item, content)
 
     with open(path, 'w') as f:
         f.write(content)
 
     return file_version
+
+
+def refine_content(item: Item, content):
+    if content is None or len(content) == 0:
+        if item.is_doc():
+            return EMPTY_DOC_CONTENT
+        elif item.is_prototype():
+            return EMPTY_PROTO_CONTENT
+        else:
+            return ""
+    return content

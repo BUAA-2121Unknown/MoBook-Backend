@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view
 from artifact.dtos.requests.download_dto import DownloadFileContentSuccessData
 from artifact.dtos.requests.error_dtos import NoSuchItemDto
 from artifact.models import Item
+from artifact.utils.file_util import refine_content
 from live.models import ShareAuth
 from shared.dtos.ordinary_response_dto import BadRequestDto, ForbiddenDto, NotFoundDto, InternalServerErrorDto, OkDto
 from shared.response.json_response import BadRequestResponse, NotFoundResponse, ForbiddenResponse, \
@@ -90,5 +91,7 @@ def download_file_content(request):
             content = file.read()
     except FileException as e:
         return InternalServerErrorResponse(InternalServerErrorDto("File does not exist", data=e))
+
+    content = refine_content(item, content)
 
     return OkResponse(OkDto(data=DownloadFileContentSuccessData(ShareAuth.FULL, filename, content)))
