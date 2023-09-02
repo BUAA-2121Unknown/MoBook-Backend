@@ -1,3 +1,5 @@
+from random import Random
+
 from django.db import models
 
 from org.models import Organization
@@ -20,9 +22,12 @@ class Project(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    avatar = models.CharField(max_length=31, default="1.svg")
+
     @classmethod
     def create(cls, org_id, name: str, descr: str):
-        return cls(org_id=org_id, name=name, description=descr)
+        avatar = f"{Random().randint(1, 13)}.svg"
+        return cls(org_id=org_id, name=name, description=descr, avatar=avatar)
 
     def is_active(self):
         return self.status == Existence.ACTIVE

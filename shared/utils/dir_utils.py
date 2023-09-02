@@ -11,12 +11,14 @@ from artifact.models import Item
 
 AVATAR_BASE_PATH = {
     "user": "./media/avatar/user",
-    "org": "./media/avatar/org"
+    "org": "./media/avatar/org",
+    "proj": "./media/avatar/proj",
 }
 
 AVATAR_BASE_URL = {
     "user": f"{BASE_URL}/media/avatar/user/",
-    "org": f"{BASE_URL}/media/avatar/org/"
+    "org": f"{BASE_URL}/media/avatar/org/",
+    "proj": f"{BASE_URL}/media/avatar/proj/",
 }
 
 

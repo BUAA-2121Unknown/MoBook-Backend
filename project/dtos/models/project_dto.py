@@ -7,6 +7,7 @@
 from org.dtos.models.org_dto import OrganizationDto
 from org.models import Organization
 from project.models import Project
+from shared.utils.dir_utils import get_avatar_url
 
 
 class ProjectBaseDto:
@@ -18,6 +19,7 @@ class ProjectBaseDto:
         self.created = None if proj is None else proj.created
         self.updated = None if proj is None else proj.updated
         self.status = None if proj is None else proj.status
+        self.avatarUrl = None if proj is None else get_avatar_url('proj', proj.avatar)
 
 
 class ProjectDto(ProjectBaseDto):
