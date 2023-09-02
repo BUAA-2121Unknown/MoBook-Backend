@@ -12,7 +12,7 @@ from artifact.dtos.models.item_dto import FolderDto, FileCompleteDto
 from artifact.dtos.models.version_dto import VersionDto
 from artifact.dtos.requests.error_dtos import NoSuchItemDto
 from artifact.models import Item
-from artifact.utils.item_filter import filter_active_items, filter_recycled_items
+from artifact.utils.item_filter import filter_active_items, filter_recycled_items, filter_prototypes
 from artifact.utils.version_util import get_versions_of_file
 from project.models import Project
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, ForbiddenDto, OkDto
@@ -133,7 +133,7 @@ def get_all_versions(request):
     }))
 
 
-@api_view
+@api_view(['GET'])
 @csrf_exempt
 def get_prototypes_of_project(request):
     user = get_user_from_request(request)
@@ -158,13 +158,6 @@ def get_prototypes_of_project(request):
 
     raw_data = Item.dump_bulk(root)
 
-    if status == Existence.ACTIVE:
-        data = filter_active_items(raw_data)
-        if len(data) == 0:
-            data = None
-        else:
-            data = data[0]
-    else:
-        data = filter_recycled_items(raw_data)
+    data = filter_prototypes(raw_data, status)
 
     return OkResponse(OkDto(data=data))

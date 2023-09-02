@@ -6,11 +6,12 @@
 #
 from django.urls import path
 
-from artifact.views.browse import get_items_of_project, get_item, get_all_versions
+from artifact.views.browse import get_items_of_project, get_item, get_all_versions, get_prototypes_of_project
+from artifact.views.download import download_file, download_file_content
 from artifact.views.manage import create_folder, create_file, move_item, duplicate_item, delete_item
+from artifact.views.share import download_file_content_with_token, get_all_prototypes_with_token
 from artifact.views.update import update_item_status, update_item_name
 from artifact.views.upload import upload_file, upload_file_content
-from artifact.views.download import download_file, download_file_content
 
 urlpatterns = [
     path('create/folder', create_folder),
@@ -27,6 +28,10 @@ urlpatterns = [
     path('file/download/content', download_file_content),
 
     path('item/all', get_items_of_project),
+    path('item/prototypes', get_prototypes_of_project),
     path('item/get', get_item),
     path('item/versions', get_all_versions),
+
+    path('share/download/content', download_file_content_with_token),
+    path('share/prototypes', get_all_prototypes_with_token),
 ]

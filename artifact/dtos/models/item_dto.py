@@ -8,7 +8,7 @@ from artifact.dtos.models.version_dto import VersionDto
 from artifact.models import Item
 from artifact.utils.version_util import get_versions_of_file
 from shared.utils.cache.cache_utils import first_or_default_by_cache
-from user.dtos.user_dto import UserDto
+from user.dtos.user_dto import UserWithNicknameDto
 from user.models import User
 
 
@@ -25,7 +25,7 @@ class ItemDto:
         self.updated = item.updated
 
         _, creator = first_or_default_by_cache(User, item.user_id)
-        self.creator = None if creator is None else UserDto(creator)
+        self.creator = None if creator is None else UserWithNicknameDto(creator, item.org_id)
 
 
 class FolderDto(ItemDto):
