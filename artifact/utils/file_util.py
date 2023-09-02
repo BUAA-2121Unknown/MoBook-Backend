@@ -72,7 +72,6 @@ def create_version_by_content_aux_by_user_id(content, version, item: Item, user_
     # get internal file storage path
     path = get_item_path(item, file_version.version)
     ensure_file_parent_path(path)
-    print(path)
     with open(path, 'w') as f:
         if content is not None:
             f.write(content)
