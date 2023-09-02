@@ -67,7 +67,7 @@ def open_share_token(request):
     token = generate_share_token(dto.itemId, dto.projId)
     created = timezone.now()
     expires = (created + timedelta(days=dto.expires)) if dto.expires > 0 else None
-    share_token = update_or_create_share_token(token, created, expires, dto.auth, dto.orgOnly)
+    share_token = update_or_create_share_token(token, created, expires, dto.auth)
 
     return OkResponse(OkDto(data=ShareTokenDto(share_token)))
 

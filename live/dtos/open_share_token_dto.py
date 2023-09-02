@@ -13,7 +13,6 @@ class OpenShareTokenDto:
         self.projId: int = 0
         self.expires: int = 0
         self.auth: int = 0
-        self.orgOnly: bool = False
 
     def is_valid(self) -> bool:
         return self.auth in ShareAuth.valid()
