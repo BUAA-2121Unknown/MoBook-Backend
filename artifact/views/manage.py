@@ -98,6 +98,7 @@ def create_file(request):
         return ForbiddenResponse(ForbiddenDto("Not a folder"))
     if dto.sibling and item.is_root():
         return ForbiddenResponse(ForbiddenDto("Can't create sibling file under root folder"))
+    item = item.get_parent()
 
     try:
         file, version = create_file_aux(item, dto.filename, dto.prop, dto.live, None, user, proj)
