@@ -36,10 +36,35 @@ def _get_chat_members(chat_id, org_id):
     data = {"users": []}
     for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id):
         user = first_or_default(User, id=user_chat_relation.user_id)
-        data["users"].append({
-            "_id": str(user.id),
-            "username": first_or_default(UserOrganizationProfile, user_id=user.id,
-                                         org_id=org_id).nickname,
-            "avatar": get_avatar_url("user", user.avatar),
+        if chat.type == ChatType.ORG:
+            if first_or_default(UserOrganizationProfile, user_id=user.id,
+                                org_id=org_id).auth == 2:
+                auth = 0
+            else:
+                auth = 1
+            tmp.append({
+                "_id": str(user.id),
+                "username": first_or_default(UserOrganizationProfile, user_id=user.id,
+                                             org_id=org_id).nickname,
+                "avatar": get_avatar_url("user", user.avatar),
+                "auth": auth
+            })
+        else:
+            tmp.append({
+                "_id": str(user.id),
+                "username": first_or_default(UserOrganizationProfile, user_id=user.id,
+                                             org_id=org_id).nickname,
+                "avatar": get_avatar_url("user", user.avatar),
+                "auth": user_chat_relation.authority
+            })
+        # if first_or_default(UserChatRelation, user_id=user_id, org_id=org_id, chat_id=chat_id).authority == ChatAuth.ADMIN:
+        tmp.append({
+            "_id": str(0),
+            "username": "所有人",
+            "avatar": "",
         })
+
+    tmp = sorted(tmp, key=lambda x: int(x["_id"]))
+    data["users"] = tmp
+
     return data

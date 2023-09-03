@@ -11,6 +11,7 @@ from shared.utils.model.model_extension import first_or_default
 from user.models import User
 
 EMPTY_DOC_CONTENT = '{"type":"doc","content":[{"type":"title","attrs":{"level":1}}]}'
+# EMPTY_DOC_CONTENT = '{"default":{"type":"doc","content":[{"type":"title","attrs":{"level":1}},{"type":"title","attrs":{"level":1}}]}}'
 EMPTY_PROTO_CONTENT = '{"canvasData":{"array":[]},"canvasStyle":{"width":1200,"height":740,"scale":100,"color":"#000","opacity":1,"background":"#fff","fontSize":14}}'
 
 

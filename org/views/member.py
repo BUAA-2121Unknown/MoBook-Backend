@@ -54,7 +54,7 @@ def update_org_member_profile(request):
         return BadRequestResponse(BadRequestDto("Missing userId"))
 
     # get working organization
-    org: Organization = first_or_default_by_cache(Organization, org_id)
+    _, org = first_or_default_by_cache(Organization, org_id)
     if org is None:
         return NotFoundResponse(NoSuchOrgDto())
 
