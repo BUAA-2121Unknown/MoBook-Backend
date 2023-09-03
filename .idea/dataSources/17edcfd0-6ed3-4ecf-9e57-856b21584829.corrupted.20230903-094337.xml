@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="@81.70.161.76">
-  <database-model serializer="dbm" dbms="MYSQL" family-id="MYSQL" format-version="4.49">
+  <database-model serializer="dbm" dbms="MYSQL" family-id="MYSQL" format-version="4.41">
     <root id="1">
       <DefaultCasing>exact</DefaultCasing>
       <ServerVersion>8.0.34</ServerVersion>
