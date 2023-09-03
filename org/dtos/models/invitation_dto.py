@@ -29,5 +29,5 @@ class InvitationDto(InvitationBaseDto):
 class InvitationCompleteDto(InvitationBaseDto):
     def __init__(self, inv: Invitation):
         super().__init__(inv)
-        org = first_or_default_by_cache(Organization, inv.oid)
+        _, org = first_or_default_by_cache(Organization, inv.oid)
         self.org = None if org is None else OrganizationDto(org)
