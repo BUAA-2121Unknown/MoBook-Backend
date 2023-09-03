@@ -118,7 +118,9 @@ def get_chat_list(request):  # org内的
                                          org_id=org_id).nickname,
             "avatar": get_avatar_url("user", user.avatar),
         })
-    user_org_relation = first_or_default(UserOrganizationProfile, org_id=org_id, user_id=user.id)
+
+
+    #user_org_relation = first_or_default(UserOrganizationProfile, org_id=org_id, user_id=user.id)
     data["all_users"].append({
         "_id": str(0),
         "username": "所有人",
