@@ -13,6 +13,7 @@ from rest_framework.decorators import api_view
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, BadRequestDto, OkDto, InternalServerErrorDto
 from shared.response.json_response import UnauthorizedResponse, BadRequestResponse, OkResponse, \
     InternalServerErrorResponse
+from shared.utils.cache.cache_utils import update_cached_object
 from shared.utils.dir_utils import get_avatar_path, get_avatar_url
 from shared.utils.file.avatar_util import save_avatar
 from shared.utils.file.file_handler import parse_filename
@@ -46,5 +47,7 @@ def upload_avatar(request):
 
     user.avatar = new_avatar
     user.save()
+
+    update_cached_object(User, user.id, user)
 
     return OkResponse(OkDto(data={"avatar": get_avatar_url('user', user.avatar)}))

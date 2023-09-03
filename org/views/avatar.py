@@ -9,9 +9,11 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
 from org.dtos.requests.error_dtos import NoSuchOrgDto
+from org.models import Organization
 from shared.dtos.ordinary_response_dto import UnauthorizedDto, OkDto, InternalServerErrorDto, BadRequestDto
 from shared.response.json_response import UnauthorizedResponse, OkResponse, InternalServerErrorResponse, \
     BadRequestResponse, NotFoundResponse
+from shared.utils.cache.cache_utils import update_cached_object
 from shared.utils.dir_utils import get_avatar_url, get_avatar_path
 from shared.utils.file.avatar_util import save_avatar
 from shared.utils.model.organization_extension import get_org_with_user
@@ -60,5 +62,7 @@ def upload_org_avatar(request):
 
     org.avatar = new_avatar
     org.save()
+
+    update_cached_object(Organization, org.id, org)
 
     return OkResponse(OkDto(data={"avatar": get_avatar_url('org', org.avatar)}))
