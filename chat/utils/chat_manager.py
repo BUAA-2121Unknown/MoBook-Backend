@@ -34,7 +34,7 @@ def remove_from_chat(chat_id, user_list):
 def _get_chat_members(chat_id, org_id, user_id):
     data = {"users": []}
     chat = first_or_default(Chat, id=chat_id)
-    print(org_id)
+    # print(org_id)
     tmp = []
     for user_chat_relation in UserChatRelation.objects.filter(chat_id=chat_id, org_id=org_id):
 

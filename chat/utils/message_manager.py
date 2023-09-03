@@ -8,8 +8,7 @@ from chat.utils.chat_manager import _get_chat_members
 from message.models import Message, M2M, MessageType
 from notif.dtos.notif_payload import NotifAtPayload
 from notif.utils.notif_manager import dispatch_notification
-from shared.utils.dir_utils import get_avatar_path, get_avatar_url
-from shared.utils.file.file_handler import parse_filename
+from shared.utils.dir_utils import get_avatar_url
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.time_utils import get_time, get_date
 from user.models import UserChatRelation, UserChatJump, UserOrganizationProfile, User
@@ -146,7 +145,6 @@ def pull_message(message_list, org_id):
 def _send_message(user_id, text, org_id, org, chat_id, chat, at_list, nickname, extension, file, sys):
     user = first_or_default(User, id=user_id)
 
-
     response = {
         "senderId": user.id,
         "username": nickname,  # 传过来团队内昵称
@@ -168,6 +166,9 @@ def _send_message(user_id, text, org_id, org, chat_id, chat, at_list, nickname, 
         message.save()
         if at_list is not None and len(at_list) != 0:
             for user_id in at_list:
+                if user is not None and user_id == user.id:
+                    continue
+
                 # 更新at消息列表，群聊最新消息
                 user_chat_relation = first_or_default(UserChatRelation, chat_id=chat_id)
                 user_chat_relation.at_message_id = message.id
@@ -267,10 +268,10 @@ def _send_message(user_id, text, org_id, org, chat_id, chat, at_list, nickname, 
 
         chats_channel_layer = channel_layers[ChatsConsumer.channel_layer_alias]
         async_to_sync(chats_channel_layer.group_send)(
-            "chats" + str(user_chat_relation.user_id) + str(org_id),
-            {
-                "type": "chats",
-                "room": tmp
-            }
+                "chats" + str(user_chat_relation.user_id) + str(org_id),
+                {
+                    "type": "chats",
+                    "room": tmp
+                }
         )
     return response
