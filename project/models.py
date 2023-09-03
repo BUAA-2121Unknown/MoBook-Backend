@@ -26,7 +26,7 @@ class Project(models.Model):
 
     @classmethod
     def create(cls, org_id, name: str, descr: str):
-        avatar = f"{Random().randint(1, 13)}.svg"
+        avatar = f"{Random().randint(1, 10)}.png"
         return cls(org_id=org_id, name=name, description=descr, avatar=avatar)
 
     def is_active(self):

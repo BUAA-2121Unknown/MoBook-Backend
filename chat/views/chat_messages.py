@@ -1,30 +1,25 @@
 import re
 
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer, channel_layers
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from thefuzz import fuzz
 
 from MoBook.settings import BASE_URL
-from chat.consumers import ChatsConsumer, ChatMessageConsumer
 from chat.models import Chat, ChatType, ChatAvatar
 from chat.utils.chat_manager import _get_chat_members
 from chat.utils.message_manager import new_to_chat, pull_older, new_to_chat_ver1, pull_newer, pull_message, \
     _send_message
 from message.models import Message
-from notif.dtos.notif_payload import NotifAtPayload
-from notif.utils.notif_manager import dispatch_notification
 from org.models import Organization
-from shared.dtos.ordinary_response_dto import BadRequestDto, OkDto, UnauthorizedDto
-from shared.response.json_response import BadRequestResponse, OkResponse, UnauthorizedResponse
+from shared.dtos.ordinary_response_dto import OkDto, UnauthorizedDto
+from shared.response.json_response import OkResponse, UnauthorizedResponse
 from shared.utils.dir_utils import get_avatar_url
 from shared.utils.model.model_extension import first_or_default
 from shared.utils.model.user_extension import get_user_from_request
 from shared.utils.parameter.parameter import parse_param
 from shared.utils.parameter.value_parser import parse_value
 from shared.utils.time_utils import get_date, get_time
-from user.models import User, UserChatRelation, UserChatJump, UserAuth
+from user.models import User, UserChatRelation
 from user.models import UserOrganizationProfile
 
 
@@ -45,6 +40,8 @@ def get_chat_list(request):  # org内的
     for user_chat_relation in user_chat_relation_list:
 
         chat = first_or_default(Chat, id=user_chat_relation.chat_id)
+        if chat is None:
+            continue
         tmp = {
             "roomId": chat.id,
             "roomName": chat.chat_name,
@@ -59,7 +56,6 @@ def get_chat_list(request):  # org内的
             for uc in UserChatRelation.objects.filter(chat_id=chat.id):
 
                 if uc.user_id != user.id:
-
                     tmp["avatar"] = get_avatar_url("user", first_or_default(User, id=uc.user_id).avatar)
                     tmp["roomName"] = first_or_default(UserOrganizationProfile, user_id=uc.user_id,
                                                        org_id=org_id).nickname
@@ -119,8 +115,7 @@ def get_chat_list(request):  # org内的
             "avatar": get_avatar_url("user", user.avatar),
         })
 
-
-    #user_org_relation = first_or_default(UserOrganizationProfile, org_id=org_id, user_id=user.id)
+    # user_org_relation = first_or_default(UserOrganizationProfile, org_id=org_id, user_id=user.id)
     data["all_users"].append({
         "_id": str(0),
         "username": "所有人",
