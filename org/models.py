@@ -44,7 +44,8 @@ class Invitation(models.Model):
         return self.revoked is None and not self.is_expired()
 
     def get_org(self):
-        return first_or_default_by_cache(Organization, self.oid)
+        _, org = first_or_default_by_cache(Organization, self.oid)
+        return org
 
     class Meta:
         verbose_name = 'invitation'

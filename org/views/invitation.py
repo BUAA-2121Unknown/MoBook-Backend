@@ -90,7 +90,7 @@ def revoke_invitation(request):
     if uop.auth not in UserAuth.authorized():
         return UnauthorizedResponse(UnauthorizedDto("Not admin"))
 
-    invitation: Invitation = first_or_default_by_cache(Invitation, dto.id)
+    _, invitation = first_or_default_by_cache(Invitation, dto.id)
     if invitation is None:
         return NotFoundResponse(NotFoundDto("No such invitation"))
     if invitation.oid != dto.orgId:

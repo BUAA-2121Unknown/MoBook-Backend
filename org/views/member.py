@@ -80,7 +80,7 @@ def update_org_member_profile(request):
             return UnauthorizedResponse(UnauthorizedDto("Not admin"))
 
         # get target user
-        target: User = first_or_default_by_cache(User, user_id)
+        _, target = first_or_default_by_cache(User, user_id)
         if target is None:
             return NotFoundResponse(NoSuchUserDto())
 

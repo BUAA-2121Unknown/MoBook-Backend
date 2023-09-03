@@ -69,7 +69,7 @@ def refresh_jwt_token(request):
     if cookie is None:
         return UnauthorizedResponse(UnauthorizedDto("Missing cookies: refreshToken"))
 
-    refresh_token: RefreshToken = first_or_default_by_cache(RefreshToken, cookie)
+    _, refresh_token = first_or_default_by_cache(RefreshToken, cookie)
     if refresh_token is None:
         return UnauthorizedResponse(UnauthorizedDto("Invalid refresh token"))
     if not refresh_token.is_active():
