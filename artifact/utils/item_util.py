@@ -12,6 +12,7 @@ from typing import List
 from artifact.models import Item, ItemType, ItemProperty
 from artifact.utils.file_util import create_version_aux, create_version_by_content_aux
 from project.models import Project
+from shared.utils.cache.cache_utils import update_cached_object
 from shared.utils.file.file_handler import parse_filename
 from shared.utils.model.item_extension import get_item_lambda
 from user.models import User
@@ -31,6 +32,7 @@ def init_root_folder(proj: Project, user: User):
 
     proj.root_id = root.pk
     proj.save()
+    update_cached_object(Project, proj.id, proj)
 
 
 def create_folder_aux(dst: Item, name: str, proj: Project, user: User):

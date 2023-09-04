@@ -28,7 +28,7 @@ class ChatMessageConsumer(WebsocketConsumer):
             self.channel_name
         )
 
-    def receive(self, text_data):
+    def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
         text_data_json["type"] = "chat_message"
 
@@ -70,7 +70,7 @@ class ChatsConsumer(WebsocketConsumer):
             self.channel_name
         )
 
-    def receive(self, text_data):
+    def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
         text_data_json["type"] = "chats"
         async_to_sync(self.channel_layer.group_send)(  # 按照接口需求

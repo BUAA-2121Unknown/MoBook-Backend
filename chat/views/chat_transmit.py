@@ -38,7 +38,7 @@ def transmit(request):
 
     if choice == "separate":
         for chat_id in target_list:
-            print(chat_id)
+            # print(chat_id)
             chat = first_or_default(Chat, id=chat_id)
             for message_id in message_list:
                 message = first_or_default(Message, id=message_id)

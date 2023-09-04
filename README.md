@@ -13,7 +13,7 @@ daphne -b 0.0.0.0 -p 5050 MoBook.asgi:application
 ### Nginx
 
 ```bash
-sudo vim /etc/nginx/conf.d/default.conf
+sudo vim /etc/nginx/conf.d/mobook.conf
 ```
 
 And write configurations like this.

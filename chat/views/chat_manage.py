@@ -48,7 +48,7 @@ def create_chat(request):
 
     # 拉n人
     for user_id in invite_list:
-        print(user_id)
+        # print(user_id)
         add_to_chat(org_id=org_id, chat_id=chat.id, user_id=user_id["_id"], authority=0)  #
 
     _send_message(src.id, "聊天创建成功", org_id, first_or_default(Organization, id=org_id), chat.id, chat, None, "系统", "", "", 1)
